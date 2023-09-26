@@ -21,6 +21,7 @@ struct pollfd {
 };
 ```
 ## Event flags for poll function
+<mark>Highlighted Text</mark>
 The poll function in C allows you to pass several event flags (variables) besides POLLIN to monitor different types of events on file descriptors. Here are some of the most commonly used event flags:
 
 ==POLLIN== : Indicates that you want to monitor the file descriptor for readability, i.e., you want to know when data is available to be read.
