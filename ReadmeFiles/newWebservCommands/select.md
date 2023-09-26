@@ -71,22 +71,40 @@ The `select` function returns the total number of file descriptors that are read
 ## Code example
 ```c
 #include <stdio.h>
-#include <arpa/inet.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 int main() {
-    unsigned short networkPort = 0x3039;            // Network byte order (port 12345 in hexadecimal)
-    unsigned short hostPort = ntohs(networkPort);    // Convert to host byte order
+    fd_set readfds;
+    FD_ZERO(&readfds);
+    FD_SET(STDIN_FILENO, &readfds);
 
-    printf("Network byte order: %hu\n", networkPort);
-    printf("Host byte order: %hu\n", hostPort);
+    struct timeval timeout;
+    timeout.tv_sec = 5;  // Set a timeout of 5 seconds
+    timeout.tv_usec = 0;
+
+    printf("Please type something within 5 seconds:\n");
+
+    int readyDescriptors = select(STDIN_FILENO + 1, &readfds, NULL, NULL, &timeout);
+
+    if (readyDescriptors == -1) {
+        perror("select");
+        return 1;
+    } else if (readyDescriptors == 0) {
+        printf("No data received within the timeout.\n");
+    } else {
+        printf("Data is available to read from stdin.\n");
+
+        // Read and print the user's input
+        char inputBuffer[256];
+        fgets(inputBuffer, sizeof(inputBuffer), stdin);
+        printf("You typed: %s", inputBuffer);
+    }
 
     return 0;
 }
 ```
-
-## What is the differnce to htonl ?
-In summary, `ntohs` is used when receiving data from the network and converting it to the local machine's byte order, while `htons` is used when preparing data for network transmission by converting it to network byte order. They serve complementary roles in ensuring proper data representation when dealing with network communication.
-
 ## Additional sources
 
-[linux manual page](https://linux.die.net/man/3/ntohs)
+[linux manual page](https://man7.org/linux/man-pages/man2/select.2.html)
