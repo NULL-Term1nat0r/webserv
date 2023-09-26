@@ -3,6 +3,11 @@ Sockets are software endpoints that allow a web server to establish and manage c
 
 Clients, such as web browsers, also use sockets to establish connections to web servers. They create sockets to send HTTP requests to the server and receive the corresponding HTTP responses. Sockets on the client side enable the browser to retrieve web content, including HTML, CSS, JavaScript files, images, and videos, by establishing connections to the appropriate web server sockets. This bidirectional communication between web servers and clients via sockets enables the browsing experience and the retrieval of web resources.
 
+## Function
+```bash
+int socket(int domain, int type, int protocol);
+```
+
 ## Two most common socket types
 
 - Stream Sockets (SOCK_STREAM): Stream sockets are used for reliable, connection-oriented communication, typically implemented over the TCP (Transmission Control Protocol) protocol. They provide a continuous stream of data and guarantee that data sent from one end will arrive in the same order at the other end. Stream sockets are commonly used for applications where data integrity and order are essential, such as web browsing, email, and file transfers.
@@ -31,3 +36,4 @@ For Datagram sockets bind is optional, listen and accept are not used since UDP 
 - https://www.geeksforgeeks.org/socket-programming-cc/
 - https://www.youtube.com/watch?v=gntyAFoZp-E&t=12s
 - https://www.codingninjas.com/studio/library/learning-socket-programming-in-c
+- https://docs.oracle.com/cd/E19455-01/806-1017/sockets-4/index.html
