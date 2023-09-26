@@ -1,4 +1,4 @@
-# htons(...) Function
+# htonl(...) Function
 
 ```c
 #include <arpa/inet.h>
