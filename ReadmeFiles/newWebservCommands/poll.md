@@ -25,15 +25,15 @@ The poll function in C allows you to pass several event flags (variables) beside
 
 `POLLIN` : Indicates that you want to monitor the file descriptor for readability, i.e., you want to know when data is available to be read.
 
-POLLOUT: Indicates that you want to monitor the file descriptor for writability, i.e., you want to know when you can write data to the file descriptor without it being full.
+`POLLOUT`: Indicates that you want to monitor the file descriptor for writability, i.e., you want to know when you can write data to the file descriptor without it being full.
 
-POLLERR: Indicates that you want to monitor the file descriptor for exceptional conditions, such as errors or hang-ups.
+`POLLERR`: Indicates that you want to monitor the file descriptor for exceptional conditions, such as errors or hang-ups.
 
-POLLPRI: Indicates that you want to monitor the file descriptor for urgent data.
+`POLLPRI`: Indicates that you want to monitor the file descriptor for urgent data.
 
-POLLHUP: Indicates that you want to monitor the file descriptor for a hang-up condition, typically used for detecting when a connection is closed.
+`POLLHUP`: Indicates that you want to monitor the file descriptor for a hang-up condition, typically used for detecting when a connection is closed.
 
-POLLNVAL: Indicates that you want to monitor the file descriptor for an invalid request. This is used when the file descriptor is not open or not valid for some reason.
+`POLLNVAL`: Indicates that you want to monitor the file descriptor for an invalid request. This is used when the file descriptor is not open or not valid for some reason.
 
 You can combine these flags using bitwise OR (|) to monitor multiple events simultaneously. For example, if you want to monitor both read and write availability, you can use POLLIN | POLLOUT.
 
