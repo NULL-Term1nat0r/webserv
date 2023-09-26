@@ -90,5 +90,6 @@ int main() {
 ```
 ## Additional sources
 [Linux manual page](https://man7.org/linux/man-pages/man2/poll.2.html)
+
 [Video explanation and coding example](https://www.youtube.com/watch?app=desktop&v=O-yMs3T0APU&ab_channel=Johannes4GNU_Linux)
 
