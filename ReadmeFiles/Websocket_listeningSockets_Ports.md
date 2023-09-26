@@ -25,5 +25,5 @@ This section describes how to use communication styles that don't use connection
 The listen and accept functions are not allowed for sockets using connectionless communication styles.
 
 ## Sources
-https://www.geeksforgeeks.org/socket-programming-cc/
-https://www.youtube.com/watch?v=gntyAFoZp-E&t=12s
+- https://www.geeksforgeeks.org/socket-programming-cc/
+- https://www.youtube.com/watch?v=gntyAFoZp-E&t=12s
