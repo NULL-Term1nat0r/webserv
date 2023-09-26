@@ -7,6 +7,8 @@ int select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struc
 
 ```
 
+<span style="color:blue">This is blue text</span>
+
 ## Purpose
 - `select` function is a crucial system call used for I/O multiplexing in network and file I/O operations. It allows a program to monitor multiple file descriptors for various I/O events and efficiently manage them.
 
