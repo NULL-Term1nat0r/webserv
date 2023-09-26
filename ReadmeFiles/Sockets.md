@@ -5,6 +5,8 @@ Clients, such as web browsers, also use sockets to establish connections to web 
 
 ## Function
 ```bash
+#include <sys/socket.h>
+
 int socket(int domain, int type, int protocol);
 ```
 - domain: Specifies the communication domain or address family. It defines the protocol family used for communication, such as IPv4 (AF_INET), IPv6 (AF_INET6), or local communication (AF_UNIX or AF_LOCAL).
