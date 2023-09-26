@@ -21,7 +21,7 @@ struct pollfd {
 };
 ```
 ## Event flags for poll function
-The poll function in C allows you to pass several event flags (variables) besides POLLIN to monitor different types of events on file descriptors. Here are some of the most commonly used event flags:
+The poll function in C allows you to pass several event flags (variables) besides `POLLIN` to monitor different types of events on file descriptors. Here are some of the most commonly used event flags:
 
 `POLLIN` : Indicates that you want to monitor the file descriptor for readability, i.e., you want to know when data is available to be read.
 
@@ -35,7 +35,7 @@ The poll function in C allows you to pass several event flags (variables) beside
 
 `POLLNVAL`: Indicates that you want to monitor the file descriptor for an invalid request. This is used when the file descriptor is not open or not valid for some reason.
 
-You can combine these flags using bitwise OR (|) to monitor multiple events simultaneously. For example, if you want to monitor both read and write availability, you can use POLLIN | POLLOUT.
+You can combine these flags using bitwise `OR (|)` to monitor multiple events simultaneously. For example, if you want to monitor both read and write availability, you can use `POLLIN | POLLOUT`.
 
 Here's an example of how you can set up a struct pollfd structure to monitor multiple events:
 ```c
