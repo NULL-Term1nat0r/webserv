@@ -6,6 +6,7 @@ Clients, such as web browsers, also use sockets to establish connections to web 
 
 ## Procedure in Client-Server Communication
 - Socket: Create a new communication
+- Setsockopt: This step is optional and involves setting socket options. You can configure various properties of the socket, such as its behavior, timeout values, or socket-level options.
 - Bind: Attach a local address to a socket
 - Listen: Announce willingness to accept connections
 - Accept: Block caller until a connection request arrives
