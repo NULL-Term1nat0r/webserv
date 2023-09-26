@@ -7,6 +7,11 @@ Clients, such as web browsers, also use sockets to establish connections to web 
 ```bash
 int socket(int domain, int type, int protocol);
 ```
+- domain: Specifies the communication domain or address family. It defines the protocol family used for communication, such as IPv4 (AF_INET), IPv6 (AF_INET6), or local communication (AF_UNIX or AF_LOCAL).
+
+- type: Specifies the socket type, which determines the communication characteristics. Common types include SOCK_STREAM for stream sockets (used with TCP) and SOCK_DGRAM for datagram sockets (used with UDP).
+
+- protocol: Specifies the protocol to be used. Typically, this parameter is set to 0, allowing the operating system to choose the most appropriate protocol based on the combination of the domain and type parameters. In some cases, you may specify a protocol explicitly, such as IPPROTO_TCP for TCP or IPPROTO_UDP for UDP.
 
 ## Two most common socket types
 
