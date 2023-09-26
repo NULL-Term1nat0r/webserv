@@ -7,7 +7,9 @@ int select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struc
 
 ```
 
-``` - text in red ```
+```diff 
+- text in red 
+```
 <span class="blue">This is custom colored text</span>
 
 
