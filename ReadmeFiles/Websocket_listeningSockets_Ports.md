@@ -8,6 +8,8 @@
 - Send: Send some data over a connection
 - Receive: Receive some data over a connection
 - Close: Release the connection
+
+
 ![socket_state_diagram](https://github.com/NULL-Term1nat0r/webserv/assets/96915676/445fdf4a-2b55-4606-a227-6f29d9f0eacd)
 
 
