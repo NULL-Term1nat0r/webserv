@@ -32,3 +32,33 @@ flags: The flags parameter is an optional parameter that allows you to specify a
 
 The recv function returns the number of bytes received on success, 0 if the other side has closed the connection (in a graceful manner), or -1 if an error occurs.
 
+## Htons and Htonl
+```bash
+#include <arpa/inet.h>
+
+uint32_t htonl(uint32_t hostlong);
+uint16_t htons(uint16_t hostshort);
+```
+htons "host to network short"
+It is used to convert a 16-bit integer from the host byte order to the network byte order.
+This function is primarily used for converting port numbers in network-related code.
+
+htonl "host to network long"
+It is used to convert a 32-bit integer from the host byte order to the network byte order.
+This function is commonly used for converting IP addresses and other 32-bit values.
+
+
+## Ntohs and Ntohl
+```bash
+#include <arpa/inet.h>
+
+uint32_t ntohl(uint32_t netlong);
+uint16_t ntohs(uint16_t netshort);
+```
+ntohs "network to host short"
+It is used to convert a 16-bit integer from the network byte order to the host byte order.
+This function is used to interpret port numbers received from the network.
+
+ntohl "network to host long"
+It is used to convert a 32-bit integer from the network byte order to the host byte order.
+This function is used to interpret IP addresses and other 32-bit values received from the network.
