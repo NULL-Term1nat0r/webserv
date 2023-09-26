@@ -17,7 +17,7 @@ short unsigned htons(short unsigned port_number);
 - If they are the same (host byte order is already big-endian), htons may be a no-op (no change).
 
 ## Function Parameters
-- `hostshort' (unsigned short): 
+- `hostshort` (unsigned short): 
 This parameter represents the 16-bit integer value that you want to convert from the host byte order to network byte order.
 
 
