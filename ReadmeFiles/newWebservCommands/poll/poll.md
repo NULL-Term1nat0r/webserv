@@ -88,4 +88,6 @@ int main() {
     return 0;
 }
 ```
+## Additional sources
+[Linux manual page](https://man7.org/linux/man-pages/man2/poll.2.html)
 
