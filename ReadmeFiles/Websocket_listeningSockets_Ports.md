@@ -3,6 +3,12 @@ Sockets are software endpoints that allow a web server to establish and manage c
 
 Clients, such as web browsers, also use sockets to establish connections to web servers. They create sockets to send HTTP requests to the server and receive the corresponding HTTP responses. Sockets on the client side enable the browser to retrieve web content, including HTML, CSS, JavaScript files, images, and videos, by establishing connections to the appropriate web server sockets. This bidirectional communication between web servers and clients via sockets enables the browsing experience and the retrieval of web resources.
 
+## Two most common socket types
+
+- Stream Sockets (SOCK_STREAM): Stream sockets are used for reliable, connection-oriented communication, typically implemented over the TCP (Transmission Control Protocol) protocol. They provide a continuous stream of data and guarantee that data sent from one end will arrive in the same order at the other end. Stream sockets are commonly used for applications where data integrity and order are essential, such as web browsing, email, and file transfers.
+
+- Datagram Sockets (SOCK_DGRAM): Datagram sockets are used for connectionless, unreliable communication, usually implemented over the UDP (User Datagram Protocol) protocol. Datagram sockets allow data to be sent as discrete packets, and there is no guarantee of delivery or order. Datagram sockets are suitable for applications where speed is more critical than reliability, such as online gaming, streaming media, and real-time communication.
+
 
 ## Procedure in Client-Server Communication
 - Socket: Create a new communication
@@ -19,11 +25,9 @@ Clients, such as web browsers, also use sockets to establish connections to web 
 ![socket_c++_grafik](https://github.com/NULL-Term1nat0r/webserv/assets/96915676/e310b737-2c79-4f2e-9e64-25af95edc0c0)
 
 
-
-## Datagram Socket Operations
-This section describes how to use communication styles that don't use connections (styles SOCK_DGRAM and SOCK_RDM). Using these styles, you group data into packets and each packet is an independent communication. You specify the destination for each packet individually.
-The listen and accept functions are not allowed for sockets using connectionless communication styles.
+For Datagram sockets bind is optional, listen and accept are not used since UDP works connectionless.
 
 ## Sources
 - https://www.geeksforgeeks.org/socket-programming-cc/
 - https://www.youtube.com/watch?v=gntyAFoZp-E&t=12s
+- https://www.codingninjas.com/studio/library/learning-socket-programming-in-c
