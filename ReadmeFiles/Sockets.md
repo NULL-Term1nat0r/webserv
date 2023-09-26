@@ -15,6 +15,8 @@ int socket(int domain, int type, int protocol);
 
 - protocol: Specifies the protocol to be used. Typically, this parameter is set to 0, allowing the operating system to choose the most appropriate protocol based on the combination of the domain and type parameters. In some cases, you may specify a protocol explicitly, such as IPPROTO_TCP for TCP or IPPROTO_UDP for UDP.
 
+If the socket function is successful, it returns a non-negative integer, which is the socket descriptor and if an error occurs, socket returns -1.
+
 ## Two most common socket types
 
 - Stream Sockets (SOCK_STREAM): Stream sockets are used for reliable, connection-oriented communication, typically implemented over the TCP (Transmission Control Protocol) protocol. They provide a continuous stream of data and guarantee that data sent from one end will arrive in the same order at the other end. Stream sockets are commonly used for applications where data integrity and order are essential, such as web browsing, email, and file transfers.
