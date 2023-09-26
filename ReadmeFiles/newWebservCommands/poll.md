@@ -20,6 +20,31 @@ struct pollfd {
     short revents; // The events that occurred (set by poll).
 };
 ```
+## Event flags for poll function
+The poll function in C allows you to pass several event flags (variables) besides POLLIN to monitor different types of events on file descriptors. Here are some of the most commonly used event flags:
+
+POLLIN: Indicates that you want to monitor the file descriptor for readability, i.e., you want to know when data is available to be read.
+
+POLLOUT: Indicates that you want to monitor the file descriptor for writability, i.e., you want to know when you can write data to the file descriptor without it being full.
+
+POLLERR: Indicates that you want to monitor the file descriptor for exceptional conditions, such as errors or hang-ups.
+
+POLLPRI: Indicates that you want to monitor the file descriptor for urgent data.
+
+POLLHUP: Indicates that you want to monitor the file descriptor for a hang-up condition, typically used for detecting when a connection is closed.
+
+POLLNVAL: Indicates that you want to monitor the file descriptor for an invalid request. This is used when the file descriptor is not open or not valid for some reason.
+
+You can combine these flags using bitwise OR (|) to monitor multiple events simultaneously. For example, if you want to monitor both read and write availability, you can use POLLIN | POLLOUT.
+
+Here's an example of how you can set up a struct pollfd structure to monitor multiple events:
+```c
+struct pollfd fds[1];
+fds[0].fd = your_file_descriptor;
+fds[0].events = POLLIN | POLLOUT | POLLERR;
+```
+This struct pollfd will monitor the specified file descriptor for read, write, and error events. Depending on your application's requirements, you can choose which events to monitor and handle them accordingly when the poll function returns.
+
 ## Code example
 ```c
 #include <stdio.h>
