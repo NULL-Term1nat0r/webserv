@@ -1,23 +1,17 @@
-# Kqueue and Kevent
+# Kqueue
 
 ```c
 #include <sys/event.h>
-#include <unistd.h>
 
 int kqueue(void);
-
 ```
 
 ## Purpose
-- `accept()`  function is used in network programming to accept incoming connections on a listening socket. It creates a new socket that represents the accepted connection, allowing data to be sent and received between the client and server.
+- `kqueue` is a mechanism available on some BSD-based operating systems like macOS and FreeBSD for efficient event notification and handling.
+It allows you to monitor various types of events on file descriptors, timers, and other resources.
 
 ## Usage
-- Call `accept()` on a listening socket to accept an incoming connection.
-- `socket` is the listening `socket` descriptor.
-- `address` is a pointer to a structure that will hold the address information of the connected client.
-- `address_len` is a pointer to the length of the address structure.
-- On success, `accept()` returns a new socket descriptor for the accepted connection.
-- The original listening `socket` remains open and can be used to `accept` more connections.
+
 
 ## Function Parameters
 - `socket` (int): The descriptor of the listening `socket`.
