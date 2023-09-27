@@ -7,9 +7,18 @@ int fcntl(int file_descriptor, int command, ... /* optional argument */);
 ```
 
 ## Purpose
+1. Changing File Descriptor Properties: Setting Flags: You can use fcntl to set or modify various file descriptor flags.
+For example, you can set flags like O_NONBLOCK to make a file descriptor non-blocking or O_CLOEXEC to close the descriptor automatically when a new program is executed using exec.
+Getting Flags: You can retrieve the current flags associated with a file descriptor using fcntl with F_GETFD (for file descriptor flags) or F_GETFL (for file status flags).
 
-## Usage
+2. File Locking: fcntl can be used to establish advisory file locks using F_SETLK, F_SETLKW, and to check for locks with F_GETLK.
+These locks help prevent multiple processes from simultaneously modifying the same data in a file.
 
+3. Duplicating File Descriptors: You can use fcntl to duplicate a file descriptor with a new file descriptor value using F_DUPFD or F_DUPFD_CLOEXEC.
+This is useful for creating additional references to the same open file or socket.
+
+4. Other Control Operations: fcntl also provides various other control operations, which can be used for specific purposes.
+ For example, on some systems, you can use F_SETSIG to set a signal to be sent when data becomes available for reading on a file descriptor.
 
 ## Function Parameters
 `file_descriptor`: This is the integer file descriptor on which you want to perform the operation.
@@ -31,6 +40,11 @@ F_SETLKW: Set or clear record lock, and block if blocked by another process.
 For example, if you're setting a file status flag using F_SETFD or F_SETFL, you would provide an additional argument with the flag value.
 
 ## Return Value
+When the fcntl operation succeeds without any errors, it typically returns 0 to indicate success.
+If an error occurs during the fcntl operation, it returns -1, indicating that the operation failed.
+
+Other Values: In some cases, when using specific commands (e.g., F_DUPFD_CLOEXEC), fcntl may return a value other than 0 or -1, which may represent success or an error condition.
+The exact meaning of these values depends on the specific cmd and system-specific behavior.
 
 
 ## Code example
