@@ -1,10 +1,9 @@
-# bind(...) Function
+# setsockopt(...) Function
 
 ```c
 #include <sys/socket.h>
 
-int setsockopt(int sockfd, int level, int optname,
-               const void *optval, socklen_t optlen);
+int setsockopt(int sockfd, int level, int optname, const void *optval, socklen_t optlen);
 
 ```
 
