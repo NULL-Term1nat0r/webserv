@@ -1,1 +1,46 @@
 # Fcntl
+
+```c
+#include <fcntl.h>
+
+int fcntl(int file_descriptor, int command, ... /* optional argument */);
+```
+
+## Purpose
+
+## Usage
+
+
+## Function Parameters
+`file_descriptor`: This is the integer file descriptor on which you want to perform the operation.
+It can be a file descriptor for a regular file, socket, pipe, or other I/O device.
+
+`command`: This is an integer value that specifies the operation you want to perform on the file descriptor.
+It can take various values, and each value corresponds to a different operation. Some common commands include:
+
+F_DUPFD: Duplicate the file descriptor.
+F_GETFD: Get file descriptor flags.
+F_SETFD: Set file descriptor flags.
+F_GETFL: Get file status flags.
+F_SETFL: Set file status flags.
+F_GETLK: Get record lock information.
+F_SETLK: Set or clear record lock.
+F_SETLKW: Set or clear record lock, and block if blocked by another process.
+
+`Optional Argument`: Depending on the specific command used, there may be an optional third argument associated with it.
+For example, if you're setting a file status flag using F_SETFD or F_SETFL, you would provide an additional argument with the flag value.
+
+## Return Value
+
+
+## Code example
+```c
+
+```
+## Description
+The fcntl function is a system call that stands for file control.
+It is used to perform various operations on file descriptors, such as setting file status flags, changing file descriptor properties, and performing advisory file locking. 
+
+## Additional sources
+
+[linux manual page](https://linux.die.net/man/3/fcntl)
