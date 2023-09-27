@@ -45,26 +45,11 @@ The `exceptfds` parameter allows you to monitor for exceptional conditions, such
 Overall, the `select` function is a versatile and widely used tool for managing I/O events and making efficient use of system resources in applications involving multiple I/O channels, such as servers, network daemons, and interactive applications.
 
 ## Function Parameters
-- `nfds` (int):
-  - Purpose: The highest-numbered file descriptor in any of the sets plus 1.
-  - Description: This parameter represents the upper bound of the file descriptors to be monitored. It defines the range of file descriptors that `select` will consider for monitoring.
+- int sockfd: This is an integer value representing the socket that you want to use for the connection. The socket must be previously created using the socket() function. The sockfd parameter specifies the client socket through which the connection will be established.
 
-- `readfds` (fd_set*):
-  - Purpose: A set of file descriptors to monitor for readable data.
-  - Description: This is a pointer to a set of file descriptors that you want to monitor for the availability of data to be read. When data is available for reading on any of the file descriptors in this set, `select` will return.
+- const struct sockaddr *addr: This parameter expects a pointer to a struct sockaddr data structure that contains the server's address information, including its IP address and port number. The struct sockaddr is typically defined as a generic structure, and you can use specific subtypes like struct sockaddr_in for IPv4 or struct sockaddr_in6 for IPv6 to provide the necessary details. The server's address information should be properly configured before calling connect().
 
-- `writefds` (fd_set*):
-  - Purpose: A set of file descriptors to monitor for write availability.
-  - Description: This is a pointer to a set of file descriptors that you want to monitor for the ability to write data. When it's possible to write data to any of the file descriptors in this set without blocking, `select` will return.
-
-- `exceptfds` (fd_set*):
-  - Purpose: A set of file descriptors to monitor for exceptional conditions.
-  - Description: This is a pointer to a set of file descriptors for which you want to monitor exceptional conditions. Exceptional conditions can include errors on the file descriptors. If any of the file descriptors in this set experience an exceptional condition, `select` will return.
-
-- `timeout` (struct timeval*):
-  - Purpose: A pointer to a struct specifying the maximum time for the function to block, or NULL for blocking indefinitely.
-  - Description: This parameter allows you to set a timeout for the `select` call. If you pass a non-NULL `timeout` value, `select` will block for the specified amount of time, and if no events occur within the specified time, it will return. If you pass a NULL `timeout`, `select` will block indefinitely until an event occurs.
-
+- socklen_t addrlen: This parameter specifies the size, in bytes, of the server address structure. It is essential to correctly set the addrlen parameter to the size of the server address structure being passed. For example, if you are using struct sockaddr_in for IPv4, you should set addrlen to sizeof(struct sockaddr_in).
 ## Return Value
 - `int`:
 If the connection or binding succeeds, zero is returned.  On error, -1 is returned, and errno is set to indicate the error.
