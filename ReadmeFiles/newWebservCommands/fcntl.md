@@ -7,6 +7,10 @@ int fcntl(int file_descriptor, int command, ... /* optional argument */);
 ```
 
 ## Purpose
+The fcntl function is a system call that stands for file control.
+It is used to perform various operations on file descriptors, such as setting file status flags, changing file descriptor properties, and performing advisory file locking. 
+
+## Usage
 1. Changing File Descriptor Properties: Setting Flags: You can use fcntl to set or modify various file descriptor flags.
 For example, you can set flags like O_NONBLOCK to make a file descriptor non-blocking or O_CLOEXEC to close the descriptor automatically when a new program is executed using exec.
 Getting Flags: You can retrieve the current flags associated with a file descriptor using fcntl with F_GETFD (for file descriptor flags) or F_GETFL (for file status flags).
@@ -49,11 +53,36 @@ The exact meaning of these values depends on the specific cmd and system-specifi
 
 ## Code example
 ```c
+//Setting a File Descriptor to Non-blocking Mode
+#include <fcntl.h>  // For fcntl function and flag constants (e.g., O_NONBLOCK)
+#include <unistd.h> // For open function
+#include <iostream> // For error handling (optional)
 
+int flags = fcntl(fd, F_GETFL, 0);
+flags |= O_NONBLOCK;
+fcntl(fd, F_SETFL, flags);
+
+//File Locking
+#include <fcntl.h>  // For fcntl function and lock-related constants (e.g., F_SETLK)
+#include <unistd.h> // For file descriptor operations
+
+struct flock lock;
+lock.l_type = F_WRLCK;   // Write lock
+lock.l_whence = SEEK_SET;
+lock.l_start = 0;
+lock.l_len = 100;         // Lock the first 100 bytes of the file
+
+if (fcntl(fd, F_SETLK, &lock) == -1) {
+    // Handle lock failure
+}
+
+//Duplicating File Descriptors
+#include <fcntl.h>  // For fcntl function and flag constants (e.g., F_DUPFD)
+
+int new_fd = fcntl(fd, F_DUPFD, 0);
 ```
 ## Description
-The fcntl function is a system call that stands for file control.
-It is used to perform various operations on file descriptors, such as setting file status flags, changing file descriptor properties, and performing advisory file locking. 
+
 
 ## Additional sources
 
