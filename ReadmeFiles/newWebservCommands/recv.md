@@ -1,4 +1,4 @@
-# recve(...) Function
+# recv(...) Function
 
 ```c
 #include <sys/socket.h>

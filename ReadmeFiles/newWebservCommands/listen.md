@@ -1,4 +1,4 @@
-# accept(...) Function
+# listen(...) Function
 
 ```c
 #include <sys/socket.h>
