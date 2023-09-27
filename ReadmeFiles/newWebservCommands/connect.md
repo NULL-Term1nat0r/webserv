@@ -1,10 +1,9 @@
 # connect
 
 ```c
-#include <sys/select.h>
+#include <sys/socket.h>
 
-int select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struct timeval *timeout);
-
+int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
 ```
 <span class="blue">This is custom colored text</span>
 
@@ -68,7 +67,7 @@ Overall, the `select` function is a versatile and widely used tool for managing 
 
 ## Return Value
 - `int`:
-The `select` function returns the total number of file descriptors that are ready for I/O (i.e., the number of file descriptors in the sets that have events pending). If an error occurs, it returns -1.
+If the connection or binding succeeds, zero is returned.  On error, -1 is returned, and errno is set to indicate the error.
 
 ## Code example
 ```c
