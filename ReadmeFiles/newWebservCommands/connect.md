@@ -16,11 +16,7 @@ The connect() function is used in C++ for establishing a network connection from
 
 3. Connection Establishment: The connect() function is called with the socket descriptor, server's address information, and the size of the address structure as arguments. It initiates the connection process to the remote server.
 
-4.Communication: Once the connection is established, you can use the socket for sending and receiving data to and from the server.
-
-**Socket Programming**
-
-In network programming, `select` is often used to manage multiple network connections. For example, a server that needs to handle multiple client connections can use `select` to determine when data is available to read from or write to each connected socket.
+4. Communication: Once the connection is established, you can use the socket for sending and receiving data to and from the server.
 
 ## Function Parameters
 - `int sockfd`: This is an integer value representing the socket that you want to use for the connection. The socket must be previously created using the socket() function. The sockfd parameter specifies the client socket through which the connection will be established.
@@ -67,4 +63,4 @@ int main() {
 ```
 ## Additional sources
 
-[linux manual page](https://man7.org/linux/man-pages/man2/select.2.html)
+[linux manual page](https://man7.org/linux/man-pages/man2/connect.2.html)
