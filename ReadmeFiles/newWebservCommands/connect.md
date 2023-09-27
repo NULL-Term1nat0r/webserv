@@ -1,20 +1,22 @@
-# connect
+# Connect
 
 ```c
 #include <sys/socket.h>
 
 int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
 ```
-<span class="blue">This is custom colored text</span>
-
 
 ## Purpose
-- `select` function is a crucial system call used for I/O multiplexing in network and file I/O operations. It allows a program to monitor multiple file descriptors for various I/O events and efficiently manage them.
+The connect() function is used in C++ for establishing a network connection from a client application to a remote server. It is part of socket programming and enables communication with remote services over various network protocols, such as TCP/IP or UDP
 
 ## Usage
-The `select` function is used for I/O multiplexing in network and file I/O operations. Its primary purpose is to monitor multiple file descriptors simultaneously and efficiently determine when I/O operations are possible or when exceptional conditions occur. Below are some common use cases and the usage of the `select` function:
+1. Socket Creation: First, you create a socket object using the socket() function to represent the endpoint for communication with the remote server.
 
+2. Server Information: You specify the server's address (usually an IP address) and port number to which you want to connect. This information is typically stored in a struct sockaddr_in (for IPv4) or struct sockaddr_in6 (for IPv6).
 
+3. Connection Establishment: The connect() function is called with the socket descriptor, server's address information, and the size of the address structure as arguments. It initiates the connection process to the remote server.
+
+4.Communication: Once the connection is established, you can use the socket for sending and receiving data to and from the server.
 
 **Socket Programming**
 
@@ -32,37 +34,33 @@ If the connection or binding succeeds, zero is returned.  On error, -1 is return
 
 ## Code example
 ```c
-#include <stdio.h>
-#include <sys/time.h>
-#include <sys/types.h>
+#include <iostream>
+#include <sys/socket.h>
+#include <netinet/in.h>
 #include <unistd.h>
 
 int main() {
-    fd_set readfds;
-    FD_ZERO(&readfds);
-    FD_SET(STDIN_FILENO, &readfds);
+    int clientSocket;
+    struct sockaddr_in serverAddr;
 
-    struct timeval timeout;
-    timeout.tv_sec = 5;  // Set a timeout of 5 seconds
-    timeout.tv_usec = 0;
+    // Create a socket
+    clientSocket = socket(AF_INET, SOCK_STREAM, 0);
 
-    printf("Please type something within 5 seconds:\n");
+    // Server information setup
+    serverAddr.sin_family = AF_INET;
+    serverAddr.sin_port = htons(80); // Server's port
+    serverAddr.sin_addr.s_addr = inet_addr("127.0.0.1"); // Server's IP address
 
-    int readyDescriptors = select(STDIN_FILENO + 1, &readfds, NULL, NULL, &timeout);
-
-    if (readyDescriptors == -1) {
-        perror("select");
+    // Connect to the server
+    if (connect(clientSocket, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) < 0) {
+        perror("Connect failed");
         return 1;
-    } else if (readyDescriptors == 0) {
-        printf("No data received within the timeout.\n");
-    } else {
-        printf("Data is available to read from stdin.\n");
-
-        // Read and print the user's input
-        char inputBuffer[256];
-        fgets(inputBuffer, sizeof(inputBuffer), stdin);
-        printf("You typed: %s", inputBuffer);
     }
+
+    // Use the clientSocket for communication with the server
+
+    // Close the socket when done
+    close(clientSocket);
 
     return 0;
 }
