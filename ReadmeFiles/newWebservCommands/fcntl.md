@@ -81,8 +81,6 @@ if (fcntl(fd, F_SETLK, &lock) == -1) {
 
 int new_fd = fcntl(fd, F_DUPFD, 0);
 ```
-## Description
-
 
 ## Additional sources
 
