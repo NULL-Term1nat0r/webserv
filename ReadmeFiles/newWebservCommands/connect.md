@@ -61,6 +61,16 @@ int main() {
     return 0;
 }
 ```
+## Description
+The socket() function is used to create a socket for network communication.
+The connect() function is used to establish a connection to the server.
+It takes the client socket descriptor (clientSocket), a pointer to the serverAddr structure (cast to struct sockaddr *), and the size of the address structure (sizeof(serverAddr)) as arguments.
+If the connection fails, the connect() function returns a value less than 0, and an error message is printed using perror(). The program returns with an error code.
+Use the ClientSocket for Communication:
+This section is a placeholder for your application logic. Once the connection is established, you can use the clientSocket to send and receive data with the server.
+close(clientSocket);
+After you are done with the communication, it's important to close the socket using the close() function to release the associated resources.
+
 ## Additional sources
 
 [linux manual page](https://man7.org/linux/man-pages/man2/connect.2.html)
