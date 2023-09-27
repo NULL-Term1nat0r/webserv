@@ -21,14 +21,33 @@ You need to declare a struct stat variable in your code, and then pass a pointer
 After calling stat, you can access the file attributes using the fields within the struct stat variable.
 
 ## Return Value
-
+If the function succeeds in retrieving the file attributes, it returns 0.
+If there's an error, it returns -1, and you can use errno to determine the specific error that occurred.
 
 ## Code example
 ```c
+#include <sys/stat.h>
+#include <stdio.h>
+#include <errno.h>
 
+int main() {
+    const char *filename = "example.txt";
+    struct stat file_stat;
+
+    if (stat(filename, &file_stat) == 0) {
+        // Access file attributes through the file_stat structure.
+        printf("File size: %ld bytes\n", file_stat.st_size);
+        printf("File permissions: %o\n", file_stat.st_mode & 07777);
+        // You can access other attributes like modification time, etc.
+    } else {
+        perror("stat");
+    }
+
+    return 0;
+}
 ```
 ## Description
-
+In this example, path is "example.txt" and buf is the file_stat structure. The function is used to retrieve information about the "example.txt" file and store it in file_stat.
 
 ## Additional sources
 
