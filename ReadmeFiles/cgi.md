@@ -20,6 +20,9 @@ CGI allows a web server to communicate with applications or scripts written in v
 
 7. Clean-up: After the CGI script completes its execution and the response is sent to the client, the script's process typically terminates. Any temporary files or resources created by the script may be cleaned up.
 
+![cgi](https://github.com/NULL-Term1nat0r/webserv/assets/96915676/fecdce7a-f33c-4c94-b190-d36ab34e65b2)
+
+
 ## CGI example script
 ```c
 #include <iostream>
