@@ -41,6 +41,22 @@ If the socket function is successful, it returns a non-negative integer, which i
 
 For Datagram sockets bind is optional, listen and accept are not used since UDP works connectionless.
 
+## Blocking Sockets
+- Blocking sockets are the traditional and default mode of operation for sockets in many programming languages.
+- When you perform a read or write operation on a blocking socket, the operation will block, or wait, until it completes successfully or encounters an error.
+- If you try to read from a blocking socket, and there is no data available to read, your program will wait until data arrives or a timeout occurs.
+- Similarly, if you try to send data through a blocking socket, and the socket's send buffer is full or the connection is slow, your program will wait until the data can be sent.
+- Blocking sockets are simple to use but can lead to performance problems in applications with multiple sockets or when you want to perform other tasks while waiting for network operations to complete.
+- Blocking sockets are often simpler to use and are suitable for applications where it's acceptable for the program to wait for network operations to complete before proceeding.
+
+## Non-blocking Sockets
+- Non-blocking sockets, on the other hand, allow your program to continue executing other tasks without waiting for a network operation to complete.
+- When you perform a read or write operation on a non-blocking socket, the operation will return immediately, either with the amount of data read/written or an error code.
+- If there is no data available to read from a non-blocking socket, the read operation returns immediately with an indication that no data is ready. This allows your program to perform other tasks and periodically check the socket for data.
+- Similarly, if you try to send data through a non-blocking socket and the socket's send buffer is full or the connection is slow, the write operation will return immediately with an indication that the operation would block.
+- To handle non-blocking sockets effectively, you typically need to use techniques like polling or asynchronous I/O to check for data readiness and manage multiple sockets efficiently.
+- Non-blocking sockets are more complex to work with but are useful in applications that need to handle multiple sockets simultaneously or perform other tasks while waiting for network operations. They are commonly used in real-time or event-driven systems.
+
 ## Sources
 - https://www.geeksforgeeks.org/socket-programming-cc/
 - https://www.youtube.com/watch?v=gntyAFoZp-E&t=12s
