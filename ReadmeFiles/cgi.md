@@ -19,3 +19,47 @@ CGI allows a web server to communicate with applications or scripts written in v
 6. Client Response: The web server sends the dynamically generated content as an HTTP response to the user's browser, which then renders the page. The browser has no knowledge that the content was generated dynamically; it simply receives and displays the HTML or other data.
 
 7. Clean-up: After the CGI script completes its execution and the response is sent to the client, the script's process typically terminates. Any temporary files or resources created by the script may be cleaned up.
+
+## CGI example script
+```c
+#include <iostream>
+#include <cstdlib>
+#include <string>
+
+int main() {
+    // Set the content type to HTML
+    std::cout << "Content-type:text/html\r\n\r\n";
+
+    // HTML response
+    std::cout << "<html>\n";
+    std::cout << "<head><title>CGI C++ Example</title></head>\n";
+    std::cout << "<body>\n";
+
+    // Process user input from the query string
+    char* query = getenv("QUERY_STRING");
+    if (query != nullptr) {
+        std::string userInput(query);
+
+        // Print the user's input on the web page
+        std::cout << "<h2>User Input:</h2>\n";
+        std::cout << "<p>" << userInput << "</p>\n";
+    } else {
+        std::cout << "<p>No input received.</p>\n";
+    }
+
+    std::cout << "</body>\n";
+    std::cout << "</html>\n";
+}
+```
+## Description
+- This is a simple example of a CGI script written in C++ that takes user input via a web form, processes it, and generates a dynamic web page as output.
+- We start by setting the content type to HTML using the HTTP header Content-type:text/html\r\n\r\n. This tells the web server to expect HTML content in the response.
+- We then output an HTML page with a title and body.
+- We retrieve user input from the query string using the getenv("QUERY_STRING") function. The query string contains data submitted via a web form.
+- If user input is found, we print it in an HTML paragraph.
+- Finally, we close the HTML tags and return 0 to indicate successful execution.
+- To use this CGI script, you would typically save it with a .cgi or .cpp extension in a directory configured for CGI execution on your web server. Make sure the script file has executable permissions, and then you can create a web form that submits data to this script. When the form is submitted, the script will process the input and display it on the resulting web page.
+
+## Sources
+https://www.ionos.com/digitalguide/websites/web-development/what-is-a-cgi/
+https://www.tutorialspoint.com/cplusplus/cpp_web_programming.htm
