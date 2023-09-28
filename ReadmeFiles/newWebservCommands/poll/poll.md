@@ -6,6 +6,17 @@
 int poll(struct pollfd fds[], nfds_t nfds, int timeout);
 ```
 
+## Purpose
+
+The `poll()` function is used to wait for one or more file descriptors to become ready for I/O operations. It allows you to efficiently monitor multiple file descriptors in a single call.
+
+## Usage
+
+- Call `poll()` to monitor multiple file descriptors for events.
+- `fds` is an array of `struct pollfd` structures, where each structure specifies the file descriptor to monitor and the events to watch for.
+- `nfds` is the number of elements in the `fds` array.
+- `timeout` is the maximum amount of time (in milliseconds) to wait for an event to occur. A value of -1 means wait indefinitely, while 0 means return immediately, and a positive value specifies a timeout.
+
 ## Parameters of poll function
 fds:            An array of struct pollfd structures, each representing a file descriptor to monitor.
 nfds:           The number of elements in the fds array.
