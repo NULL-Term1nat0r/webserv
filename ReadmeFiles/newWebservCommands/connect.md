@@ -34,6 +34,7 @@ If the connection or binding succeeds, zero is returned.  On error, -1 is return
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <unistd.h>
+#include <arpa/inet.h>
 
 int main() {
     int clientSocket;
@@ -44,8 +45,8 @@ int main() {
 
     // Server information setup
     serverAddr.sin_family = AF_INET;
-    serverAddr.sin_port = htons(80); // Server's port
-    serverAddr.sin_addr.s_addr = inet_addr("127.0.0.1"); // Server's IP address
+    serverAddr.sin_port = htons(8080); // Server's port
+    serverAddr.sin_addr.s_addr = inet_addr("10.12.11.52"); // Server's IP address
 
     // Connect to the server
     if (connect(clientSocket, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) < 0) {

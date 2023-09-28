@@ -87,6 +87,7 @@ int main() {
                 ssize_t bytes_received = recv(client_socket, buffer, sizeof(buffer), 0);
                 if (bytes_received <= 0) {
                     // Client disconnected or error occurred
+					std::cout << "client with socket " << client_socket << " disconnected" << std::endl;
                     close(client_socket);
                     client_sockets.erase(client_sockets.begin() + i - 1);
                     poll_fds.erase(poll_fds.begin() + i);
