@@ -61,6 +61,6 @@ int main() {
 - To use this CGI script, you would typically save it with a .cgi or .cpp extension in a directory configured for CGI execution on your web server. Make sure the script file has executable permissions, and then you can create a web form that submits data to this script. When the form is submitted, the script will process the input and display it on the resulting web page.
 
 ## Sources
-https://www.ionos.com/digitalguide/websites/web-development/what-is-a-cgi/
-https://www.tutorialspoint.com/cplusplus/cpp_web_programming.htm
-https://www.youtube.com/watch?v=NwRVJX0Ieno
+- https://www.ionos.com/digitalguide/websites/web-development/what-is-a-cgi/
+- https://www.tutorialspoint.com/cplusplus/cpp_web_programming.htm
+- https://www.youtube.com/watch?v=NwRVJX0Ieno
