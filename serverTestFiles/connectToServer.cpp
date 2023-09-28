@@ -17,7 +17,7 @@ int main() {
 	// Server information setup
 	serverAddr.sin_family = AF_INET;
 	serverAddr.sin_port = htons(8080); // Server's port
-	serverAddr.sin_addr.s_addr = inet_addr("10.12.11.52"); // Server's IP address
+	serverAddr.sin_addr.s_addr = inet_addr("127.0.0.1"); // Server's IP address
 
 	// Connect to the server
 //	int i = 0;
@@ -36,7 +36,14 @@ int main() {
 		return 1;
 	}
 	const char *message = "Hello, Server!";
-	send(clientSocket, message, strlen(message), 0);
+	int bytes_sent;
+	bytes_sent = send(clientSocket, message, strlen(message), 0);
+	if (bytes_sent == -1) {
+		std::cerr << "Error sending data" << std::endl;
+		return 1;
+	}
+	sleep(10);
+
 
 	// Use the clientSocket for communication with the server
 

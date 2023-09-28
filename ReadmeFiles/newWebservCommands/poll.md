@@ -79,7 +79,6 @@ int main() {
         if (ready == -1) {
             perror("poll");
             exit(1);
-        }
 
         if (fds[0].revents & POLLIN) {
             // Data is available to read from stdin.
