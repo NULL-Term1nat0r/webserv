@@ -31,6 +31,7 @@ struct pollfd {
     short revents; // The events that occurred (set by poll).
 };
 ```
+
 ## Event flags for poll function
 The poll function in C allows you to pass several event flags (variables) besides `POLLIN` to monitor different types of events on file descriptors. Here are some of the most commonly used event flags:
 
