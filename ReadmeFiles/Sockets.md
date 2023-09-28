@@ -62,3 +62,4 @@ For Datagram sockets bind is optional, listen and accept are not used since UDP 
 - https://www.youtube.com/watch?v=gntyAFoZp-E&t=12s
 - https://www.codingninjas.com/studio/library/learning-socket-programming-in-c
 - https://docs.oracle.com/cd/E19455-01/806-1017/sockets-4/index.html
+- http://dwise1.net/pgm/sockets/blocking.html#WHY
