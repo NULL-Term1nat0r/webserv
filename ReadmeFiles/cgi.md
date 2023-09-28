@@ -63,3 +63,4 @@ int main() {
 ## Sources
 https://www.ionos.com/digitalguide/websites/web-development/what-is-a-cgi/
 https://www.tutorialspoint.com/cplusplus/cpp_web_programming.htm
+https://www.youtube.com/watch?v=NwRVJX0Ieno
