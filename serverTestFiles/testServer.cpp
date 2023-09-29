@@ -59,8 +59,8 @@ int main() {
 
 	while (true) {
 		// Call poll() to wait for events on all file descriptors
-		int num_ready = poll(poll_fds.data(), poll_fds.size(), -1);
-		if (num_ready < 0) {
+		if( poll(poll_fds.data(), poll_fds.size(), -1) < 0)
+		{
 			std::cerr << "Error in poll" << std::endl;
 			return 1;
 		}
@@ -84,6 +84,7 @@ int main() {
 
 		// Check events for each client socket
 		for (size_t i = 1; i < poll_fds.size(); ++i) {
+			std::cout << "i: " << i << std::endl;
 			if (poll_fds[i].revents & POLLIN) {
 				int client_socket = poll_fds[i].fd;
 				// Handle data from the client here
@@ -92,7 +93,7 @@ int main() {
 				// Example: Echo data back to the client
 				char buffer[1024];
 				ssize_t bytes_received = recv(client_socket, buffer, sizeof(buffer), 0);
-				std::cout << "string recieved: " << buffer << std::endl;
+//				std::cout << "string recieved: " << buffer << std::endl;
 //				buffer[bytes_received] = '\0'; // Add null terminator
 				if (bytes_received <= 0) {
 					// Client disconnected or error occurred
@@ -101,8 +102,10 @@ int main() {
 					client_sockets.erase(client_sockets.begin() + i - 1);
 					poll_fds.erase(poll_fds.begin() + i);
 				} else {
+					const char *message = "SERVER RECIEVED: ";
+
 					// Echo the received data back to the client
-					send(client_socket, buffer, bytes_received, 0);
+					send(client_socket, buffer, strlen(buffer), 0);
 				}
 			}
 		}
