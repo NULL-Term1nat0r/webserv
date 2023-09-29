@@ -82,8 +82,6 @@ __DELETE__
 
 ## Example with one of our test server files for the GET-Method
 
-```mathematica
-
 # Step 1: start the program
 
 <img width="589" alt="Screen Shot 2023-09-29 at 6 45 56 PM" src="https://github.com/NULL-Term1nat0r/webserv/assets/109620716/5503cdf2-ea4a-447e-b646-7e1495509ba2">
