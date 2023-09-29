@@ -80,27 +80,27 @@ HTTP POST method is most often utilized to create new resources. On successful c
 __DELETE__
 
 
-## Example with one of our test server files for the GET-Method
+# Example with one of our test server files for the GET-Method
 
-# Step 1: create an exmaple file with html code in the same folder where you start your server program
+## Step 1: create an exmaple file with html code in the same folder where you start your server program
 
 <img width="682" alt="Screen Shot 2023-09-29 at 6 56 48 PM" src="https://github.com/NULL-Term1nat0r/webserv/assets/109620716/1c1269c0-20e4-4759-9d0f-c43cea7f6776">
 
 <img width="545" alt="Screen Shot 2023-09-29 at 6 57 10 PM" src="https://github.com/NULL-Term1nat0r/webserv/assets/109620716/68a1cfb4-902f-4942-9afc-6fb569bf85fe">
 
-# Step 2: start the program
+## Step 2: start the program
 
 <img width="589" alt="Screen Shot 2023-09-29 at 6 45 56 PM" src="https://github.com/NULL-Term1nat0r/webserv/assets/109620716/5503cdf2-ea4a-447e-b646-7e1495509ba2">
 
-# Step 3: open your web browser and type in the url
+## Step 3: open your web browser and type in the url
 
 <img width="495" alt="Screen Shot 2023-09-29 at 6 46 44 PM" src="https://github.com/NULL-Term1nat0r/webserv/assets/109620716/ee9063b5-aef6-4f33-b485-803dcde6e6a9">
 
-# Step 4: press enter and you will see the following
+## Step 4: press enter and you will see the following
 
 <img width="560" alt="Screen Shot 2023-09-29 at 6 47 28 PM" src="https://github.com/NULL-Term1nat0r/webserv/assets/109620716/98b4b9f6-9c13-4c0a-b874-413820deef4b">
 
-# Step 5: checkout the terminal and you will see the following request message by the client
+## Step 5: checkout the terminal and you will see the following request message by the client
 
 <img width="589" alt="Screen Shot 2023-09-29 at 6 47 42 PM" src="https://github.com/NULL-Term1nat0r/webserv/assets/109620716/7b27238d-8c9f-4c4b-a4ca-2240255b3a9a">
 
