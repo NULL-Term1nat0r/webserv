@@ -30,6 +30,14 @@ int main() {
 		return 1;
 	}
 
+	int reuse = 1;
+
+	if (setsockopt(server_socket, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) == -1) {
+		perror("setsockopt");
+		close(server_socket);
+		exit(EXIT_FAILURE);
+	}
+
 	// Configure server address
 	memset(&server_addr, 0, sizeof(server_addr));
 	server_addr.sin_family = AF_INET;
@@ -88,6 +96,7 @@ void handle_client(int client_socket) {
 	std::string request_str(request, bytes_received);
 	size_t start = request_str.find("GET ") + 4;
 	size_t end = request_str.find(" HTTP/");
+	std::cout << request << std::endl;
 	if (start != std::string::npos && end != std::string::npos) {
 		std::string requested_url = request_str.substr(start, end - start);
 
