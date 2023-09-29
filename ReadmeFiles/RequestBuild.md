@@ -86,17 +86,17 @@ __DELETE__
 
 # Step 1: start the program
 
-![Screen Shot 2023-09-29 at 6.45.17 PM.png](..%2F..%2F..%2FScreen%20Shot%202023-09-29%20at%206.45.17%20PM.png)
+<img width="589" alt="Screen Shot 2023-09-29 at 6 45 56 PM" src="https://github.com/NULL-Term1nat0r/webserv/assets/109620716/5503cdf2-ea4a-447e-b646-7e1495509ba2">
 
 # Step 2: open your web browser and type in the url
 
-![Screen Shot 2023-09-29 at 6.46.44 PM.png](..%2F..%2F..%2FScreen%20Shot%202023-09-29%20at%206.46.44%20PM.png)
+<img width="495" alt="Screen Shot 2023-09-29 at 6 46 44 PM" src="https://github.com/NULL-Term1nat0r/webserv/assets/109620716/ee9063b5-aef6-4f33-b485-803dcde6e6a9">
 
 # Step 3: press enter and you will see the following
 
-![Screen Shot 2023-09-29 at 6.47.28 PM.png](..%2F..%2F..%2FScreen%20Shot%202023-09-29%20at%206.47.28%20PM.png)
+<img width="560" alt="Screen Shot 2023-09-29 at 6 47 28 PM" src="https://github.com/NULL-Term1nat0r/webserv/assets/109620716/98b4b9f6-9c13-4c0a-b874-413820deef4b">
 
 # Step 4: checkout the terminal and you will see the following request message by the client
 
-![Screen Shot 2023-09-29 at 6.47.42 PM.png](..%2F..%2F..%2FScreen%20Shot%202023-09-29%20at%206.47.42%20PM.png)
+<img width="589" alt="Screen Shot 2023-09-29 at 6 47 42 PM" src="https://github.com/NULL-Term1nat0r/webserv/assets/109620716/7b27238d-8c9f-4c4b-a4ca-2240255b3a9a">
 
