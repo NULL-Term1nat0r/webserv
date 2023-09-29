@@ -82,7 +82,7 @@ __DELETE__
 
 # Example with one of our test server files for the GET-Method
 
-## Step 1: create an exmaple file with html code in the same folder where you start your server program
+## Step 1: create an example file with html code in the same folder where you start your server program
 
 <img width="682" alt="Screen Shot 2023-09-29 at 6 56 48 PM" src="https://github.com/NULL-Term1nat0r/webserv/assets/109620716/1c1269c0-20e4-4759-9d0f-c43cea7f6776">
 
