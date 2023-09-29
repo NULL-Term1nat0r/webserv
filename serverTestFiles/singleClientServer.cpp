@@ -67,8 +67,27 @@ int main() {
 			std::cout << "Client disconnected" << std::endl;
 		} else {
 			// Echo the received data back to the client
-			std::cout << "send string by client " << client_socket << " : " << buffer << std::endl;
-			send(client_socket, buffer, bytes_received, 0);
+//			std::cout << "send string by client " << client_socket << " : " << buffer << std::endl;
+			const char* html_code =
+					"<!DOCTYPE html>\n"
+					"<html>\n"
+					"<head>\n"
+					"    <title>My Simple Web Page</title>\n"
+					"</head>\n"
+					"<body>\n"
+					"    <h1>Welcome to My Web Page</h1>\n"
+					"    <p>This is a simple HTML webpage.</p>\n"
+					"    <ul>\n"
+					"        <li>Item 1</li>\n"
+					"        <li>Item 2</li>\n"
+					"        <li>Item 3</li>\n"
+					"    </ul>\n"
+					"    <p>Thanks for visiting!</p>\n"
+					"</body>\n"
+					"</html>";
+//			send(client_socket, buffer, bytes_received, 0);
+			send(client_socket, html_code, strlen(html_code), 0);
+
 		}
 
 		// Close the client socket
