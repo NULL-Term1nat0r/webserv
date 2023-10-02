@@ -22,7 +22,7 @@ In summary, HTTP responses are essential for servers to communicate with clients
 
 ## Example
 
-```http
+```mathematica
 HTTP/1.1 200 OK
 Date: Thu, 29 Sep 2023 18:47:28 GMT
 Server: Apache/2.4.41 (Ubuntu)
