@@ -13,8 +13,10 @@
 #include <sys/stat.h>
 #include <dirent.h>
 #include <signal.h>
+#include <fstream>
+#include <ctype.h>
 
-#define SERVER_PORT 8080
+#define SERVER_PORT 80
 #define MAX_REQUEST_SIZE 2048
 
 void handle_client(int client_socket);
