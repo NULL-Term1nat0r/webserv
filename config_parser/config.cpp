@@ -21,6 +21,10 @@ const char	*Config::FileNotOpen::what() const throw(){
 	return "Could not open the config file.";
 }
 
+const char	*Config::LocationAlreadyExists::what() const throw(){
+	return "Location already exists.";
+}
+
 std::vector<std::string>	Config::_tokenize(const std::string& line) {
     std::vector<std::string> tokens;
     std::istringstream iss(line);
@@ -30,10 +34,11 @@ std::vector<std::string>	Config::_tokenize(const std::string& line) {
 		if (token[0] == '#')
 			break;
         tokens.push_back(token);
+		// std::cout << token << std::endl;
 	}
 	if (tokens[tokens.size() - 1].find_first_of("#") != std::string::npos)
-		tokens[tokens.size() - 1] = tokens[tokens.size() - 1].substr(0, tokens[tokens.size() - 1].find_first_of("#"));// maybe + 1
-    if (tokens[tokens.size() - 1].find_first_of(';') == std::string::npos)
+		tokens[tokens.size() - 1] = tokens[tokens.size() - 1].substr(0, tokens[tokens.size() - 1].find_first_of("#"));// maybe + 1	
+	if (tokens[tokens.size() - 1].find_first_of(';') == std::string::npos)
 		throw NoSemicolonAtTheEndOfContext();
     return tokens;
 }
@@ -50,57 +55,74 @@ bool	Config::_checkEmptyAndComments(std::string &line)
 
 void	Config::_putContext(std::ifstream &nginxConfFile, std::string &line, int i)
 {
-	while (std::getline(nginxConfFile, line) && line.find('}') == std::string::npos)
+	while (std::getline(nginxConfFile, line) && line.find('}') == std::string::npos && line.find('{') == std::string::npos)
 	{
 		if (!_checkEmptyAndComments(line))
 			continue ;
 		std::vector<std::string>	tmp = _tokenize(line);
 		std::vector<std::string>tmp2(tmp.begin() + 1, tmp.end());
-		_confFile[i][line.substr(0, line.find_first_of("{"))][tmp[0]] = tmp2;//maybe + 1		
+		_confFile[i][line.substr(0, line.find_first_of("{"))][tmp[0]] = tmp2;//maybe + 1   //change !!!!!!!
 	}
 	if (!line.find('}'))
 			throw BracketsNotClosed();
 }
 
+
+bool	Config::_locationExists(std::string line, int i)
+{
+	std::map<std::string, std::map<std::string, std::vector<std::string> > >& searchBlock = _confFile[i];
+	std::map<std::string, std::map<std::string, std::vector<std::string> > >::iterator block = searchBlock.find(line);
+	if (block == searchBlock.end())
+		return false;
+	return true;
+}
+
 void	Config::_serverBlock(std::ifstream &nginxConfFile, std::string &line, int i)
 {
 	_confFile.push_back(std::map<std::string, std::map<std::string, std::vector<std::string> > >());
-	while (std::getline(nginxConfFile, line) && line.find('}') == std::string::npos)
+	while ((line.find('{') != std::string::npos && _checkEmptyAndComments(line)) || (std::getline(nginxConfFile, line) && line.find('}') == std::string::npos) || !_checkEmptyAndComments(line))
 	{
 		if (!_checkEmptyAndComments(line))
 			continue ;
-		if (line.find("location") != std::string::npos)//check location specific method
+		if (line.find("location") == std::string::npos && line.find("server") == std::string::npos && line.find('{') != std::string::npos)
 		{
+			throw BlocknameNotExisting();
+		}
+		if (line.find("location") != std::string::npos)//check location specific method 
+		{
+			if (_locationExists(line.substr(0, line.find_first_of("{")), i))
+				throw LocationAlreadyExists();
 			_confFile[i][line.substr(0, line.find_first_of("{"))] = std::map<std::string, std::vector<std::string> >();
 			_putContext(nginxConfFile, line, i);
 		}
 		else
 		{
-			std::map<std::string, std::map<std::string, std::vector<std::string> > >::iterator block = _confFile[i].find("nolocation");
-			if (block != _confFile[i].end())
+			if (_locationExists("nolocation", i))
 				_confFile[i]["nolocation"] = std::map<std::string, std::vector<std::string> >();
 			_putContext(nginxConfFile, line, i);
 		}
 	};
-	if (!line.find('}'))
+	if (line.find('}') == std::string::npos || !_checkEmptyAndComments(line))
 			throw BracketsNotClosed();
 }
 
 void	Config::_globalBlock(std::ifstream &nginxConfFile, std::string &line)
 {
-	while (std::getline(nginxConfFile, line) && line.find('{') == std::string::npos)
+	do
 	{
+		if (line.find('}') != std::string::npos || line.find('{') != std::string::npos)
+			break ;
 		if (!_checkEmptyAndComments(line))
 			continue ;
 		std::vector<std::string>	tmp = _tokenize(line);
 		std::vector<std::string>tmp2(tmp.begin() + 1, tmp.end());
 		_globalContext[tmp[0]] = tmp2;  
-	};
+    } while (std::getline(nginxConfFile, line) && line.find('{') == std::string::npos);
 }
 
 bool	Config::_fileOpen(std::ifstream &nginxConfFile)
 {
-	if (!nginxConfFile.is_open()) //could be an exception
+	if (!nginxConfFile.is_open())
 		return false;
 	return true;
 }
@@ -112,42 +134,72 @@ void	Config::parseConfFile(char *file)
 		throw FileNotOpen();
     std::string currentBlock;
     std::string line;
-	for (int i = 0; std::getline(nginxConfFile, line);)
+	for (int i = 0; (line.find("server") != std::string::npos && _checkEmptyAndComments(line)) || std::getline(nginxConfFile, line);)
 	{
 		if (!_checkEmptyAndComments(line))
 			continue ;
 		else if (line.find("server") != std::string::npos)
+		{
 			_serverBlock(nginxConfFile, line, i++);
+		}
 		else if (line.find("{") == std::string::npos)
 			_globalBlock(nginxConfFile, line);
 		else
+		{
+			std::cout << "here\n";
 			throw BlocknameNotExisting();
+		}
 	}
 	nginxConfFile.close();
 }
 
 void	Config::iterateContainer()
 {
-	  for (size_t i = 0; i < _confFile.size(); ++i) {
-        const std::map<std::string, std::map<std::string, std::vector<std::string> > >& innerMap1 = _confFile[i];
+	// std::cout << _confFile[0]["nolocation"]["listen"][0] << std::endl;
+	// std::cout << _confFile[0]["nolocation"]["default_server"][0] << std::endl;
+	// std::cout << _confFile[0]["nolocation"]["server_name"][0] << std::endl;
+	// std::cout << _confFile[0]["nolocation"]["error_page"][0] << std::endl;
+	// std::cout << _confFile[0]["nolocation"]["client_max_body_size"][0] << std::endl;
 
-        // Iterate through the first map
-        for (std::map<std::string, std::map<std::string, std::vector<std::string> > >::const_iterator it1 = innerMap1.begin(); it1 != innerMap1.end(); ++it1) {
-            const std::string& key1 = it1->first;
-            const std::map<std::string, std::vector<std::string> >& innerMap2 = it1->second;
+	// std::cout << _confFile[0]["location / "]["allow_methods GET POST;"][0] << std::endl;
 
-            // Iterate through the second map
-            for (std::map<std::string, std::vector<std::string> >::const_iterator it2 = innerMap2.begin(); it2 != innerMap2.end(); ++it2) {
-                const std::string& key2 = it2->first;
-                const std::vector<std::string>& vectorOfString = it2->second;
+	for (const auto& outerMap : _confFile) {
+        // Iterate through the outer map
+        for (const auto& outerPair : outerMap) {
+            const std::string& outerKey = outerPair.first;
+            const std::map<std::string, std::vector<std::string> >& innerMap = outerPair.second;
 
-                // Iterate through the vector
-                for (size_t j = 0; j < vectorOfString.size(); ++j) {
-                    const std::string& str = vectorOfString[j];
-                    // Process 'str' here
-                    std::cout << "Element: " << str << std::endl;
+            // Print outer map key and values
+           std::cout << "Outer Key: " << outerKey << std::endl;
+
+            // Iterate through the inner map
+            for (const auto& innerPair : innerMap) {
+                const std::string& innerKey = innerPair.first;
+                const std::vector<std::string>& innerValue = innerPair.second;
+
+                // Print inner map key and values
+                // std::cout << innerKey << std::endl;
+                // std::cout << "Inner Values:" << std::endl;
+
+                // Iterate through the inner vector
+                for (const std::string& value : innerValue) {
+                    // std::cout << value << std::endl;
                 }
             }
         }
     }
+
+	for (const auto& pair : _globalContext) {
+		const std::string& key = pair.first;
+		const std::vector<std::string>& values = pair.second;
+
+		std::cout << "Key: " << key << std::endl;
+		std::cout << "Values:" << std::endl;
+
+		// Iterate through the vector of values
+		for (const std::string& value : values) {
+			std::cout << "  " << value << std::endl;
+		}
+	}
+
 }
