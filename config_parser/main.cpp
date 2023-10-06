@@ -1,20 +1,21 @@
 
 #include "config.hpp"
+#include "server.hpp"
 
-void	wrongArgAmount()
-{
+void	wrongArgAmount() {
 	std::cerr << "Error: Number of arguments has to be exactly 2." << std::endl;
 }
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
 	if (argc != 2)
 		return (wrongArgAmount(), 1);
 	try
 	{
 		Config	conf;
 		conf.parseConfFile(argv[1]);
-		conf.iterateContainer();
+		//conf.iterateContainer();
+		Server	serv;
+		serv.getServerConf(conf);
 	}
 	catch (std::exception &e)
 	{
