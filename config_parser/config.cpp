@@ -25,15 +25,15 @@ const char	*Config::LocationAlreadyExists::what() const throw() {
 	return "Location already exists.";
 }
 
-std::vector<std::map<std::string, std::map<std::string, std::vector<std::string> > > >	Config::getConfFile() const{
+std::vector<std::map<std::string, std::map<std::string, std::vector<std::string> > > >	Config::getConfFile() const {
 	return _confFile;
 }
 	
-std::map<std::string, std::vector<std::string> >	Config::getGlobalContext() const{
+std::map<std::string, std::vector<std::string> >	Config::getGlobalContext() const {
 	return _globalContext;
 }
 
-std::vector<std::string>	Config::getLocations() const{
+std::vector<std::vector<std::string> >	Config::getLocations() const {
 	return _locations;
 }
 
@@ -41,8 +41,7 @@ std::vector<std::string>	Config::_tokenize(const std::string& line) {
     std::vector<std::string> tokens;
     std::istringstream iss(line);
     std::string token;
-    while (iss >> token)
-	{
+    while (iss >> token) {
 		if (token[0] == '#')
 			break;
         tokens.push_back(token);
@@ -64,8 +63,7 @@ bool	Config::_checkEmptyAndComments(std::string &line) {
 }
 
 void	Config::_putContext(std::ifstream &nginxConfFile, std::string &line, int i, std::string prevLine) {
-	while (std::getline(nginxConfFile, line) && line.find('}') == std::string::npos && line.find('{') == std::string::npos)
-	{
+	while (std::getline(nginxConfFile, line) && line.find('}') == std::string::npos && line.find('{') == std::string::npos) {
 		if (!_checkEmptyAndComments(line))
 			continue ;
 		std::vector<std::string>	tmp = _tokenize(line);
@@ -77,11 +75,9 @@ void	Config::_putContext(std::ifstream &nginxConfFile, std::string &line, int i,
 }
 
 bool	Config::_locationExists(std::string line, int i) {
-	std::map<std::string, std::map<std::string, std::vector<std::string> > >& searchBlock = _confFile[i];
-	std::map<std::string, std::map<std::string, std::vector<std::string> > >::iterator block = searchBlock.find(line);
-	if (block == searchBlock.end())
-	{
-		_locations.push_back(line);
+	std::vector<std::string>::iterator it = std::find(_locations[i].begin(), _locations[i].end(), line);
+    if (it == _locations[i].end()) {
+		_locations[i].push_back(line);
 		return false;
 	}
 	return true;
@@ -89,8 +85,7 @@ bool	Config::_locationExists(std::string line, int i) {
 
 void	Config::_removeWhitespace(std::string& line) {
     std::string::iterator it = line.begin();
-    while (it != line.end())
-	{
+    while (it != line.end()) {
         if (*it == ' ' || *it == '\t' || *it == '\n' || *it == '\r' || *it == '\f' || *it == '\v')
             it = line.erase(it);
 		else
@@ -113,9 +108,9 @@ void	Config::_handleNoLocation(std::ifstream &nginxConfFile, std::string &line, 
 }
 
 void	Config::_serverBlock(std::ifstream &nginxConfFile, std::string &line, int i) {
+	_locations.push_back(std::vector<std::string>());
 	_confFile.push_back(std::map<std::string, std::map<std::string, std::vector<std::string> > >());
-	while ((line.find('{') != std::string::npos && _checkEmptyAndComments(line)) || (std::getline(nginxConfFile, line) && line.find('}') == std::string::npos) || !_checkEmptyAndComments(line))
-	{
+	while ((line.find('{') != std::string::npos && _checkEmptyAndComments(line)) || (std::getline(nginxConfFile, line) && line.find('}') == std::string::npos) || !_checkEmptyAndComments(line)) {
 		if (!_checkEmptyAndComments(line))
 			continue ;
 		if (line.find("location") == std::string::npos && line.find("server") == std::string::npos && line.find('{') != std::string::npos)
@@ -130,8 +125,7 @@ void	Config::_serverBlock(std::ifstream &nginxConfFile, std::string &line, int i
 }
 
 void	Config::_globalBlock(std::ifstream &nginxConfFile, std::string &line) {
-	do
-	{
+	do {
 		if (line.find('}') != std::string::npos || line.find('{') != std::string::npos)
 			break ;
 		if (!_checkEmptyAndComments(line))
@@ -154,8 +148,7 @@ void	Config::parseConfFile(char *file) {
 		throw FileNotOpen();
     std::string currentBlock;
     std::string line;
-	for (int i = 0; (line.find("server") != std::string::npos && _checkEmptyAndComments(line)) || std::getline(nginxConfFile, line);)
-	{
+	for (int i = 0; (line.find("server") != std::string::npos && _checkEmptyAndComments(line)) || std::getline(nginxConfFile, line);) {
 		if (!_checkEmptyAndComments(line))
 			continue ;
 		else if (line.find("server") != std::string::npos)
@@ -230,6 +223,8 @@ void	Config::parseConfFile(char *file) {
 // 	std::cout << partition << std::endl;
 // 	std::cout << "_loactions\n";
 // 	std::cout << partition << std::endl;
-// 	for (int i = 0; i < _locations.size(); i++)
-// 		std::cout << _locations[i] << std::endl;
+// 	for (int i = 0; i < _locations.size(); i++) {
+// 		for (int j = 0; j <_locations[i].size(); j++)
+// 			std::cout << _locations[i][j] << std::endl;
+// 	}
 // }

@@ -42,7 +42,7 @@ class Config
 		void	iterateContainer();
 		std::vector<std::map<std::string, std::map<std::string, std::vector<std::string> > > >	getConfFile() const;
 		std::map<std::string, std::vector<std::string> >										getGlobalContext() const;
-		std::vector<std::string>																getLocations() const;
+		std::vector<std::vector<std::string> >													getLocations() const;
 	private:
 		void	_removeWhitespace(std::string &line);
 		bool	_checkEmptyAndComments(std::string &line);
@@ -56,7 +56,7 @@ class Config
 		std::vector<std::string> _tokenize(const std::string& line);
 		std::vector<std::map<std::string, std::map<std::string, std::vector<std::string> > > >	_confFile;
 		std::map<std::string, std::vector<std::string> >										_globalContext;
-		std::vector<std::string>																_locations;
+		std::vector<std::vector<std::string> >													_locations;
 };
 
 #endif

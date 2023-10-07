@@ -9,16 +9,14 @@ void	wrongArgAmount() {
 int main(int argc, char **argv) {
 	if (argc != 2)
 		return (wrongArgAmount(), 1);
-	try
-	{
+	try {
 		Config	conf;
 		conf.parseConfFile(argv[1]);
-		//conf.iterateContainer();
+		conf.iterateContainer();
 		Server	serv;
 		serv.getServerConf(conf);
 	}
-	catch (std::exception &e)
-	{
+	catch (std::exception &e) {
 		std::cerr << "Error: " << e.what() << std::endl;
 	}
 	return 0;
