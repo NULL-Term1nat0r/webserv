@@ -1,16 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>My Simple Web Page</title>
+<title>Text Box with Scrollbar</title>
 </head>
 <body>
-    <h1>Welcome to My Web Page</h1>
-    <p>This is a simple HTML webpage.</p>
-    <ul>
-        <li>Item 1</li>
-        <li>Item 2</li>
-        <li>Item 3</li>
-    </ul>
-    <p>Thanks for visiting!</p>
+<h2>Enter your text:</h2>
+<textarea id="myTextarea" rows="4" cols="50" placeholder="Type your message here..."></textarea>
+<br>
+<button onclick="postMessage()">Post</button>
+
+				<script>
+				function postMessage() {
+	// Get the text from the textarea
+	var text = document.getElementById("myTextarea").value;
+
+	// You can perform actions with the text, such as sending it to a server
+
+	// For this example, we'll just display an alert
+	alert("Posted Message:\n" + text);
+}
+</script>
 </body>
 </html>

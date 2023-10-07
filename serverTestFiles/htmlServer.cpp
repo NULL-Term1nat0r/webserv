@@ -16,7 +16,7 @@
 #include <fstream>
 #include <ctype.h>
 
-#define SERVER_PORT 80
+#define SERVER_PORT 8080
 #define MAX_REQUEST_SIZE 2048
 
 void handle_client(int client_socket);
