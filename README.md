@@ -1,9 +1,9 @@
 # webserv
 simple webserver in C++
 
-# Under Top G Construction
+# Under Top G Construction by
 
-## [NULL-Term1nat0r](https://github.com/NULL-Term1nat0r) 
+## [NULL-Term1nat0r](https://github.com/NULL-Term1nat0r) [cryptoclown132](https://github.com/cryptoclown132) [Valsimot42](https://github.com/Valsimot42)
 ## [cryptoclown132](https://github.com/cryptoclown132) 
 ## [Valsimot42](https://github.com/Valsimot42)
 
