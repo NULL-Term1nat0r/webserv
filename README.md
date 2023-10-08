@@ -1,6 +1,8 @@
 # webserv
 simple webserver in C++
-<div style="text-align: center;" markdown="1">This line is centered.
+<p align="center">
+  <h1>This is a centered header</h1>
+</p>
 # Under Top G Construction
 [NULL-Term1nat0r](https://github.com/NULL-Term1nat0r) [cryptoclown132](https://github.com/cryptoclown132) [Valsimot42](https://github.com/Valsimot42)
 ![ancient-egyptians-constructing-a-big-cube](https://github.com/NULL-Term1nat0r/webserv/assets/109620716/1e04f412-6679-4304-8624-ef6bada4c8c2){ width="800" height="600" style="display: block; margin: 0 auto" }
