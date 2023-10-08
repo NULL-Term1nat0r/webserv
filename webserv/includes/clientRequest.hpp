@@ -55,6 +55,12 @@ class clientRequest{
 
 		void printRequest();
 
+		void parseHttpProtocol(std::string line);
+		void parseAddress(std::string line);
+		void parseConnectionType(std::string line);
+		void parseReferer(std::string line);
+		void parseContentLength(std::string line);
+
 		void parseProtocol();
 		void parseGetRequest();
 		void parsePostRequest();

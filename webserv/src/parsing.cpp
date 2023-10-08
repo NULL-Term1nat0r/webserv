@@ -87,3 +87,5 @@ int parsing::checkIfFound(std::string array[], std::string str){
 	}
 	return -1;
 }
+
+
