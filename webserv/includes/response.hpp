@@ -18,6 +18,7 @@ public:
 	response &operator=(const response &other);
 
 	static std::string getResponse();
+
 };
 
 #endif

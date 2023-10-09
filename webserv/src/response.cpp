@@ -35,7 +35,7 @@ response &response::operator=(const response &other)
 
 std::string response::getResponse(){
 	// Read the HTML file
-	std::ifstream htmlFile("../html_files/mainPage.html");
+	std::ifstream htmlFile("mainPage.html");
 	if (!htmlFile) {
 		return "HTTP/1.1 404 Not Found\r\n\r\n<h1>404 Not Found</h1>";
 	}

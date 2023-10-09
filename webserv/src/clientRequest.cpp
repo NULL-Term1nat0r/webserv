@@ -48,55 +48,23 @@ void clientRequest::parseProtocol() {
 }
 
 void clientRequest::parseGetRequest(){
-	std::string methodType[3] = {"GET", "POST", "DELETE"};
-	std::string connectionType[2] = {"keep-alive", "close"};
-	std::string protocolType[2] = {"HTTP/1.1", "HTTP/1.0"};
 
 	std::istringstream iss(_request);
 	std::string line;
 	std::string value;
 	std::getline(iss, line);
-	value = parsing::findValue(line, 1);
 	//find method
-	if (parsing::checkIfFound(methodType, value) == 0)
-		this->_get = true;
-	else if (parsing::checkIfFound(methodType, value) == 1)
-		this->_post = true;
-	else if (parsing::checkIfFound(methodType, value) == 2)
-		this->_delete = true;
+	this->_get = true;
 	//find protocol
-	value = parsing::findValue(line, 3);
-	if (parsing::checkIfFound(protocolType, value) == 0)
-		this->_stringHttpProtocol = "HTTP/1.1";
-	else if (parsing::checkIfFound(protocolType, value) == 1)
-		this->_stringHttpProtocol = "HTTP/1.0";
+	parseHttpProtocol(line);
 	//find address
 	std::getline(iss, line);
-	value = parsing::findValue(line, 2);
-	if (value.find(':') != std::string::npos)
-	{
-		this->_ip = value.substr(0, value.find(':'));
-		this->_portNumber = std::stoi(value.substr(value.find(':') + 1));
-	}
-	else
-		this->_ip = value;
+	parseAddress(line);
 	//find connection
 	std::getline(iss, line);
-	value = parsing::findValue(line, 2);
-	if (parsing::checkIfFound(connectionType, value) == 0)
-		this->_aliveConnection = true;
-	else if (parsing::checkIfFound(connectionType, value) == 1)
-		this->_closeConnection = true;
+	parseConnectionType(line);
 	//find referer
-	while (std::getline(iss, line))
-	{
-		value = parsing::findValue(line, 1);
-		if (value == "Referer:")
-		{
-			this->_referer = parsing::findValue(line, 2);
-			break;
-		}
-	}
+	parseReferer(line);
 	//set valid request
 	int valid = 0;
 	if (this->_get || this->_post || this->_delete)
@@ -114,12 +82,61 @@ void clientRequest::parseGetRequest(){
 }
 
 void clientRequest::parsePostRequest(){
+	this->_post = true;
+
 
 }
 
 void clientRequest::parseDeleteRequest(){
 }
 
+void clientRequest::parseHttpProtocol(std::string line){
+	std::string protocolType[2] = {"HTTP/1.1", "HTTP/1.0"};
+	std::string value;
+	value = parsing::findValue(line, 3);
+	if (parsing::checkIfFound(protocolType, value) == 0)
+		this->_stringHttpProtocol = "HTTP/1.1";
+	else if (parsing::checkIfFound(protocolType, value) == 1)
+		this->_stringHttpProtocol = "HTTP/1.0";
+	else if (parsing::checkIfFound(protocolType, value) == -1)
+		this->_httpProtocol = false;
+}
+
+void clientRequest::parseAddress(std::string line){
+	std::string value;
+	value = parsing::findValue(line, 2);
+	if (value.find(':') != std::string::npos)
+	{
+		this->_ip = value.substr(0, value.find(':'));
+		this->_portNumber = std::stoi(value.substr(value.find(':') + 1));
+	}
+	else
+		this->_ip = value;
+}
+
+void clientRequest::parseConnectionType(std::string line){
+	std::string connectionType[2] = {"keep-alive", "close"};
+	std::string value;
+	value = parsing::findValue(line, 2);
+	if (parsing::checkIfFound(connectionType, value) == 0)
+		this->_aliveConnection = true;
+	else if (parsing::checkIfFound(connectionType, value) == 1)
+		this->_closeConnection = true;
+}
+
+void clientRequest::parseReferer(std::string line){
+	std::string value;
+	std::istringstream iss(_request);
+	while (std::getline(iss, line))
+	{
+		value = parsing::findValue(line, 1);
+		if (value == "Referer:")
+		{
+			this->_referer = parsing::findValue(line, 2);
+			break;
+		}
+	}
+}
 void clientRequest::printRequest(){
 	std::cout << "alive connection : " << getAliveConnection() << std::endl;
 	std::cout << "close connection : " << getCloseConnection() << std::endl;
