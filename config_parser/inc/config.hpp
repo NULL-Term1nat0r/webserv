@@ -33,13 +33,17 @@ class Config
 			public:
 				virtual const char	*what() const throw();
 		};
-
 		class LocationAlreadyExists : public std::exception
 		{
 			public:
 				virtual const char	*what() const throw();
 		};
-		void	iterateContainer();
+		class ContextExistsMoreThanOnce : public std::exception
+		{
+			public:
+				virtual const char	*what() const throw();
+		};
+		// void	iterateContainer();
 		std::vector<std::map<std::string, std::map<std::string, std::vector<std::string> > > >	getConfFile() const;
 		std::map<std::string, std::vector<std::string> >										getGlobalContext() const;
 		std::vector<std::vector<std::string> >													getLocations() const;
@@ -54,8 +58,8 @@ class Config
 		void	_globalBlock(std::ifstream &nginxConfFile, std::string &line);
 		bool	_fileOpen(std::ifstream &nginxConfFile);
 		std::vector<std::string> _tokenize(const std::string& line);
-		std::vector<std::map<std::string, std::map<std::string, std::vector<std::string> > > >	_confFile;
-		std::map<std::string, std::vector<std::string> >										_globalContext;
+		std::vector<std::map<std::string, std::map<std::string, std::vector<std::string> > > >	_confFile;//check for double keys
+		std::map<std::string, std::vector<std::string> >										_globalContext;//check for double keys
 		std::vector<std::vector<std::string> >													_locations;
 };
 

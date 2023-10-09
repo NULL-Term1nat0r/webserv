@@ -25,6 +25,10 @@ const char	*Config::LocationAlreadyExists::what() const throw() {
 	return "Location already exists.";
 }
 
+const char	*Config::ContextExistsMoreThanOnce::what() const throw() {
+	return "Context already exits for this block.";
+}
+
 std::vector<std::map<std::string, std::map<std::string, std::vector<std::string> > > >	Config::getConfFile() const {
 	return _confFile;
 }
@@ -50,6 +54,13 @@ std::vector<std::string>	Config::_tokenize(const std::string& line) {
 		tokens[tokens.size() - 1] = tokens[tokens.size() - 1].substr(0, tokens[tokens.size() - 1].find_first_of("#"));
 	if (tokens[tokens.size() - 1].find_first_of(';') == std::string::npos)
 		throw NoSemicolonAtTheEndOfContext();
+	tokens[tokens.size() - 1] = tokens[tokens.size() - 1].substr(0, tokens[tokens.size() - 1].size() - 1);
+	if (tokens[0] == "error_page") {
+		tokens[0] = tokens[0] + tokens[1];
+		for (size_t i = 1; i < tokens.size() - 1; i++)
+			tokens[i] = tokens[i + 1];
+		tokens.pop_back();
+	}
     return tokens;
 }
 
@@ -68,6 +79,9 @@ void	Config::_putContext(std::ifstream &nginxConfFile, std::string &line, int i,
 			continue ;
 		std::vector<std::string>	tmp = _tokenize(line);
 		std::vector<std::string>tmp2(tmp.begin() + 1, tmp.end());
+		std::map<std::string, std::vector<std::string> >::iterator it = _confFile[i][prevLine.substr(0, prevLine.find_first_of("{"))].find(tmp[0]);
+		if (it != _confFile[i][prevLine.substr(0, prevLine.find_first_of("{"))].end())
+			throw ContextExistsMoreThanOnce();
 		_confFile[i][prevLine.substr(0, prevLine.find_first_of("{"))][tmp[0]] = tmp2;
 	}
 	if (!line.find('}'))
@@ -132,7 +146,10 @@ void	Config::_globalBlock(std::ifstream &nginxConfFile, std::string &line) {
 			continue ;
 		std::vector<std::string>	tmp = _tokenize(line);
 		std::vector<std::string>tmp2(tmp.begin() + 1, tmp.end());
-		_globalContext[tmp[0]] = tmp2;  
+		std::map<std::string, std::vector<std::string> >::iterator it =_globalContext.find(tmp[0]);
+		if (it != _globalContext.end())
+			throw ContextExistsMoreThanOnce();
+		_globalContext[tmp[0]] = tmp2;
     } while (std::getline(nginxConfFile, line) && line.find('{') == std::string::npos);
 }
 

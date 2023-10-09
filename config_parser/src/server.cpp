@@ -38,8 +38,49 @@ bool	Server::_serverContextExists(std::map<std::string, std::vector<std::string>
 	return false;
 }
 
-void	Server::_setErrorPages(std::map<std::string, std::vector<std::string> > location, serverConf &conf) {//special case since error_page 400 error_page 500 same key
-	//if(_contextExists(location, ""))
+
+
+
+void	Server::_setErrorPage400(std::map<std::string, std::vector<std::string> > location, serverConf &conf) {
+	if(_serverContextExists(location, "error_pages400"))
+		conf.errorPages["error_page400"] = location["error_page400"][0].substr(0, location["error_page400"][0].size());
+}
+
+void	Server::_setErrorPage401(std::map<std::string, std::vector<std::string> > location, serverConf &conf) {
+	if(_serverContextExists(location, "error_pages401"))
+		conf.errorPages["error_page401"] = location["error_page401"][0].substr(0, location["error_page401"][0].size());
+}
+
+void	Server::_setErrorPage403(std::map<std::string, std::vector<std::string> > location, serverConf &conf) {
+	if(_serverContextExists(location, "error_pages403"))
+		conf.errorPages["error_page403"] = location["error_page403"][0].substr(0, location["error_page403"][0].size());
+}
+
+void	Server::_setErrorPage404(std::map<std::string, std::vector<std::string> > location, serverConf &conf) {
+	if(_serverContextExists(location, "error_pages404"))
+			conf.errorPages["error_page404"] = location["error_page404"][0].substr(0, location["error_page404"][0].size());
+}
+
+void	Server::_setErrorPage500(std::map<std::string, std::vector<std::string> > location, serverConf &conf) {
+	if(_serverContextExists(location, "error_pages500"))
+			conf.errorPages["error_page500"] = location["error_page500"][0].substr(0, location["error_page500"][0].size());
+}
+
+void	Server::_setErrorPage502(std::map<std::string, std::vector<std::string> > location, serverConf &conf) {
+	if(_serverContextExists(location, "error_pages502"))
+		conf.errorPages["error_page502"] = location["error_page502"][0].substr(0, location["error_page502"][0].size());
+}
+
+void	Server::_setErrorPage503(std::map<std::string, std::vector<std::string> > location, serverConf &conf) {
+	if(_serverContextExists(location, "error_pages503"))
+		conf.errorPages["error_page503"] = location["error_page503"][0].substr(0, location["error_page503"][0].size());
+}
+
+void	Server::_setErrorPages(std::map<std::string, std::vector<std::string> > location, serverConf &conf) {
+	void (Server::*errorPageFunc[]) (std::map<std::string, std::vector<std::string> > location, serverConf &conf) {&Server::_setErrorPage400, &Server::_setErrorPage401, &Server::_setErrorPage403, &Server::_setErrorPage404,
+		&Server::_setErrorPage500, &Server::_setErrorPage502, &Server::_setErrorPage503};
+	for (size_t i = 0; i < 7; i++)
+		(this->*errorPageFunc[i])(location, conf);
 }
 
 void	Server::_setServerName(std::map<std::string, std::vector<std::string> > location, serverConf &conf) {
@@ -59,9 +100,9 @@ void	Server::_setPort(std::map<std::string, std::vector<std::string> > location,
 
 //change to function pointer
 void	Server::_setGlobalServerValues(std::map<std::string, std::vector<std::string> > location, serverConf &conf) {
-	// void (Server::*serverFunc[]) (std::map<std::string, std::vector<std::string> > location, serverConf &conf) {&Server::_setPort, &Server::_setServerName, &Server::_setErrorPages};
-	// for (size_t i = 0; i < 3; i++)
-	// 	(this->*serverFunc[i])(location, conf);
+	void (Server::*serverFunc[]) (std::map<std::string, std::vector<std::string> > location, serverConf &conf) {&Server::_setPort, &Server::_setServerName, &Server::_setErrorPages};
+	for (size_t i = 0; i < 3; i++)
+		(this->*serverFunc[i])(location, conf);
 }
 
 
@@ -149,3 +190,66 @@ void	Server::getServerConf(Config conf) {
 	_globalValues(conf);
 	_serverValues(conf);
 }
+
+
+// void	Server::iterate() {
+// 	for (serverConf& server : _server) {
+//         if (!server.locations.empty()) {
+//             std::cout << "ServerName: " << server.serverName << std::endl;
+//             std::cout << "Port: " << server.port << std::endl;
+//             std::cout << "Error Pages:" << std::endl;
+//             for (const auto& errorPage : server.errorPages) {
+//                 std::cout << "  " << errorPage.first << " -> " << errorPage.second << std::endl;
+//             }
+//             std::cout << "Locations:" << std::endl;
+//             for (const auto& locationMap : server.locations) {
+//                 for (const auto& location : locationMap) {
+//                     std::cout << "  Location: " << location.first << std::endl;
+//                     LocationStruc& locStruct = location.second;
+//                     std::cout << "    allowGet: " << locStruct.allowGet << std::endl;
+//                     std::cout << "    allowPost: " << locStruct.allowPost << std::endl;
+//                     std::cout << "    allowDelete: " << locStruct.allowDelete << std::endl;
+//                     std::cout << "    autoindex: " << locStruct.autoindex << std::endl;
+//                     std::cout << "    root: " << locStruct.root << std::endl;
+//                     std::cout << "    index: " << locStruct.index << std::endl;
+//                     std::cout << "    Rewrite:" << std::endl;
+//                     for (const std::string& rewrite : locStruct.rewrite) {
+//                         std::cout << "      " << rewrite << std::endl;
+//                     }
+//                     std::cout << "    CGI:" << std::endl;
+//                     for (const std::string& cgi : locStruct.cgi) {
+//                         std::cout << "      " << cgi << std::endl;
+//                     }
+//                 }
+//             }
+//             std::cout << std::endl;
+//         }
+//     }
+// }
+
+
+typedef struct locationStruc
+{
+	bool						allowGet;
+	bool						allowPost;
+	bool						allowDelete;
+	std::vector<std::string>	rewrite;// look how to really parse it
+	std::string					autoindex;
+	std::string					root;
+	std::string					index;
+	std::vector<std::string>	cgi;
+
+	//client_max_body_size; wie wird der Wert geparsed
+	//tryfiles
+};
+
+typedef struct serverConf
+{
+	std::vector<std::map<std::string, locationStruc> >	locations;
+	std::map<std::string, std::string>				errorPages;
+	short unsigned									port;
+	std::string										serverName;
+};
+
+
+std::vector<serverConf>		_server;

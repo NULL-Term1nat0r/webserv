@@ -12,7 +12,7 @@ int main(int argc, char **argv) {
 	try {
 		Config	conf;
 		conf.parseConfFile(argv[1]);
-		conf.iterateContainer();
+		// conf.iterateContainer();
 		Server	serv;
 		serv.getServerConf(conf);
 	}

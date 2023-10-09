@@ -1,10 +1,10 @@
 NAME = conf 
 
-SRC = ${shell echo *.cpp}
+SRC = ${shell echo src/*.cpp}
 
 OBJ = $(patsubst %.cpp, %.o, $(SRC))
 
-HEADER = ${shell echo *.hpp}
+HEADER = ${shell echo inc/*.hpp}
 
 CC =  c++
 

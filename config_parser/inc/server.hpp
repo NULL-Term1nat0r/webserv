@@ -4,20 +4,21 @@
 # include <string>
 # include <vector>
 # include <map>
-# include "config.hpp"
+# include "../inc/config.hpp"
 
 typedef struct locationStruc
 {
 	bool						allowGet;
 	bool						allowPost;
 	bool						allowDelete;
-	std::vector<std::string>	rewrite;
+	std::vector<std::string>	rewrite;// look how to really parse it
 	std::string					autoindex;
 	std::string					root;
 	std::string					index;
 	std::vector<std::string>	cgi;
 
 	//client_max_body_size; wie wird der Wert geparsed
+	//tryfiles
 };
 
 typedef struct serverConf
@@ -34,6 +35,9 @@ class Server
 		Server();
 		~Server();
 		void	getServerConf(Config conf);
+
+
+		// void	 iterate();
 	private:
 		
 		bool	_locationContextExists(std::map<std::string, std::vector<std::string> > location, std::string context);
@@ -50,6 +54,17 @@ class Server
 
 	
 		bool	_serverContextExists(std::map<std::string, std::vector<std::string> > location, std::string context);
+		
+		
+		
+		void	_setErrorPage400(std::map<std::string, std::vector<std::string> > location, serverConf &conf);
+		void	_setErrorPage401(std::map<std::string, std::vector<std::string> > location, serverConf &conf);
+		void	_setErrorPage403(std::map<std::string, std::vector<std::string> > location, serverConf &conf);
+		void	_setErrorPage404(std::map<std::string, std::vector<std::string> > location, serverConf &conf);
+		void	_setErrorPage500(std::map<std::string, std::vector<std::string> > location, serverConf &conf);
+		void	_setErrorPage502(std::map<std::string, std::vector<std::string> > location, serverConf &conf);
+		void	_setErrorPage503(std::map<std::string, std::vector<std::string> > location, serverConf &conf);
+		
 		void	_setErrorPages(std::map<std::string, std::vector<std::string> > location, serverConf &conf);
 		void	_setServerName(std::map<std::string, std::vector<std::string> > location, serverConf &conf);
 		void	_setPort(std::map<std::string, std::vector<std::string> > location, serverConf &conf);
