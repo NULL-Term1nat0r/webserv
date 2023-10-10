@@ -15,6 +15,7 @@ int main(int argc, char **argv) {
 		// conf.iterateContainer();
 		Server	serv;
 		serv.getServerConf(conf);
+		serv.iterate();
 	}
 	catch (std::exception &e) {
 		std::cerr << "Error: " << e.what() << std::endl;

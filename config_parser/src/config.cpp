@@ -89,8 +89,7 @@ void	Config::_putContext(std::ifstream &nginxConfFile, std::string &line, int i,
 }
 
 bool	Config::_locationExists(std::string line, int i) {
-	std::vector<std::string>::iterator it = std::find(_locations[i].begin(), _locations[i].end(), line);
-    if (it == _locations[i].end()) {
+    if (std::find(_locations[i].begin(), _locations[i].end(), line) == _locations[i].end()) {
 		_locations[i].push_back(line);
 		return false;
 	}
