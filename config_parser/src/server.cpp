@@ -47,7 +47,7 @@ void	Server::_setRoot(std::map<std::string, std::vector<std::string> > location,
 		conf.locations[i][locationName].root = location["root"][0];
 }
 
-void	Server::_setIndex(std::map<std::string, std::vector<std::string> > location, std::string locationName, ServerConf &conf, size_t i) { // +/
+void	Server::_setIndex(std::map<std::string, std::vector<std::string> > location, std::string locationName, ServerConf &conf, size_t i) { // ??????????+/
 	if (location.find("index") != location.end())
 		conf.locations[i][locationName].index = location["index"][0];
 }
@@ -81,44 +81,17 @@ void	Server::_serverValues(Config conf) {
 		_setServerValues(serverContext[i], locations[i]);
 }
 
+void	Server::_checkDuplicatePorts() {
+	for (size_t i = 0; i < _server.size() - 1; i++) {
+		for (size_t j = i + 1 ; j < _server.size(); j++) {
+			if (_server[i].port == _server[j].port)
+				throw PortAlreadyInUse();
+		}
+	}
+}
+
 void	Server::getServerConf(Config conf) {
 	_globalValues(conf);
 	_serverValues(conf);
+	_checkDuplicatePorts();
 }
-
-
-void	Server::iterate() {
-	for (ServerConf& server : _server) {
-        if (!server.locations.empty()) {
-            std::cout << "ServerName: " << server.serverName << std::endl;
-            std::cout << "Port: " << server.port << std::endl;
-            std::cout << "Error Pages:" << std::endl;
-            for (const auto& errorPage : server.errorPages) {
-                std::cout << "  " << errorPage.first << " -> " << errorPage.second << std::endl;
-            }
-            std::cout << "Locations:" << std::endl;
-            for (const auto& locationMap : server.locations) {
-                for (const auto& location : locationMap) {
-                    std::cout << "  Location: " << location.first << std::endl;
-                   	const LocationStruc& locStruct = location.second;
-                    std::cout << "    allowGet: " << locStruct.allowGet << std::endl;
-                    std::cout << "    allowPost: " << locStruct.allowPost << std::endl;
-                    std::cout << "    allowDelete: " << locStruct.allowDelete << std::endl;
-                    std::cout << "    autoindex: " << locStruct.autoindex << std::endl;
-                    std::cout << "    root: " << locStruct.root << std::endl;
-                    std::cout << "    index: " << locStruct.index << std::endl;
-                    std::cout << "    Rewrite:" << std::endl;
-                    for (const std::string& rewrite : locStruct.rewrite) {
-                        std::cout << "      " << rewrite << std::endl;
-                    }
-                    std::cout << "    CGI:" << std::endl;
-                    for (const std::string& cgi : locStruct.cgi) {
-                        std::cout << "      " << cgi << std::endl;
-                    }
-                }
-            }
-            std::cout << std::endl;
-        }
-    }
-}
-

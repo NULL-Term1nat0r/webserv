@@ -9,25 +9,67 @@ const char	*Server::WrongPort::what() const throw() {
 	return "Port is wrong or is already in use.";
 }
 
-void	Server::_setErrorLog(std::map<std::string, std::vector<std::string> > globalContext) {
-	if (globalContext.find("error_log") != globalContext.end())
-		_errorLog = globalContext["error_log"];
+const char	*Server::WrongAmount::what() const throw() {
+	return "Amount for the Context is not enough.";
 }
 
-void	Server::_setAccessLog(std::map<std::string, std::vector<std::string> > globalContext) {
-	if (globalContext.find("access_log") != globalContext.end())
-		_accessLog = globalContext["access_log"];
+const char	*Server::PortAlreadyInUse::what() const throw() {
+	return "The Port is already used.";
+}
+
+void	Server::_setBackLog(std::map<std::string, std::vector<std::string> > globalContext) {
+	if (globalContext.find("backlog") != globalContext.end()) {
+		_backlog = atoi(globalContext["backlog"][0].c_str());
+		if (_backlog < 0)
+			throw WrongAmount();
+	}
+}
+
+void	Server::_setBuffSize(std::map<std::string, std::vector<std::string> > globalContext) {
+	if (globalContext.find("buff_size") != globalContext.end()) {
+		_buffSize = atoi(globalContext["buff_size"][0].c_str());
+		if (_buffSize < 0)
+			throw WrongAmount();
+	}
+}
+
+void	Server::_setClientTimeout(std::map<std::string, std::vector<std::string> > globalContext) {
+	if (globalContext.find("client_timeout") != globalContext.end()) {
+		_clientTimeout = atoi(globalContext["client_timeout"][0].c_str());
+		if (_clientTimeout < 0)
+			throw WrongAmount();
+	}
+}
+
+void	Server::_setScriptTimeouts(std::map<std::string, std::vector<std::string> > globalContext) {
+	if (globalContext.find("script_timeout") != globalContext.end()) {
+		_scriptTimeout = atoi(globalContext["script_timeout"][0].c_str());
+		if (_scriptTimeout < 0)
+			throw WrongAmount();
+	}
+}
+
+void	Server::_setWorkerConnections(std::map<std::string, std::vector<std::string> > globalContext) {
+	if (globalContext.find("worker_connections") != globalContext.end()) {
+		_workerConnections= atoi(globalContext["worker_connections"][0].c_str());
+		if (_workerConnections < 0)
+			throw WrongAmount();
+	}
 }
 
 void	Server::_setWorkerProcesses(std::map<std::string, std::vector<std::string> > globalContext) {
-	if (globalContext.find("worker_processes") != globalContext.end())
-		_workerProcesses = globalContext["worker_processes"];
+	if (globalContext.find("worker_processes") != globalContext.end()) {
+		_workerProcesses = atoi(globalContext["worker_processes"][0].c_str());
+		if (_workerProcesses < 0)
+			throw WrongAmount();
+	}
 }
 
 void	Server::_globalValues(Config conf) {
 	std::map<std::string, std::vector<std::string> > globalContext = conf.getGlobalContext();
-	void (Server::*globalFunc[]) (std::map<std::string, std::vector<std::string> >) = {&Server::_setErrorLog, &Server::_setAccessLog, &Server::_setWorkerProcesses};
-	for (size_t i = 0; i < 3; i++)
+	void (Server::*globalFunc[]) (std::map<std::string, std::vector<std::string> >)
+	= {&Server::_setWorkerProcesses, &Server::_setWorkerConnections, &Server::_setScriptTimeouts, &Server::_setClientTimeout, &Server::_setBuffSize, &Server::_setBackLog};
+	for (size_t i = 0; i < 5; i++)
 		(this->*globalFunc[i])(globalContext);
 }
 
@@ -69,7 +111,7 @@ void	Server::_setErrorPage503(std::map<std::string, std::vector<std::string> > l
 void	Server::_setErrorPages(std::map<std::string, std::vector<std::string> > location, ServerConf &conf) {
 	void (Server::*errorPageFunc[]) (std::map<std::string, std::vector<std::string> > location, ServerConf &conf) = {&Server::_setErrorPage400, &Server::_setErrorPage401, &Server::_setErrorPage403, &Server::_setErrorPage404,
 		&Server::_setErrorPage500, &Server::_setErrorPage502, &Server::_setErrorPage503};
-	for (size_t i = 0; i < 7; i++)
+	for (size_t i = 0; i < 7; i++)//change i value if error pages added
 		(this->*errorPageFunc[i])(location, conf);
 }
 
@@ -87,8 +129,16 @@ void	Server::_setPort(std::map<std::string, std::vector<std::string> > location,
 		throw WrongPort();
 }
 
+void	Server::_setBodySize(std::map<std::string, std::vector<std::string> > location, ServerConf &conf) {
+	if (location.find("body_size") != location.end()) {
+		conf.bodySize = atoi(location["body_size"][0].c_str());
+		if (conf.bodySize < 0)
+			throw WrongAmount();
+	}
+}
+
 void	Server::_setGlobalServerValues(std::map<std::string, std::vector<std::string> > location, ServerConf &conf) {
-	void (Server::*serverFunc[]) (std::map<std::string, std::vector<std::string> > location, ServerConf &conf) = {&Server::_setPort, &Server::_setServerName, &Server::_setErrorPages};
-	for (size_t i = 0; i < 3; i++)
+	void (Server::*serverFunc[]) (std::map<std::string, std::vector<std::string> > location, ServerConf &conf) = {&Server::_setBodySize, &Server::_setPort, &Server::_setServerName, &Server::_setErrorPages};
+	for (size_t i = 0; i < 4; i++)
 		(this->*serverFunc[i])(location, conf);
 }

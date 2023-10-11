@@ -41,6 +41,16 @@ std::vector<std::vector<std::string> >	Config::getLocations() const {
 	return _locations;
 }
 
+
+void	Config::_tokenizeErrorPage(std::vector<std::string> &tokens) {
+	if (tokens[0] == "error_page") {
+		tokens[0] = tokens[0] + tokens[1];
+		for (size_t i = 1; i < tokens.size() - 1; i++)
+			tokens[i] = tokens[i + 1];
+		tokens.pop_back();
+	}
+}
+
 std::vector<std::string>	Config::_tokenize(const std::string& line) {
     std::vector<std::string> tokens;
     std::istringstream iss(line);
@@ -55,12 +65,7 @@ std::vector<std::string>	Config::_tokenize(const std::string& line) {
 	if (tokens[tokens.size() - 1].find_first_of(';') == std::string::npos)
 		throw NoSemicolonAtTheEndOfContext();
 	tokens[tokens.size() - 1] = tokens[tokens.size() - 1].substr(0, tokens[tokens.size() - 1].size() - 1);
-	if (tokens[0] == "error_page") {
-		tokens[0] = tokens[0] + tokens[1];
-		for (size_t i = 1; i < tokens.size() - 1; i++)
-			tokens[i] = tokens[i + 1];
-		tokens.pop_back();
-	}
+	_tokenizeErrorPage(tokens);
     return tokens;
 }
 
@@ -79,8 +84,7 @@ void	Config::_putContext(std::ifstream &nginxConfFile, std::string &line, int i,
 			continue ;
 		std::vector<std::string>	tmp = _tokenize(line);
 		std::vector<std::string>tmp2(tmp.begin() + 1, tmp.end());
-		std::map<std::string, std::vector<std::string> >::iterator it = _confFile[i][prevLine.substr(0, prevLine.find_first_of("{"))].find(tmp[0]);
-		if (it != _confFile[i][prevLine.substr(0, prevLine.find_first_of("{"))].end())
+		if (_confFile[i][prevLine.substr(0, prevLine.find_first_of("{"))].find(tmp[0]) != _confFile[i][prevLine.substr(0, prevLine.find_first_of("{"))].end())
 			throw ContextExistsMoreThanOnce();
 		_confFile[i][prevLine.substr(0, prevLine.find_first_of("{"))][tmp[0]] = tmp2;
 	}
@@ -123,7 +127,8 @@ void	Config::_handleNoLocation(std::ifstream &nginxConfFile, std::string &line, 
 void	Config::_serverBlock(std::ifstream &nginxConfFile, std::string &line, int i) {
 	_locations.push_back(std::vector<std::string>());
 	_confFile.push_back(std::map<std::string, std::map<std::string, std::vector<std::string> > >());
-	while ((line.find('{') != std::string::npos && _checkEmptyAndComments(line)) || (std::getline(nginxConfFile, line) && line.find('}') == std::string::npos) || !_checkEmptyAndComments(line)) {
+	while ((line.find('{') != std::string::npos && _checkEmptyAndComments(line))
+		|| (std::getline(nginxConfFile, line) && line.find('}') == std::string::npos) || !_checkEmptyAndComments(line)) {
 		if (!_checkEmptyAndComments(line))
 			continue ;
 		if (line.find("location") == std::string::npos && line.find("server") == std::string::npos && line.find('{') != std::string::npos)
@@ -176,71 +181,3 @@ void	Config::parseConfFile(char *file) {
 	}
 	nginxConfFile.close();
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-// void	Config::iterateContainer()
-// {
-// 	std::string partition(50, '-');
-	
-// 	std::cout << partition << std::endl;
-// 	std::cout << "_confFile\n";
-// 	std::cout << partition << std::endl;
-// 	for (const auto& outerMap : _confFile) {
-//         // Iterate through the outer map
-//         for (const auto& outerPair : outerMap) {
-//             const std::string& outerKey = outerPair.first;
-//             const std::map<std::string, std::vector<std::string> >& innerMap = outerPair.second;
-
-//             // Print outer map key and values
-//            std::cout << "Outer Key: " << outerKey << std::endl;
-
-//             // Iterate through the inner map
-//             for (const auto& innerPair : innerMap) {
-//                 const std::string& innerKey = innerPair.first;
-//                 const std::vector<std::string>& innerValue = innerPair.second;
-
-//                 // Print inner map key and values
-//                 std::cout << innerKey << std::endl;
-//                 std::cout << "Inner Values:" << std::endl;
-
-//                 // Iterate through the inner vector
-//                 for (const std::string& value : innerValue) {
-//                     std::cout << value << std::endl;
-//                 }
-//             }
-//         }
-//     }
-// 	std::cout << partition << std::endl;
-// 	std::cout << "_globalContext\n";
-// 	std::cout << partition << std::endl;
-// 	for (const auto& pair : _globalContext) {
-// 		const std::string& key = pair.first;
-// 		const std::vector<std::string>& values = pair.second;
-
-// 		std::cout << "Key: " << key << std::endl;
-// 		std::cout << "Values:" << std::endl;
-
-// 		// Iterate through the vector of values
-// 		for (const std::string& value : values) {
-// 			std::cout << "  " << value << std::endl;
-// 		}
-// 	}
-// 	std::cout << partition << std::endl;
-// 	std::cout << "_loactions\n";
-// 	std::cout << partition << std::endl;
-// 	for (int i = 0; i < _locations.size(); i++) {
-// 		for (int j = 0; j <_locations[i].size(); j++)
-// 			std::cout << _locations[i][j] << std::endl;
-// 	}
-// }

@@ -18,8 +18,6 @@ typedef struct LocationStruc
 	std::string					root;
 	std::string					index;
 	std::vector<std::string>	cgi;
-
-	//client_max_body_size; wie wird der Wert geparsed
 	//tryfiles
 } LocationStruc;
 
@@ -28,9 +26,11 @@ typedef struct ServerConf
 	ServerConf();
 	~ServerConf();
 	std::vector<std::map<std::string, LocationStruc> >	locations;
-	std::map<std::string, std::string>				errorPages;
-	short unsigned									port;
-	std::string										serverName;
+	std::map<std::string, std::string>					errorPages;//maybe add some more
+	short unsigned										port;
+	std::string											serverName;
+	int													bodySize;
+	//??index, root, default_server
 } ServerConf;
 
 class Server
@@ -39,8 +39,17 @@ class Server
 		Server();
 		~Server();
 		void	getServerConf(Config conf);
-		void	 iterate();
 		class WrongPort : public std::exception
+		{
+			public:
+				virtual const char	*what() const throw();
+		};
+		class WrongAmount : public std::exception
+		{
+			public:
+				virtual const char	*what() const throw();
+		};
+		class PortAlreadyInUse : public std::exception
 		{
 			public:
 				virtual const char	*what() const throw();
@@ -49,47 +58,48 @@ class Server
 		//*******************//
 		//*** server.cpp ***//
 		//*******************//
-		void	_setClientMaxBodySize(std::map<std::string, std::vector<std::string> > location, std::string locationName, ServerConf &conf, size_t i);
-		
-		void	_setCgi(std::map<std::string, std::vector<std::string> > location, std::string locationName, ServerConf &conf, size_t i);
-		void	_setRewrite(std::map<std::string, std::vector<std::string> > location, std::string locationName, ServerConf &conf, size_t i);
-		void	_setAutoIndex(std::map<std::string, std::vector<std::string> > location, std::string locationName, ServerConf &conf, size_t i);
-		void	_setRoot(std::map<std::string, std::vector<std::string> > location, std::string locationName, ServerConf &conf, size_t i);
-		void	_setIndex(std::map<std::string, std::vector<std::string> > location, std::string locationName, ServerConf &conf, size_t i);
-		void	_setAllowMethods(std::map<std::string, std::vector<std::string> > location, std::string locationName, ServerConf &conf, size_t i);
-		void	_setLocationServerValues(std::map<std::string, std::vector<std::string> > location, std::string locationName, ServerConf &conf, size_t i);
-		void	_setServerValues(std::map<std::string, std::map<std::string, std::vector<std::string> > > server, std::vector<std::string> locations);
-		void	_serverValues(Config conf);
+		void						_setCgi(std::map<std::string, std::vector<std::string> > location, std::string locationName, ServerConf &conf, size_t i);
+		void						_setRewrite(std::map<std::string, std::vector<std::string> > location, std::string locationName, ServerConf &conf, size_t i);
+		void						_setAutoIndex(std::map<std::string, std::vector<std::string> > location, std::string locationName, ServerConf &conf, size_t i);
+		void						_setRoot(std::map<std::string, std::vector<std::string> > location, std::string locationName, ServerConf &conf, size_t i);
+		void						_setIndex(std::map<std::string, std::vector<std::string> > location, std::string locationName, ServerConf &conf, size_t i);
+		void						_setAllowMethods(std::map<std::string, std::vector<std::string> > location, std::string locationName, ServerConf &conf, size_t i);
+		void						_setLocationServerValues(std::map<std::string, std::vector<std::string> > location, std::string locationName, ServerConf &conf, size_t i);
+		void						_setServerValues(std::map<std::string, std::map<std::string, std::vector<std::string> > > server, std::vector<std::string> locations);
+		void						_serverValues(Config conf);
 		//*******************//
 		//*** server2.cpp ***//
 		//*******************//
-		void	_setErrorPage400(std::map<std::string, std::vector<std::string> > location, ServerConf &conf);
-		void	_setErrorPage401(std::map<std::string, std::vector<std::string> > location, ServerConf &conf);
-		void	_setErrorPage403(std::map<std::string, std::vector<std::string> > location, ServerConf &conf);
-		void	_setErrorPage404(std::map<std::string, std::vector<std::string> > location, ServerConf &conf);
-		void	_setErrorPage500(std::map<std::string, std::vector<std::string> > location, ServerConf &conf);
-		void	_setErrorPage502(std::map<std::string, std::vector<std::string> > location, ServerConf &conf);
-		void	_setErrorPage503(std::map<std::string, std::vector<std::string> > location, ServerConf &conf);
-		void	_setErrorPages(std::map<std::string, std::vector<std::string> > location, ServerConf &conf);
-		void	_setServerName(std::map<std::string, std::vector<std::string> > location, ServerConf &conf);
-		void	_setPort(std::map<std::string, std::vector<std::string> > location, ServerConf &conf);
-		void	_setGlobalServerValues(std::map<std::string, std::vector<std::string> > location, ServerConf &conf);
-		void						_setErrorLog(std::map<std::string, std::vector<std::string> > globalContext);
-		void						_setAccessLog(std::map<std::string, std::vector<std::string> > globalContext);
+		void						_setErrorPage400(std::map<std::string, std::vector<std::string> > location, ServerConf &conf);
+		void						_setErrorPage401(std::map<std::string, std::vector<std::string> > location, ServerConf &conf);
+		void						_setErrorPage403(std::map<std::string, std::vector<std::string> > location, ServerConf &conf);
+		void						_setErrorPage404(std::map<std::string, std::vector<std::string> > location, ServerConf &conf);
+		void						_setErrorPage500(std::map<std::string, std::vector<std::string> > location, ServerConf &conf);
+		void						_setErrorPage502(std::map<std::string, std::vector<std::string> > location, ServerConf &conf);
+		void						_setErrorPage503(std::map<std::string, std::vector<std::string> > location, ServerConf &conf);
+		void						_setErrorPages(std::map<std::string, std::vector<std::string> > location, ServerConf &conf);
+		void						_setServerName(std::map<std::string, std::vector<std::string> > location, ServerConf &conf);
+		void						_setPort(std::map<std::string, std::vector<std::string> > location, ServerConf &conf);
+		void						_setBodySize(std::map<std::string, std::vector<std::string> > location, ServerConf &conf);
+		void						_setGlobalServerValues(std::map<std::string, std::vector<std::string> > location, ServerConf &conf);
 		void						_setWorkerProcesses(std::map<std::string, std::vector<std::string> > globalContext);
-		void						_globalValues(Config conf);
-		std::string					_include;
-
-
-
-
-	
-	
-		std::vector<std::string>	_workerProcesses;
-		std::vector<std::string>	_accessLog;
-		std::vector<std::string>	_errorLog;
+		void						_setWorkerConnections(std::map<std::string, std::vector<std::string> > globalContext);
+		void						_setScriptTimeouts(std::map<std::string, std::vector<std::string> > globalContext);
+		void						_setClientTimeout(std::map<std::string, std::vector<std::string> > globalContext);		
+		void						_setBuffSize(std::map<std::string, std::vector<std::string> > globalContext);
+		void						_setBackLog(std::map<std::string, std::vector<std::string> > globalContext);
+		void						_globalValues(Config conf);	
+		void						_checkDuplicatePorts();
+		//*******************//
+		//**** variables ****//
+		//*******************//
+		int							_workerProcesses;//could be auto;
+		int							_workerConnections;
+		int							_scriptTimeout;
+		int							_clientTimeout;
+		int							_buffSize;
+		int							_backlog;
 		std::vector<ServerConf>		_server;
 };
 
 #endif
-//loactions will still be usefulll moving on (for URL)
