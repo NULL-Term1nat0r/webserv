@@ -75,8 +75,7 @@
 //                 std::cout << "  " << errorPage.first << " -> " << errorPage.second << std::endl;
 //             }
 //             std::cout << "Locations:" << std::endl;
-//             for (const auto& locationMap : server.locations) {
-//                 for (const auto& location : locationMap) {
+//             for (const auto& location : server.locations) {
 //                     std::cout << "  Location: " << location.first << std::endl;
 //                    	const LocationStruc& locStruct = location.second;
 //                     std::cout << "    allowGet: " << locStruct.allowGet << std::endl;
@@ -94,7 +93,6 @@
 //                         std::cout << "      " << cgi << std::endl;
 //                     }
 //                 }
-//             }
 //             std::cout << std::endl;
 //         }
 //     }

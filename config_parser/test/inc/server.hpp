@@ -25,11 +25,11 @@ typedef struct ServerConf
 {
 	ServerConf();
 	~ServerConf();
-	std::map<std::string, LocationStruc>	locations;//vector before
-	std::map<std::string, std::string>		errorPages;//maybe add some more
-	short unsigned							port;
-	std::string								serverName;
-	int										bodySize;
+	std::vector<std::map<std::string, LocationStruc> >	locations;
+	std::map<std::string, std::string>					errorPages;//maybe add some more
+	short unsigned										port;
+	std::string											serverName;
+	int													bodySize;
 	//??index, root, default_server
 } ServerConf;
 
@@ -39,7 +39,6 @@ class Server
 		Server();
 		~Server();
 		void	getServerConf(Config conf);
-
 		class WrongPort : public std::exception
 		{
 			public:
@@ -55,13 +54,6 @@ class Server
 			public:
 				virtual const char	*what() const throw();
 		};
-		int							_workerProcesses;//could be auto;
-		int							_workerConnections;
-		int							_scriptTimeout;
-		int							_clientTimeout;
-		int							_buffSize;
-		int							_backlog;
-		std::vector<ServerConf>		_server;
 	private:
 		//*******************//
 		//*** server.cpp ***//
@@ -101,6 +93,13 @@ class Server
 		//*******************//
 		//**** variables ****//
 		//*******************//
+		int							_workerProcesses;//could be auto;
+		int							_workerConnections;
+		int							_scriptTimeout;
+		int							_clientTimeout;
+		int							_buffSize;
+		int							_backlog;
+		std::vector<ServerConf>		_server;
 };
 
 #endif
