@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Image Upload</title>
+</head>
+<body>
+<h2>Select and Upload an Image</h2>
+<input type="file" id="fileInput" accept="image/*">
+<button id="uploadButton">Upload</button>
+<div id="uploadStatus"></div>
+
+<script>
+    document.getElementById("uploadButton").addEventListener("click", function () {
+        var fileInput = document.getElementById("fileInput");
+        var selectedFile = fileInput.files[0];
+
+        if (!selectedFile) {
+            alert("Please select an image to upload.");
+            return;
+        }
+
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "/your_server_endpoint_for_image_upload", true);
+
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                document.getElementById("uploadStatus").textContent = "Upload successful!";
+            } else {
+                document.getElementById("uploadStatus").textContent = "Upload failed!";
+            }
+        };
+
+        xhr.onerror = function () {
+            document.getElementById("uploadStatus").textContent = "An error occurred during the upload.";
+        };
+
+        xhr.send(selectedFile);
+    });
+</script>
+</body>
+</html>
+
+

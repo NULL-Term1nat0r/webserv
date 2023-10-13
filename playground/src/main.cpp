@@ -2,6 +2,11 @@
 #include "../inc/config.hpp"
 #include "../inc/server.hpp"
 
+#include "../inc/Header.h"
+#include "../inc/clientRequest.hpp"
+#include "../inc/parsing.hpp"
+#include "../inc/webServer.hpp"
+
 void	wrongArgAmount() {
 	std::cerr << "Error: Number of arguments has to be exactly 2." << std::endl;
 }
@@ -12,10 +17,13 @@ int main(int argc, char **argv) {
 	try {
 		Config	conf;
 		conf.parseConfFile(argv[1]);
-		// conf.iterateContainer();
 		Server	serv;
 		serv.getServerConf(conf);
-		// serv.iterate();
+
+		size_t z = 0;
+		webServer::startServer(serv, z);
+		// for (size_t z = 0; z < serv._server.size(); z++)
+		// 	webServer::startServer(serv, z);
 	}
 	catch (std::exception &e) {
 		std::cerr << "Error: " << e.what() << std::endl;
