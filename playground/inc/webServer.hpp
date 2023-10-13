@@ -5,7 +5,7 @@
 #include "Header.h"
 
 #include "response.hpp"
-#include "server.hpp"
+#include "clientRequest.hpp"
 
 class webServer
 {
@@ -20,7 +20,7 @@ public:
 	webServer &operator=(const webServer &other);
 
 	static std::string returnFileContent(std::string fileName);
-	static int startServer(Server &serv, size_t z);
+	static int startServer();
 
 };
 

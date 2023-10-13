@@ -4,7 +4,7 @@
 # include <string>
 # include <vector>
 # include <map>
-# include "../inc/config.hpp"
+# include "config.hpp"
 
 typedef struct LocationStruc
 {

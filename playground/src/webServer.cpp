@@ -28,7 +28,7 @@ webServer &webServer::operator=(const webServer &other)
 	return *this;
 }
 
-int webServer::startServer(Server &serv, size_t z) {
+int webServer::startServer() {
 
 		int server_socket;
 		struct sockaddr_in server_addr;
@@ -50,9 +50,9 @@ int webServer::startServer(Server &serv, size_t z) {
 
 
 	// Configure server address
-		memset(&server_addr, 0, sizeof(server_addr)); //!!not needed
+		memset(&server_addr, 0, sizeof(server_addr));
 		server_addr.sin_family = AF_INET;
-		server_addr.sin_port = htons(serv._server[z].port);
+		server_addr.sin_port = htons(SERVER_PORT);
 		server_addr.sin_addr.s_addr = INADDR_ANY;
 
 		// Bind the socket to the server address
@@ -67,7 +67,7 @@ int webServer::startServer(Server &serv, size_t z) {
 			return 1;
 		}
 
-		std::cout << "Server listening on port " << serv._server[z].port << std::endl;
+		std::cout << "Server listening on port " << SERVER_PORT << std::endl;
 
 		// Create a vector to store client sockets
 		std::vector<int> client_sockets;
@@ -108,7 +108,7 @@ int webServer::startServer(Server &serv, size_t z) {
 		for (size_t i = 1; i < poll_fds.size(); ++i) {
 			if (poll_fds[i].revents & POLLIN) {
 				int client_socket = poll_fds[i].fd;
-				char buffer[serv._buffSize];
+				char buffer[900000];
 				ssize_t bytes_received = recv(client_socket, buffer, sizeof(buffer), 0);
 
 				if (bytes_received <= 0) {
@@ -119,14 +119,29 @@ int webServer::startServer(Server &serv, size_t z) {
 					poll_fds.erase(poll_fds.begin() + i);
 				} else {
 					// Print the received request from the client
+
 					std::string request(buffer, bytes_received);
-					std::cout << "Received request from client with socket " << client_socket << ":" << std::endl;
+//					std::cout << "Received request from client with socket " << client_socket << ":" << std::endl;
 					std::cout << request << std::endl;
 
 					// Send an HTML response to the client
-					std::string htmlResponse = response::getResponse();
-					std::cout << "htmlResponse: " << htmlResponse << std::endl;
-					send(client_socket, htmlResponse.c_str(), htmlResponse.length(), 0);
+//					std::string htmlResponse = response::getResponse();
+////					std::cout << "htmlResponse: " << htmlResponse << std::endl;
+//					send(client_socket, htmlResponse.c_str(), htmlResponse.length(), 0);
+//					send(client_socket, binaryData, sizeof(binaryData) - 1, 0);
+					if (request.find("POST") != std::string::npos) {
+						clientRequest newClientRequest(request);
+						newClientRequest.printRequest();
+						response newResponse(newClientRequest.getStringURL());
+						send(client_socket, newResponse.getResponse().c_str(), newResponse.getResponse().length(), 0);
+					}
+						//send an HTML response to the client
+					else {
+						clientRequest newClientRequest(request);
+						response newResponse(newClientRequest.getStringURL());
+						send(client_socket, newResponse.getResponse().c_str(), newResponse.getResponse().length(), 0);
+					}
+
 
 					// Close the client socket
 					close(client_socket);
@@ -165,7 +180,43 @@ std::string webServer::returnFileContent(std::string fileName){
 }
 
 
-
+//POST /your_server_endpoint_here HTTP/1.1
+//Host: localhost:8080
+//Connection: keep-alive
+//		Content-Length: 75344
+//sec-ch-ua: "Chromium";v="116", "Not)A;Brand";v="24", "Google Chrome";v="116"
+//sec-ch-ua-platform: "macOS"
+//sec-ch-ua-mobile: ?0
+//User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36
+//Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryXn1EbJmGBQYg1tD4
+//Accept: */*
+//Origin: http://localhost:8080
+//Sec-Fetch-Site: same-origin
+//Sec-Fetch-Mode: cors
+//Sec-Fetch-Dest: empty
+//Referer: http://localhost:8080/
+//Accept-Encoding: gzip, deflate, br
+//Accept-Language: en-GB,en-US;q=0.9,en;q=0.8
+//
+//------WebKitFormBoundaryXn1EbJmGBQYg1tD4
+//Content-Disposition: form-data; name="message"
+//
+//
+//------WebKitFormBoundaryXn1EbJmGBQYg1tD4
+//Content-Disposition: form-data; name="file"; filename="81pfcw.jpeg"
+//Content-Type: image/jpeg
+//
+//����JFIF��C
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//��C
 
 
 // extract binary data from the request
