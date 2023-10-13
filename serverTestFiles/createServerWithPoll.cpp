@@ -6,7 +6,7 @@
 #include <poll.h>
 #include <vector>
 
-#define SERVER_PORT 8080
+#define SERVER_PORT 80
 #define MAX_CLIENTS 10  // Adjust as needed
 
 int main() {

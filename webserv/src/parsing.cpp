@@ -45,6 +45,19 @@ int parsing::findProtocol(std::string str){
 	return 0;
 }
 
+std::string parsing::getValue(std::string str, std::string key, int number){
+	std::string line;
+	std::string value;
+	std::istringstream iss(str);
+	while (std::getline(iss, line))
+	{
+		value = parsing::findValue(line, 1);
+		if (value == key)
+			return parsing::findValue(line, number);
+	}
+	return "";
+}
+
 //std::string parsing::findValue(std::string str, int number) {
 //	size_t spacePos = str.find(' ');
 //	if (spacePos != std::string::npos) {
@@ -73,6 +86,7 @@ std::string parsing::findValue(std::string str, int number) {
 		words.push_back(word);
 	}
 	if (number >= 1 && static_cast<size_t>(number) <= words.size()) {
+		words[number - 1].erase(0, words[number - 1].find_first_not_of(" \t\n\r\f\v"));
 		return words[number - 1];
 	} else {
 		return "";

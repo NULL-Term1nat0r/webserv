@@ -53,7 +53,8 @@ fclean:
 
 re: fclean all
 
-run:all
+run: fclean all
+	$(RM) $(OBJS) $(TESTSERV) siegeResul
 	./webserv
 
 test:testing

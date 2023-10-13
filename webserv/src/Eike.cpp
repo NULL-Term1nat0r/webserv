@@ -14,6 +14,7 @@
 #include "../includes/clientRequest.hpp"
 #include "../includes/parsing.hpp"
 #include "../includes/webServer.hpp"
+#include "../includes/response.hpp"
 
 int main(){
 //	clientRequest test = clientRequest("GET /favicon.ico HTTP/1.1\\n\n"
@@ -33,8 +34,11 @@ int main(){
 //	std::cout << "-------------------------\n";
 //	test.parseProtocol();
 //	test.printRequest();
-//	webServer::returnFileContent("./html_files/mainPage.html");
+//	webServer::returnFileContent("./html_files/mainPage1.html");
+//
 	webServer::startServer();
+//    response newResponse("/upload");
+//	std::cout << newResponse.getResponse() << std::endl;
 
 	return 0;
 }
@@ -42,7 +46,7 @@ int main(){
 
 //std::string getHtmlResponse() {
 //	// Read the HTML file
-//	std::ifstream htmlFile("../html_files/mainPage.html");
+//	std::ifstream htmlFile("../html_files/mainPage1.html");
 //	if (!htmlFile) {
 //		return "HTTP/1.1 404 Not Found\r\n\r\n<h1>404 Not Found</h1>";
 //	}

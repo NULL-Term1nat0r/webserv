@@ -16,6 +16,21 @@ const char* htmlResponse = "HTTP/1.1 200 OK\r\n"
 						   "Content-Type: text/html\r\n\r\n"
 						   "<html><body>Hello, World!</body></html>";
 
+std::string getBinary(char *buffer, int bytesRead){
+	char* bodyStart = strstr(buffer, "\r\n\r\n");
+	if (bodyStart != NULL) {
+		bodyStart += 4; // Move past the empty line
+
+		// Calculate the length of the request body
+		int bodyLength = bytesRead - (bodyStart - buffer);
+
+		// Assuming you have identified the content length, you can read the binary data
+		// Here, we read all the binary data as an example
+		char binaryData[bodyLength];
+		memcpy(binaryData, bodyStart, bodyLength);
+		return binaryData;
+}
+
 int main() {
 	int sockfd, newsockfd;
 	socklen_t clilen;

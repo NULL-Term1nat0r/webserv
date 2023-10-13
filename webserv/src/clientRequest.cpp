@@ -3,20 +3,13 @@
 clientRequest::clientRequest(std::string protocol)
 {
 	this->_request = protocol;
-	this->validRequest = false;
-	this->_httpProtocol = true;
-	this->_stringHttpProtocol = "HTTP/1.1";
-	this->_portNumber = 80;
-	this->_aliveConnection = false;
-	this->_closeConnection = false;
-	this->_get = false;
-	this->_post = false;
-	this->_delete = false;
+	parseProtocol();
 }
 
 clientRequest::clientRequest()
 {
-	this->validRequest = false;
+	this->_URL = false;
+	this->_validRequest = false;
 	this->_httpProtocol = true;
 	this->_stringHttpProtocol = "HTTP/1.1";
 	this->_portNumber = 80;
@@ -56,6 +49,7 @@ void clientRequest::parseGetRequest(){
 	//find method
 	this->_get = true;
 	//find protocol
+	parseURL(line);
 	parseHttpProtocol(line);
 	//find address
 	std::getline(iss, line);
@@ -64,10 +58,16 @@ void clientRequest::parseGetRequest(){
 	std::getline(iss, line);
 	parseConnectionType(line);
 	//find referer
-	parseReferer(line);
+	parseReferer();
 	//set valid request
+	validateRequest();
+}
+
+void clientRequest::validateRequest(){
 	int valid = 0;
 	if (this->_get || this->_post || this->_delete)
+		valid++;
+	if (this->_URL)
 		valid++;
 	if (this->_stringHttpProtocol == "HTTP/1.1" || this->_stringHttpProtocol == "HTTP/1.0")
 		valid++;
@@ -77,17 +77,46 @@ void clientRequest::parseGetRequest(){
 		valid++;
 	if (this->_referer != "")
 		valid++;
-	if (valid == 5)
-		this->validRequest = true;
+	if (valid == 6)
+		this->_validRequest = true;
+	else
+		this->_validRequest = false;
 }
 
 void clientRequest::parsePostRequest(){
 	this->_post = true;
-
+	std::istringstream iss(_request);
+	std::string line;
+	std::string value;
+	std::getline(iss, line);
+	//find method
+	//find protocol
+	parseURL(line);
+	parseHttpProtocol(line);
+	//find address
+	std::getline(iss, line);
+	parseAddress(line);
+	//find connection
+	std::getline(iss, line);
+	parseConnectionType(line);
+	//find referer
+	parseReferer();
+	parseContentLength();
+	parseBinaryDataBoundary();
+	parseBinaryData();
+	//set valid request
+	validateRequest();
 
 }
 
 void clientRequest::parseDeleteRequest(){
+}
+void clientRequest::parseURL(std::string line){
+	std::string value;
+	value = parsing::findValue(line, 2);
+	if (value != "")
+		this->_URL = true;
+	this->_stringURL = value;
 }
 
 void clientRequest::parseHttpProtocol(std::string line){
@@ -124,33 +153,70 @@ void clientRequest::parseConnectionType(std::string line){
 		this->_closeConnection = true;
 }
 
-void clientRequest::parseReferer(std::string line){
-	std::string value;
-	std::istringstream iss(_request);
-	while (std::getline(iss, line))
-	{
-		value = parsing::findValue(line, 1);
-		if (value == "Referer:")
-		{
-			this->_referer = parsing::findValue(line, 2);
-			break;
+void clientRequest::parseReferer(){
+	this->_referer = parsing::getValue(_request, "Referer:", 2);
+}
+
+void clientRequest::parseContentLength(){
+	std::cout << "conten_length parsing: " << std::stoi(parsing::getValue(_request, "Content-Length:", 2)) << std::endl;
+	this->_contentLength = std::stoi(parsing::getValue(_request, "Content-Length:", 2));
+}
+void clientRequest::parseBinaryDataBoundary(){
+	std::string boundary = parsing::getValue(_request, "Content-Type:", 3);
+	boundary = boundary.substr(boundary.find('=') + 1);
+	boundary.erase(0, boundary.find_first_not_of(" \t\n\r\f\v"));
+	this->_binaryDataBoundary = boundary;
+}
+
+void clientRequest::parseBinaryData(){
+	// Find the start of the binary data
+	size_t first = _request.find(_binaryDataBoundary);
+	size_t second = _request.find(_binaryDataBoundary, first + _binaryDataBoundary.length());
+	size_t third = _request.find(_binaryDataBoundary, second + _binaryDataBoundary.length());
+
+	if (second != std::string::npos && third != std::string::npos) {
+		std::string content = _request.substr(second + _binaryDataBoundary.length(), third - second - _binaryDataBoundary.length());
+		std::ofstream outputFile("binary_Data", std::ios::binary | std::ios::trunc);
+		if (outputFile.is_open()) {
+			outputFile << content;
+			outputFile.close();
 		}
 	}
 }
+
+//std::string input = "[Your Content]";
+//
+//// Find the position of the first occurrence of the opening delimiter "[".
+//size_t start_pos = input.find("[");
+//
+//// Find the position of the first occurrence of the closing delimiter "]" after the opening delimiter.
+//size_t end_pos = input.find("]", start_pos);
+//
+//if (start_pos != std::string::npos && end_pos != std::string::npos) {
+//// Extract the content between the delimiters.
+//std::string content = input.substr(start_pos + 1, end_pos - start_pos - 1);
+//
+//// Print the extracted content.
+//std::cout << content << std::endl;
+
+
 void clientRequest::printRequest(){
 	std::cout << "alive connection : " << getAliveConnection() << std::endl;
 	std::cout << "close connection : " << getCloseConnection() << std::endl;
 	std::cout << "get method : " << getGetMethod() << std::endl;
 	std::cout << "post method : " << getPostMethod() << std::endl;
 	std::cout << "delete method : " << getDeleteMethod() << std::endl;
+	std::cout << "URL : " << getURL() << std::endl;
 	std::cout << "valid request : " << getValidRequest() << std::endl;
 	std::cout << "referer : " << getReferer() << std::endl;
 	std::cout << "port number : " << getPortNumber() << std::endl;
 	std::cout << "ip : " << getIp() << std::endl;
+	std::cout << "Content-Length: " << getContentLength() << std::endl;
+	std::cout << "binaryDataBoundary: " << getBinaryDataBoundary() << std::endl;
 }
 
 bool clientRequest::getValidRequest(){
-	return this->validRequest;
+	return this->_validRequest;
 }
 bool clientRequest::getGetMethod(){
 	return this->_get;
@@ -167,14 +233,29 @@ bool clientRequest::getAliveConnection(){
 bool clientRequest::getCloseConnection(){
 	return this->_closeConnection;
 }
+bool clientRequest::getURL(){
+	return this->_URL;
+}
 std::string clientRequest::getReferer(){
 	return this->_referer;
 }
 int clientRequest::getPortNumber(){
 	return this->_portNumber;
 }
+int clientRequest::getContentLength(){
+	return this->_contentLength;
+}
 std::string clientRequest::getIp(){
 	return this->_ip;
+}
+std::string clientRequest::getStringURL() {
+	return this->_stringURL;
+}
+std::string clientRequest::getBinaryDataBoundary(){
+	return this->_binaryDataBoundary;
+}
+std::string clientRequest::getBinaryData() {
+	return this->_binaryData;
 }
 
 

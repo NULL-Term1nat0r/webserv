@@ -18,21 +18,25 @@
 
 class clientRequest{
 	private:
-		bool validRequest;
+		bool _validRequest;
 
 		bool _get;
 		bool _post;
 		bool _delete;
-
-		std::string _referer;
+		bool _URL;
 		bool _httpProtocol;
-		std::string _stringHttpProtocol;
-		std::string _ip;
 		int _portNumber;
+		int _contentLength;
 		bool _aliveConnection;
 		bool _closeConnection;
 
+		std::string _stringURL;
+		std::string _referer;
+		std::string _stringHttpProtocol;
+		std::string _ip;
 		std::string _request;
+		std::string _binaryDataBoundary;
+		std::string _binaryData;
 
 
 	public:
@@ -46,25 +50,37 @@ class clientRequest{
 		bool getPostMethod();
 		bool getDeleteMethod();
 
+		bool getURL();
+
 		bool getAliveConnection();
 		bool getCloseConnection();
 
-		std::string getReferer();
 		int getPortNumber();
+		int getContentLength();
+		std::string getStringURL();
+		std::string getReferer();
 		std::string getIp();
+		std::string getBinaryData();
+		std::string getBinaryDataBoundary();
 
-		void printRequest();
 
+		void parseURL(std::string line);
 		void parseHttpProtocol(std::string line);
 		void parseAddress(std::string line);
 		void parseConnectionType(std::string line);
-		void parseReferer(std::string line);
-		void parseContentLength(std::string line);
+		void parseReferer();
+		void parseContentLength();
+		void parseBinaryDataBoundary();
+		void parseBinaryData();
 
 		void parseProtocol();
 		void parseGetRequest();
 		void parsePostRequest();
 		void parseDeleteRequest();
+
+		void validateRequest();
+		void printRequest();
+
 
 
 		

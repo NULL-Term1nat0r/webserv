@@ -5,6 +5,7 @@
 #include "Header.h"
 
 #include "response.hpp"
+#include "clientRequest.hpp"
 
 class webServer
 {

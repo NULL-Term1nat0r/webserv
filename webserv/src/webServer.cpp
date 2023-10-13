@@ -108,7 +108,7 @@ int webServer::startServer() {
 		for (size_t i = 1; i < poll_fds.size(); ++i) {
 			if (poll_fds[i].revents & POLLIN) {
 				int client_socket = poll_fds[i].fd;
-				char buffer[1024];
+				char buffer[900000];
 				ssize_t bytes_received = recv(client_socket, buffer, sizeof(buffer), 0);
 
 				if (bytes_received <= 0) {
@@ -119,14 +119,29 @@ int webServer::startServer() {
 					poll_fds.erase(poll_fds.begin() + i);
 				} else {
 					// Print the received request from the client
+
 					std::string request(buffer, bytes_received);
-					std::cout << "Received request from client with socket " << client_socket << ":" << std::endl;
+//					std::cout << "Received request from client with socket " << client_socket << ":" << std::endl;
 					std::cout << request << std::endl;
 
 					// Send an HTML response to the client
-					std::string htmlResponse = response::getResponse();
-					std::cout << "htmlResponse: " << htmlResponse << std::endl;
-					send(client_socket, htmlResponse.c_str(), htmlResponse.length(), 0);
+//					std::string htmlResponse = response::getResponse();
+////					std::cout << "htmlResponse: " << htmlResponse << std::endl;
+//					send(client_socket, htmlResponse.c_str(), htmlResponse.length(), 0);
+//					send(client_socket, binaryData, sizeof(binaryData) - 1, 0);
+					if (request.find("POST") != std::string::npos) {
+						clientRequest newClientRequest(request);
+						newClientRequest.printRequest();
+						response newResponse(newClientRequest.getStringURL());
+						send(client_socket, newResponse.getResponse().c_str(), newResponse.getResponse().length(), 0);
+					}
+						//send an HTML response to the client
+					else {
+						clientRequest newClientRequest(request);
+						response newResponse(newClientRequest.getStringURL());
+						send(client_socket, newResponse.getResponse().c_str(), newResponse.getResponse().length(), 0);
+					}
+
 
 					// Close the client socket
 					close(client_socket);
