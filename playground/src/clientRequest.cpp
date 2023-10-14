@@ -102,7 +102,7 @@ void clientRequest::parsePostRequest(){
 	//find referer
 	parseReferer();
 	parseContentLength();
-	parseBinaryDataBoundary();
+	parseBinaryDataBoundary();// must not be binary in post
 	parseBinaryData();
 	//set valid request
 	validateRequest();

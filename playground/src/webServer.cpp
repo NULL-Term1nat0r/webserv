@@ -28,7 +28,8 @@ webServer &webServer::operator=(const webServer &other)
 	return *this;
 }
 
-int webServer::startServer() {
+int webServer::startServer(Server serv, size_t z) {
+		get_signals();
 
 		int server_socket;
 		struct sockaddr_in server_addr;
@@ -50,9 +51,9 @@ int webServer::startServer() {
 
 
 	// Configure server address
-		memset(&server_addr, 0, sizeof(server_addr));
+		memset(&server_addr, 0, sizeof(server_addr));// maybe not needed
 		server_addr.sin_family = AF_INET;
-		server_addr.sin_port = htons(SERVER_PORT);
+		server_addr.sin_port = htons(serv._server[z].port);
 		server_addr.sin_addr.s_addr = INADDR_ANY;
 
 		// Bind the socket to the server address
@@ -67,7 +68,7 @@ int webServer::startServer() {
 			return 1;
 		}
 
-		std::cout << "Server listening on port " << SERVER_PORT << std::endl;
+		std::cout << "Server listening on port " << serv._server[z].port << std::endl;
 
 		// Create a vector to store client sockets
 		std::vector<int> client_sockets;
@@ -108,7 +109,7 @@ int webServer::startServer() {
 		for (size_t i = 1; i < poll_fds.size(); ++i) {
 			if (poll_fds[i].revents & POLLIN) {
 				int client_socket = poll_fds[i].fd;
-				char buffer[900000];
+				char buffer[serv._buffSize];
 				ssize_t bytes_received = recv(client_socket, buffer, sizeof(buffer), 0);
 
 				if (bytes_received <= 0) {

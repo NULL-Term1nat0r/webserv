@@ -21,9 +21,8 @@ int main(int argc, char **argv) {
 		Server	serv;
 		serv.getServerConf(conf);
 
-		// size_t z = 0;
-		// webServer::startServer(serv, z);
-		webServer::startServer();
+		size_t z = 0;
+		webServer::startServer(serv, z);
 		// for (size_t z = 0; z < serv._server.size(); z++)
 		// 	webServer::startServer(serv, z);
 	}

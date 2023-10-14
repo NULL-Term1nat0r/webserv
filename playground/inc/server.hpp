@@ -6,6 +6,8 @@
 # include <map>
 # include "config.hpp"
 
+void	getSignals(void);
+
 typedef struct LocationStruc
 {
 	LocationStruc();
