@@ -17,6 +17,10 @@ const char	*Server::PortAlreadyInUse::what() const throw() {
 	return "The Port is already used.";
 }
 
+const char	*Server::WrongCgiExtension::what() const throw() {
+	return "The file extension for cgi is not correct or not available for the webserver.";
+}
+
 void	Server::_setBackLog(std::map<std::string, std::vector<std::string> > globalContext) {
 	if (globalContext.find("backlog") != globalContext.end()) {
 		_backlog = atoi(globalContext["backlog"][0].c_str());
@@ -27,7 +31,7 @@ void	Server::_setBackLog(std::map<std::string, std::vector<std::string> > global
 
 void	Server::_setBuffSize(std::map<std::string, std::vector<std::string> > globalContext) {
 	if (globalContext.find("buff_size") != globalContext.end()) {
-		_buffSize = atoi(globalContext["buff_size"][0].c_str());
+		_buffSize = atoi(globalContext["buff_size"][0].c_str()2);
 		if (_buffSize < 0)
 			throw WrongAmount();
 	}

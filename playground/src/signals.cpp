@@ -1,4 +1,4 @@
-#include "../inc/server.hpp"
+
 #include <signal.h>
 
 void	ctrlC(int status) //close all connections, for cgi custom signals could be used
@@ -11,6 +11,6 @@ void	ctrlC(int status) //close all connections, for cgi custom signals could be 
 
 void	getSignals(void)
 {
-	signal(SIGINT, &ctrl_c);
+	signal(SIGINT, &ctrlC);
 	signal(SIGQUIT, SIG_IGN);
 }

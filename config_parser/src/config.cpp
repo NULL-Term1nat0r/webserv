@@ -160,7 +160,7 @@ void	Config::_globalBlock(std::ifstream &nginxConfFile, std::string &line) {
 
 // for utils
 bool	Config::_fileOpen(std::ifstream &nginxConfFile) {
-	if (!nginxConfFile.is_open() || nginxConfFile.peek() != std::ifstream::traits_type::eof())
+	if (!nginxConfFile.is_open() || nginxConfFile.peek() == std::ifstream::traits_type::eof())
 		return false;
 	return true;
 }

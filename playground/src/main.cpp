@@ -22,9 +22,9 @@ int main(int argc, char **argv) {
 		serv.getServerConf(conf);
 
 		size_t z = 0;
-		webServer::startServer(serv, z);
-		// for (size_t z = 0; z < serv._server.size(); z++)
-		// 	webServer::startServer(serv, z);
+		// webServer::startServer(serv, z);
+		for (size_t z = 0; z < serv._server.size(); z++)
+			webServer::startServer(serv, z);
 	}
 	catch (std::exception &e) {
 		std::cerr << "Error: " << e.what() << std::endl;

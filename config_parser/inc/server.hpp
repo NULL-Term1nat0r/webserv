@@ -55,6 +55,11 @@ class Server
 			public:
 				virtual const char	*what() const throw();
 		};
+		class WrongCgiExtension : public std::exception
+		{
+			public:
+				virtual const char	*what() const throw();
+		};
 		int							_workerProcesses;//could be auto;
 		int							_workerConnections;
 		int							_scriptTimeout;
