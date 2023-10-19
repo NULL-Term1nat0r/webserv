@@ -17,7 +17,7 @@
 
 
 class clientRequest{
-	private:
+	protected:
 		bool _validRequest;
 
 		bool _get;

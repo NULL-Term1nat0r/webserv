@@ -61,6 +61,8 @@ void clientRequest::parseGetRequest(){
 	parseReferer();
 	//set valid request
 	validateRequest();
+	if (_stringURL.find("cgi-bin") != std::string::npos)
+		executeCgi();
 }
 
 void clientRequest::validateRequest(){
