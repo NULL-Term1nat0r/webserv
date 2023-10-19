@@ -15,6 +15,25 @@
 
 #include "Header.h"
 
+//class cgi {
+//public:
+//	std::string 	_cgiPath;		// to find a path to the cgi file
+//	std::string 	_query;			// to find a query string
+//	std::string 	_fileExtension;	// to find a file extension
+//	std::string 	_body;
+//
+//
+//protected:
+//
+//	int		callCGI();
+//	int 	inputCheck();
+//	bool	checkLanguage() const;
+//	bool 	validCgiExtension();
+//	void 	executeCgi();
+//	bool 	cgiIterate(std::string);
+//
+//
+//};
 
 class clientRequest{
 	protected:
@@ -37,6 +56,13 @@ class clientRequest{
 		std::string _request;
 		std::string _binaryDataBoundary;
 		std::string _binaryData;
+
+//		cgi
+	std::string 	_cgiPath;		// to find a path to the cgi file
+	std::string 	_query;			// to find a query string
+	std::string 	_fileExtension;	// to find a file extension
+	std::string 	_body;
+//	cgi
 
 
 	public:
@@ -81,7 +107,14 @@ class clientRequest{
 		void validateRequest();
 		void printRequest();
 
-
+//	cgi
+	int		callCGI();
+	int 	inputCheck();
+	bool	checkLanguage() const;
+	bool 	validCgiExtension();
+	void 	executeCgi();
+	bool 	cgiIterate(std::string);
+//	cgi
 
 		
 };

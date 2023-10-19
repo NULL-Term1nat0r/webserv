@@ -1,4 +1,5 @@
 #include "../includes/clientRequest.hpp"
+#include "../includes/cgi.hpp"
 
 clientRequest::clientRequest(std::string protocol)
 {

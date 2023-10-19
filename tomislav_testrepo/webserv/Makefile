@@ -11,7 +11,7 @@
 # **************************************************************************** #
 
 NAME = webserv
-TESTSERV = testserv
+#TESTSERV = testserv
 
 CC = c++
 
@@ -21,7 +21,9 @@ SRCS =	src/Eike.cpp \
 		src/clientRequest.cpp \
 		src/parsing.cpp \
 		src/webServer.cpp \
-		src/response.cpp
+		src/response.cpp \
+		src/CGI.cpp \
+
 OBJS = ${SRCS:.cpp=.o}
 
 RM = rm -rf
