@@ -72,17 +72,17 @@ bool cgi::checkLanguage() const {
 }
 int cgi::inputCheck() {
 	if(!checkLanguage())
-		return INTERNAL_ERROR;
+		return INTERNAL_ERROR; // error 500
 	_cgiPath = _rootFolder + _cgiPath;
 
-	if (_fileExtension != ".py")
-		return METHOD_NOT_ALLOWED;
+	if (_fileExtension != ".py" && _fileExtension != ".js" && _fileExtension != ".php")
+		return METHOD_NOT_ALLOWED; // error 405
 
 	if (access(_cgiPath.c_str(), F_OK) != 0)
-		return NOT_FOUND;
+		return NOT_FOUND; // error 404
 
 	if (access(_cgiPath.c_str(), X_OK) != 0)
-		return FORBIDDEN;
+		return FORBIDDEN; // error 403
 	return 0;
 }
 
