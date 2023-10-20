@@ -34,10 +34,10 @@ response &response::operator=(const response &other)
 	return *this;
 }
 
-//bool response::isCgi()
-//{
-//	switch (validCgiExtension())
-//	{
+bool clientRequest::isCgi()
+{
+	switch (validCgiExtension())
+	{
 //		case IS_COOKIE:
 //			return false;
 //		case METHOD_NOT_ALLOWED:
@@ -50,10 +50,10 @@ response &response::operator=(const response &other)
 //			return mySend(FORBIDDEN), true;
 //		case INTERNAL_ERROR:
 //			return mySend(INTERNAL_ERROR), true;
-//		default:
-//			return cgiOutput(), true;
-//	}
-//}
+		default:
+			return cgiOutput(), true;
+	}
+}
 
 std::string response::createResponse(std::string url){
 

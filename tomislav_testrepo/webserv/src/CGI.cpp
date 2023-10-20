@@ -199,9 +199,10 @@ int clientRequest::inputCheck() {
 
 
 //something wrong here!!
-void clientRequest::executeCgi() {
+int clientRequest::executeCgi() {
 	std::cout << "executeCgi " << std::endl;
 	int fd[2];
+	int status;
 
 	std::string exec;
 	if (_fileExtension == ".py") {
@@ -212,7 +213,7 @@ void clientRequest::executeCgi() {
 		exec = "node";
 	} else {
 		// Handle unsupported file extension error
-		return;
+		return (0);
 	}
 	char *query = (char*)_query.c_str();
 
@@ -220,44 +221,49 @@ void clientRequest::executeCgi() {
 	char *env[] = {query, 0};
 	char *argv[] = {const_cast<char *>(exec.c_str()), cmd, nullptr};
 
+	int file = open(TMP_CGI, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);		//creating a file to store the output of the script
+
 	if (pipe(fd) == -1) {
 		// Handle pipe creation error
-		return;
+		// close(file);						//closing the file
+		return (0);
 	}
 
 	pid_t childId = fork();
 	if (childId == -1) {
 		// Handle fork error
-	} else if (childId == 0) {
+		// close(file);						//closing the file
+	}
+	else if (childId == 0) {
 		close(fd[0]);
-		if (dup2(fd[1], STDOUT_FILENO) == -1) {
-			// Handle dup2 error
-			return;
-		}
+		dup2(file, STDOUT_FILENO);		//redirecting the output of the script to the file
+		alarm(CGI_TIMEOUT/1000);		//setting the timeout for the script
 
 		if (_fileExtension == ".py")
 			execve("/usr/bin/python3", argv, env); //cmd to run python // env = url and 0
 		else if (_fileExtension == ".php")
 			execve("/usr/bin/php", argv, env); //cmd to run php // env = url and 0
-		else if (_fileExtension == ".js")
+		else
 			execve("/usr/bin/node", argv, env); //cmd to run node // env = url and 0
 
 		// If execve fails, handle the error (execve should never return if successful)
-		perror("execve");
+		close(file);
 		exit(EXIT_FAILURE);
-	} else {
+	}
+	else {
 		close(fd[1]);
-		if (dup2(fd[0], STDIN_FILENO) == -1) {
-			// Handle dup2 error
-		}
-
-		waitpid(childId, NULL, 0);
+		waitpid(childId, &status, 0);
 		close(fd[0]);
+	}
+	close(file);
+	if (WIFSIGNALED(status))
+	{
+		remove(TMP_CGI);
+		return GATEWAY_TIMEOUT;
 
 		// create a file to store the output of the script
 		// read the output of the script
 		// send the output of the script to the client
 		// delete the file
-
 	}
 }

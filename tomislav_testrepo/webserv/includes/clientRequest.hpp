@@ -112,8 +112,9 @@ class clientRequest{
 	int 	inputCheck();
 	bool	checkLanguage() const;
 	bool 	validCgiExtension();
-	void 	executeCgi();
+	int 	executeCgi();
 	bool 	cgiIterate(std::string);
+	bool	isCgi();
 //	cgi
 
 		
