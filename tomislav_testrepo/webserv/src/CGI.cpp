@@ -32,7 +32,7 @@ bool clientRequest::cgiIterate(std::string) {
 // check in request for "isCGI".
 
 
-bool clientRequest::validCgiExtension() {
+int clientRequest::validCgiExtension() {
 	std::vector<std::string> allowed_ending;
 	allowed_ending.push_back(".py");
 	allowed_ending.push_back(".js");
@@ -60,50 +60,6 @@ bool clientRequest::validCgiExtension() {
 	return false; // Return false if the file extension is not allowed or not found.
 }
 
-//int cgi::validCgiExtension() {
-//	std::vector<std::string> allowed_ending;
-//	allowed_ending.push_back(".py");
-//	allowed_ending.push_back(".js");
-//	allowed_ending.push_back(".php");
-//
-////	for (size_t i = 0; i < allowed_ending.size(); i++)
-////	{
-////		if (_fileExtension.size() < allowed_ending[i].size())
-////			continue;
-////		if (_fileExtension == allowed_ending[i])
-////			return true;
-////
-//	// now we have our valid language packet
-//
-//	size_t pos = _stringURL.find("?");
-//
-//	if (pos != std::string::npos)
-//	{
-//		_cgiPath = _stringURL.substr(0, pos);
-//		_query = _stringURL.substr(pos + 1);
-//	}
-//	else
-//		_cgiPath = _stringURL;
-//
-//	size_t dot = _cgiPath.find_last_of('.');
-//
-//	if (dot != std::string::npos)
-//	{
-//		std::string temp = _cgiPath.substr(dot);
-//
-//		for (size_t i = 0; i < allowed_ending.size(); i++)
-//		{
-//			if (_cgiPath.size() < allowed_ending[i].size())
-//				continue;
-//			if (temp == allowed_ending[i])
-//			{
-//				_fileExtension = temp;
-//				executeCgi();
-//			}
-//		}
-//	}
-//	return 0; // Return false if the file extension is not allowed or not found.
-//}
 
 bool clientRequest::checkLanguage() const {
 	if (_fileExtension == ".py")
@@ -134,71 +90,7 @@ int clientRequest::inputCheck() {
 // check if the location is able to execute the script
 //	e.g. if we get a .js request, but it can only run .php request, it shouldn't execute.
 
-//void cgi::mainCgi(std::string _requestString, Server &serv)
-//{
-//	validCgiExtension();
-//
-//
-//}
 
-//void	cgi::executeCgi()
-//{
-//	int fd[2];
-//
-//	std::string exec;
-//
-//	if (validCgiExtension() == ".py")
-//		exec = "python3";
-//	else if (validCgiExtension() == ".php")
-//		exec = "php";
-//	else if (validCgiExtension() == ".js")
-//		exec = "node";
-//
-//	char *query = (char*)_query.c_str();
-//
-//	char *env[] = {query, 0};
-//	char *cmd = (char*)_cgiPath.c_str(); // everything after the path
-//	char *argv[] = {const_cast<char *>(exec.c_str()), cmd, 0};
-//
-//
-//	if (pipe(fd) == -1) {
-//		//pipe failed
-//	}
-//	pid_t	childId;
-//	childId = fork();
-//	if (childId == -1)
-//		//error
-//	if (childId == 0) {
-//		//close(fd[0]);
-//		//if (dup2(fd[1], STDOUT_FILENO) == -1)
-//		//	return error;
-//
-//		if (_fileExtension == ".py")
-//			execve(cmd, argv, env); //cmd to run python // env = url and 0
-//		else if (_fileExtension == ".php")
-//			execve(cmd, argv, env); //cmd to run php // env = url and 0
-//		else if (_fileExtension == ".js")
-//			execve(cmd, argv, env); //cmd to run node // env = url and 0
-//		else
-//			return error;
-//		close(fd[1]);
-//	exit(1);
-//	}
-//	else {
-//		close(fd[1])
-//		if (dup2(fd[0], STDIN_FILENO) == -1)
-//			//error
-//			// close(fd[0]);
-//		// if (alarm(scriptTimeout) == 0) { //probably not allowed
-//		// 	kill(childPID, SIGTERM);
-//		// }
-//		waitpid(childId, NULL, 0);
-//		close(fd[0]);
-//	}
-//}
-
-
-//something wrong here!!
 int clientRequest::executeCgi() {
 	std::cout << "executeCgi " << std::endl;
 	int fd[2];
@@ -259,11 +151,50 @@ int clientRequest::executeCgi() {
 	if (WIFSIGNALED(status))
 	{
 		remove(TMP_CGI);
-		return GATEWAY_TIMEOUT;
+		return GATEWAY_TIMEOUT;		// error 504
 
 		// create a file to store the output of the script
 		// read the output of the script
 		// send the output of the script to the client
 		// delete the file
 	}
+	return 0;
+}
+
+std::string myItoS(int val)
+{
+	std::stringstream ss;
+	ss << val;
+	return ss.str();
+}
+
+bool	clientRequest::cgiOutput() {
+	std::cout << "ah, what am i doing" << std::endl;
+	std::ifstream inputFile(TMP_CGI);
+	if (!inputFile.is_open()) {
+		// Handle file opening error
+	}
+	std::string header = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n";
+	std::string line;
+	std::string	response;
+
+	while(std::getline(inputFile, line))
+		response += line + "\n";
+	response = header + myItoS(response.size()) + "\r\n\r\n" + response;
+
+	//std::string convert(_input.begin(), _input.end());
+//#ifdef LOG
+//	Logging::log("send Data:\n" + _cgiPath, 200);
+//#endif
+//
+//	ssize_t check = send(_clientSocket, (response).c_str(), response.size(), MSG_DONTWAIT);
+//	if (check <= 0) {
+//#ifdef LOG
+//		Logging::log("Failed to send Data to Client", 500);
+//#endif
+//		inputFile.close();
+//	}
+	remove(TMP_CGI);
+	inputFile.close();
+	return false;
 }

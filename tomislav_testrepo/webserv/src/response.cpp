@@ -36,6 +36,7 @@ response &response::operator=(const response &other)
 
 bool clientRequest::isCgi()
 {
+	std::cout << "are you going in here or not" << std::endl;
 	switch (validCgiExtension())
 	{
 //		case IS_COOKIE:
@@ -50,6 +51,8 @@ bool clientRequest::isCgi()
 //			return mySend(FORBIDDEN), true;
 //		case INTERNAL_ERROR:
 //			return mySend(INTERNAL_ERROR), true;
+		case  (2 < 1):
+			return false;
 		default:
 			return cgiOutput(), true;
 	}

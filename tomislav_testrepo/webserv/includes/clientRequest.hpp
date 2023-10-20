@@ -15,6 +15,15 @@
 
 #include "Header.h"
 
+#include <fcntl.h>
+#include <sys/stat.h>
+
+#define CGI_TIMEOUT		1000
+#define TMP_CGI			"src/tmp_cgi"
+#define	GATEWAY_TIMEOUT	504
+
+
+
 //class cgi {
 //public:
 //	std::string 	_cgiPath;		// to find a path to the cgi file
@@ -111,10 +120,11 @@ class clientRequest{
 	int		callCGI();
 	int 	inputCheck();
 	bool	checkLanguage() const;
-	bool 	validCgiExtension();
+	int 	validCgiExtension();
 	int 	executeCgi();
 	bool 	cgiIterate(std::string);
 	bool	isCgi();
+	bool 	cgiOutput();
 //	cgi
 
 		
