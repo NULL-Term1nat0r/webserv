@@ -169,7 +169,6 @@ std::string myItoS(int val)
 }
 
 bool	clientRequest::cgiOutput() {
-	std::cout << "ah, what am i doing" << std::endl;
 	std::ifstream inputFile(TMP_CGI);
 	if (!inputFile.is_open()) {
 		// Handle file opening error

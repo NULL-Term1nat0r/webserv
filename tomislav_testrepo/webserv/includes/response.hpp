@@ -13,7 +13,7 @@
 //	std::string 	_body;
 //};
 
-class response
+class response : public clientRequest
 {
 private:
 	std::string _response;
@@ -38,6 +38,7 @@ public:
 //	bool checkLanguage() const;	// added by me
 //	int validCgiExtension();	// added by me
 //	void executeCgi();	// added by me
+
 
 
 };

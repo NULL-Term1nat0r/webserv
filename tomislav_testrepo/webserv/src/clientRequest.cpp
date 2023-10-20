@@ -109,7 +109,6 @@ void clientRequest::parsePostRequest(){
 	parseBinaryData();
 	//set valid request
 	validateRequest();
-
 }
 
 void clientRequest::parseDeleteRequest(){
@@ -184,6 +183,30 @@ void clientRequest::parseBinaryData(){
 			outputFile << content;
 			outputFile.close();
 		}
+	}
+}
+
+bool clientRequest::isCgi()
+{
+	std::cout << "are you going in here or not" << std::endl;
+	switch (validCgiExtension())
+	{
+//		case IS_COOKIE:
+//			return false;
+//		case METHOD_NOT_ALLOWED:
+//			return mySend(METHOD_NOT_ALLOWED), true;
+//		case GATEWAY_TIMEOUT:
+//			return mySend(GATEWAY_TIMEOUT), true;
+//		case NOT_FOUND:
+//			return mySend(NOT_FOUND), true;
+//		case FORBIDDEN:
+//			return mySend(FORBIDDEN), true;
+//		case INTERNAL_ERROR:
+//			return mySend(INTERNAL_ERROR), true;
+		case  (2 < 1):
+			return false;
+		default:
+			return cgiOutput(), true;
 	}
 }
 

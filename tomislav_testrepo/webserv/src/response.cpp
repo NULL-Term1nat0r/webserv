@@ -34,33 +34,34 @@ response &response::operator=(const response &other)
 	return *this;
 }
 
-bool clientRequest::isCgi()
-{
-	std::cout << "are you going in here or not" << std::endl;
-	switch (validCgiExtension())
-	{
-//		case IS_COOKIE:
+//bool clientRequest::isCgi()
+//{
+//	std::cout << "are you going in here or not" << std::endl;
+//	switch (validCgiExtension())
+//	{
+////		case IS_COOKIE:
+////			return false;
+////		case METHOD_NOT_ALLOWED:
+////			return mySend(METHOD_NOT_ALLOWED), true;
+////		case GATEWAY_TIMEOUT:
+////			return mySend(GATEWAY_TIMEOUT), true;
+////		case NOT_FOUND:
+////			return mySend(NOT_FOUND), true;
+////		case FORBIDDEN:
+////			return mySend(FORBIDDEN), true;
+////		case INTERNAL_ERROR:
+////			return mySend(INTERNAL_ERROR), true;
+//		case  (2 < 1):
 //			return false;
-//		case METHOD_NOT_ALLOWED:
-//			return mySend(METHOD_NOT_ALLOWED), true;
-//		case GATEWAY_TIMEOUT:
-//			return mySend(GATEWAY_TIMEOUT), true;
-//		case NOT_FOUND:
-//			return mySend(NOT_FOUND), true;
-//		case FORBIDDEN:
-//			return mySend(FORBIDDEN), true;
-//		case INTERNAL_ERROR:
-//			return mySend(INTERNAL_ERROR), true;
-		case  (2 < 1):
-			return false;
-		default:
-			return cgiOutput(), true;
-	}
-}
+//		default:
+//			return cgiOutput(), true;
+//	}
+//}
 
 std::string response::createResponse(std::string url){
-
 	std::string filePath = "./html_files" + url + "/" + getFile("./html_files" + url);
+	if (isCgi())		// added by me
+		return 0;		// added by me
 	std::ifstream htmlFile(filePath);
 	if (!htmlFile) {
 		return "HTTP/1.1 404 Not Found\r\n\r\n<h1>404 Not Found</h1>";
