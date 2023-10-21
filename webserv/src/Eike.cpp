@@ -13,10 +13,13 @@
 #include "../includes/Header.h"
 #include "../includes/clientRequest.hpp"
 #include "../includes/parsing.hpp"
-#include "../includes/webServer.hpp"
+#include "../includes/server.hpp"
 #include "../includes/response.hpp"
 
 int main(){
+
+//	Config conf = Config("../config_parser/confFiles/server.conf");
+//	Server serv = Server(conf);
 //	clientRequest test = clientRequest("GET /favicon.ico HTTP/1.1\\n\n"
 //				  "Host: localhost:8080\\n\n"
 //				  "Connection: keep-alive\\n\n"
@@ -35,10 +38,14 @@ int main(){
 //	test.parseProtocol();
 //	test.printRequest();
 //	webServer::returnFileContent("./html_files/mainPage1.html");
-//
-	webServer::startServer();
-//    response newResponse("/upload");
-//	std::cout << newResponse.getResponse() << std::endl;
+//	try{
+//		webServer::startAllServers("../config_parser/confFiles/server.conf");
+//	}
+//	catch (std::exception &e){
+//		std::cout << e.what() << " julien\n" << std::endl;
+//	}
+	Server serv;
+	serv._startServers("../config_parser/confFiles/server.conf");
 
 	return 0;
 }

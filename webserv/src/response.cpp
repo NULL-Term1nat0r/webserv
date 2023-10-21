@@ -47,7 +47,7 @@ std::string response::createResponse(std::string url){
 	std::string response = "HTTP/1.1 200 OK\r\n";
 	response += "Content-Type: text/html\r\n";
 	response += "Content-Length: " + std::to_string(htmlContent.length()) + "\r\n";
-	response += " \r\n" + htmlContent;
+	response += "\r\n" + htmlContent;
 
 	return response;
 }

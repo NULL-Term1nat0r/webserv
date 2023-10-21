@@ -4,8 +4,8 @@
 
 #include "Header.h"
 
-#include "response.hpp"
 #include "clientRequest.hpp"
+#include "server.hpp"
 
 class webServer
 {
@@ -20,6 +20,7 @@ public:
 	webServer &operator=(const webServer &other);
 
 	static std::string returnFileContent(std::string fileName);
+	static int startAllServers(std::string file_path);
 	static int startServer();
 
 };

@@ -28,6 +28,20 @@ webServer &webServer::operator=(const webServer &other)
 	return *this;
 }
 
+int webServer::startAllServers(std::string file_path){
+	Config conf;
+	const char *str = file_path.c_str();
+	conf.parseConfFile((char *)str);
+	Server serv;
+	serv.getServerConf(conf);
+
+	for (size_t i = 0; i < serv._server.size(); i++)
+	{
+		std::cout << "server name: " << serv._server[i].serverName << std::endl;
+	}
+	return 0;
+}
+
 int webServer::startServer() {
 
 		int server_socket;
@@ -55,7 +69,12 @@ int webServer::startServer() {
 		server_addr.sin_port = htons(SERVER_PORT);
 		server_addr.sin_addr.s_addr = INADDR_ANY;
 
-		// Bind the socket to the server address
+	printf("Server Address Family: %d\n", server_addr.sin_family);
+	printf("Server Port: %d\n", ntohs(server_addr.sin_port)); // Use ntohs to convert from network byte order to host byte order
+	printf("Server IP Address: %s\n", inet_ntoa(server_addr.sin_addr));
+
+
+	// Bind the socket to the server address
 		if (bind(server_socket, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
 			std::cerr << "Error binding socket" << std::endl;
 			return 1;

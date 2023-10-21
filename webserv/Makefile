@@ -21,7 +21,11 @@ SRCS =	src/Eike.cpp \
 		src/clientRequest.cpp \
 		src/parsing.cpp \
 		src/webServer.cpp \
-		src/response.cpp
+		src/response.cpp \
+		src/server.cpp \
+		src/server2.cpp \
+		src/server3.cpp \
+		src/config.cpp
 OBJS = ${SRCS:.cpp=.o}
 
 RM = rm -rf
@@ -67,3 +71,4 @@ siegebig:
 	./tests/siege10000.sh
 
 .PHONY: all clean fclean re build start stop
+.NOTPARALLEL: all clean fclean re build start stop

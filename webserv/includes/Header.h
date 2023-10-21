@@ -17,6 +17,7 @@
 #include <iostream>
 #include <cstring>
 #include <vector>
+#include <map>
 #include <sstream>
 #include <fstream>
 #include <cstdio>
