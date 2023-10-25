@@ -149,14 +149,14 @@ int webServer::startServer() {
 //					send(client_socket, htmlResponse.c_str(), htmlResponse.length(), 0);
 //					send(client_socket, binaryData, sizeof(binaryData) - 1, 0);
 					if (request.find("POST") != std::string::npos) {
-						clientRequest newClientRequest(request);
+						request newClientRequest(request);
 						newClientRequest.printRequest();
 						response newResponse(newClientRequest.getStringURL());
 						send(client_socket, newResponse.getResponse().c_str(), newResponse.getResponse().length(), 0);
 					}
 						//send an HTML response to the client
 					else {
-						clientRequest newClientRequest(request);
+						request newClientRequest(request);
 						response newResponse(newClientRequest.getStringURL());
 						send(client_socket, newResponse.getResponse().c_str(), newResponse.getResponse().length(), 0);
 					}

@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   clientRequest.hpp                                  :+:      :+:    :+:   */
+/*   request.hpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: estruckm <estruckm@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -16,7 +16,7 @@
 #include "Header.h"
 
 
-class clientRequest{
+class request{
 	private:
 		bool _validRequest;
 
@@ -25,24 +25,22 @@ class clientRequest{
 		bool _delete;
 		bool _URL;
 		bool _httpProtocol;
-		int _portNumber;
-		int _contentLength;
+
 		bool _aliveConnection;
 		bool _closeConnection;
 
 		std::string _stringURL;
 		std::string _referer;
 		std::string _stringHttpProtocol;
-		std::string _ip;
+
 		std::string _request;
-		std::string _binaryDataBoundary;
-		std::string _binaryData;
+		std::string filePath;
 
 
 	public:
-		clientRequest(std::string protocol);
-		clientRequest();
-		~clientRequest();
+		explicit request(std::vector<uint8_t> &clientRequest);
+		request();
+		~request();
 
 		bool getValidRequest();
 
@@ -55,23 +53,14 @@ class clientRequest{
 		bool getAliveConnection();
 		bool getCloseConnection();
 
-		int getPortNumber();
-		int getContentLength();
 		std::string getStringURL();
 		std::string getReferer();
-		std::string getIp();
-		std::string getBinaryData();
-		std::string getBinaryDataBoundary();
-
+		std::string &getRequestString();
 
 		void parseURL(std::string line);
 		void parseHttpProtocol(std::string line);
-		void parseAddress(std::string line);
 		void parseConnectionType(std::string line);
 		void parseReferer();
-		void parseContentLength();
-		void parseBinaryDataBoundary();
-		void parseBinaryData();
 
 		void parseProtocol();
 		void parseGetRequest();
@@ -80,10 +69,6 @@ class clientRequest{
 
 		void validateRequest();
 		void printRequest();
-
-
-
-		
 };
 
 #endif

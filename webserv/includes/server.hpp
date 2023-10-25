@@ -3,7 +3,7 @@
 
 #include "Header.h"
 #include "config.hpp"
-#include "clientRequest.hpp"
+#include "request.hpp"
 #include "response.hpp"
 
 typedef struct LocationStruc
@@ -64,11 +64,11 @@ class Server
 			virtual const char	*what() const throw();
 		};
 		int		  					_workerProcesses;//could be auto;
-		int							_workerConnections;
+		int							_workerConnections; // maxClients
 		int							_scriptTimeout;
 		int							_clientTimeout;
 		int							_buffSize;
-		int							_backlog;
+		int							_backlog; //how many cleints at the same time
 		std::vector<ServerConf>		_server;
 	private:
 		//*******************//
@@ -110,13 +110,13 @@ class Server
 		//*** server3.cpp ***//
 		//*******************//
 		struct sockaddr_in*			_configureServerAddress();
-		static int 					_createSocket(int port);
+		static int 					_createSocket(int port, Server &serv);
 		static void 				_handleNewConnection(int server_socket, std::vector<struct pollfd> &pollFileDescriptors, std::vector<long long> &socketTimeouts);
-		static void 				_handleClientData(int client_socket);
+		static void 				_handleClientData(Server &serv, int clientSocket, std::vector<struct pollfd> &pollFileDescriptors, std::vector<long long> &socketTimeouts);
 		static void 				_addSocket(int socket, std::vector<struct pollfd> &pollFileDescriptors, std::vector<long long> &socketTimeouts);
 		static void 				_removeSocket(int index, std::vector<struct pollfd> &pollFileDescriptors, std::vector<long long> &socketTimeouts);
-		void 						_setPollStruct(std::vector<struct pollfd> &poll_fds, int socket);
-
+//		void 						_setPollStruct(std::vector<struct pollfd> &poll_fds, int socket);
+		static std::vector<uint8_t>  _processData(Server &serv, int clientSocket, std::vector<struct pollfd> &pollFileDescriptors, std::vector<long long> &socketTimeouts);
 		int							_serverRoutine(Server &serv, int index);
 
 		//*******************//

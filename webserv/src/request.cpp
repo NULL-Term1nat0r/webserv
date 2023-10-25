@@ -1,18 +1,17 @@
-#include "../includes/clientRequest.hpp"
+#include "../includes/request.hpp"
 
-clientRequest::clientRequest(std::string protocol)
+request::request(std::vector<uint8_t> &clientRequest)
 {
-	this->_request = protocol;
+	this->_request = parsing::vectorToLimitedString(clientRequest, 900);
 	parseProtocol();
 }
 
-clientRequest::clientRequest()
+request::request()
 {
 	this->_URL = false;
 	this->_validRequest = false;
 	this->_httpProtocol = true;
 	this->_stringHttpProtocol = "HTTP/1.1";
-	this->_portNumber = 80;
 	this->_aliveConnection = false;
 	this->_closeConnection = false;
 	this->_get = false;
@@ -20,10 +19,10 @@ clientRequest::clientRequest()
 	this->_delete = false;
 }
 
-clientRequest::~clientRequest(){
+request::~request(){
 }
 
-void clientRequest::parseProtocol() {
+void request::parseProtocol() {
 	std::string methodType[3] = {"GET", "POST", "DELETE"};
 
 	std::istringstream iss(_request);
@@ -40,50 +39,7 @@ void clientRequest::parseProtocol() {
 		parseDeleteRequest();
 }
 
-void clientRequest::parseGetRequest(){
-
-	std::istringstream iss(_request);
-	std::string line;
-	std::string value;
-	std::getline(iss, line);
-	//find method
-	this->_get = true;
-	//find protocol
-	parseURL(line);
-	parseHttpProtocol(line);
-	//find address
-	std::getline(iss, line);
-	parseAddress(line);
-	//find connection
-	std::getline(iss, line);
-	parseConnectionType(line);
-	//find referer
-	parseReferer();
-	//set valid request
-	validateRequest();
-}
-
-void clientRequest::validateRequest(){
-	int valid = 0;
-	if (this->_get || this->_post || this->_delete)
-		valid++;
-	if (this->_URL)
-		valid++;
-	if (this->_stringHttpProtocol == "HTTP/1.1" || this->_stringHttpProtocol == "HTTP/1.0")
-		valid++;
-	if (this->_ip != "")
-		valid++;
-	if (this->_aliveConnection || this->_closeConnection)
-		valid++;
-	if (this->_referer != "")
-		valid++;
-	if (valid == 6)
-		this->_validRequest = true;
-	else
-		this->_validRequest = false;
-}
-
-void clientRequest::parsePostRequest(){
+void request::parseGetRequest(){
 	this->_post = true;
 	std::istringstream iss(_request);
 	std::string line;
@@ -95,23 +51,56 @@ void clientRequest::parsePostRequest(){
 	parseHttpProtocol(line);
 	//find address
 	std::getline(iss, line);
-	parseAddress(line);
 	//find connection
 	std::getline(iss, line);
 	parseConnectionType(line);
 	//find referer
 	parseReferer();
-	parseContentLength();
-	parseBinaryDataBoundary();
-	parseBinaryData();
+	//set valid request
+	validateRequest();
+}
+
+void request::validateRequest(){
+	int valid = 0;
+	if (this->_get || this->_post || this->_delete)
+		valid++;
+	if (this->_URL)
+		valid++;
+	if (this->_stringHttpProtocol == "HTTP/1.1" || this->_stringHttpProtocol == "HTTP/1.0")
+		valid++;
+	if (this->_aliveConnection || this->_closeConnection)
+		valid++;
+	if (this->_referer != "")
+		valid++;
+	if (valid == 5)
+		this->_validRequest = true;
+	else
+		this->_validRequest = false;
+}
+
+void request::parsePostRequest(){
+	this->_post = true;
+	std::istringstream iss(_request);
+	std::string line;
+	std::string value;
+	std::getline(iss, line);
+	//find method
+	//find protocol
+	parseURL(line);
+	parseHttpProtocol(line);
+	//find connection
+	std::getline(iss, line);
+	parseConnectionType(line);
+	//find referer
+	parseReferer();
 	//set valid request
 	validateRequest();
 
 }
 
-void clientRequest::parseDeleteRequest(){
+void request::parseDeleteRequest(){
 }
-void clientRequest::parseURL(std::string line){
+void request::parseURL(std::string line){
 	std::string value;
 	value = parsing::findValue(line, 2);
 	if (value != "")
@@ -119,7 +108,7 @@ void clientRequest::parseURL(std::string line){
 	this->_stringURL = value;
 }
 
-void clientRequest::parseHttpProtocol(std::string line){
+void request::parseHttpProtocol(std::string line){
 	std::string protocolType[2] = {"HTTP/1.1", "HTTP/1.0"};
 	std::string value;
 	value = parsing::findValue(line, 3);
@@ -131,19 +120,7 @@ void clientRequest::parseHttpProtocol(std::string line){
 		this->_httpProtocol = false;
 }
 
-void clientRequest::parseAddress(std::string line){
-	std::string value;
-	value = parsing::findValue(line, 2);
-	if (value.find(':') != std::string::npos)
-	{
-		this->_ip = value.substr(0, value.find(':'));
-		this->_portNumber = std::stoi(value.substr(value.find(':') + 1));
-	}
-	else
-		this->_ip = value;
-}
-
-void clientRequest::parseConnectionType(std::string line){
+void request::parseConnectionType(std::string line){
 	std::string connectionType[2] = {"keep-alive", "close"};
 	std::string value;
 	value = parsing::findValue(line, 2);
@@ -153,36 +130,30 @@ void clientRequest::parseConnectionType(std::string line){
 		this->_closeConnection = true;
 }
 
-void clientRequest::parseReferer(){
+void request::parseReferer(){
 	this->_referer = parsing::getValue(_request, "Referer:", 2);
 }
 
-void clientRequest::parseContentLength(){
-	std::cout << "conten_length parsing: " << std::stoi(parsing::getValue(_request, "Content-Length:", 2)) << std::endl;
-	this->_contentLength = std::stoi(parsing::getValue(_request, "Content-Length:", 2));
-}
-void clientRequest::parseBinaryDataBoundary(){
-	std::string boundary = parsing::getValue(_request, "Content-Type:", 3);
-	boundary = boundary.substr(boundary.find('=') + 1);
-	boundary.erase(0, boundary.find_first_not_of(" \t\n\r\f\v"));
-	this->_binaryDataBoundary = boundary;
-}
-
-void clientRequest::parseBinaryData(){
-	// Find the start of the binary data
-	size_t first = _request.find(_binaryDataBoundary);
-	size_t second = _request.find(_binaryDataBoundary, first + _binaryDataBoundary.length());
-	size_t third = _request.find(_binaryDataBoundary, second + _binaryDataBoundary.length());
-
-	if (second != std::string::npos && third != std::string::npos) {
-		std::string content = _request.substr(second + _binaryDataBoundary.length(), third - second - _binaryDataBoundary.length());
-		std::ofstream outputFile("binary_Data", std::ios::binary | std::ios::trunc);
-		if (outputFile.is_open()) {
-			outputFile << content;
-			outputFile.close();
-		}
-	}
-}
+//void request::parseContentLength(){
+//	std::cout << "conten_length parsing: " << std::stoi(parsing::getValue(_request, "Content-Length:", 2)) << std::endl;
+//	this->_contentLength = std::stoi(parsing::getValue(_request, "Content-Length:", 2));
+//}
+//
+//void request::parseBinaryData(){
+//	// Find the start of the binary data
+//	size_t first = _request.find(_binaryDataBoundary);
+//	size_t second = _request.find(_binaryDataBoundary, first + _binaryDataBoundary.length());
+//	size_t third = _request.find(_binaryDataBoundary, second + _binaryDataBoundary.length());
+//
+//	if (second != std::string::npos && third != std::string::npos) {
+//		std::string content = _request.substr(second + _binaryDataBoundary.length(), third - second - _binaryDataBoundary.length());
+//		std::ofstream outputFile("binary_Data", std::ios::binary | std::ios::trunc);
+//		if (outputFile.is_open()) {
+//			outputFile << content;
+//			outputFile.close();
+//		}
+//	}
+//}
 
 //std::string input = "[Your Content]";
 //
@@ -200,7 +171,7 @@ void clientRequest::parseBinaryData(){
 //std::cout << content << std::endl;
 
 
-void clientRequest::printRequest(){
+void request::printRequest(){
 	std::cout << "alive connection : " << getAliveConnection() << std::endl;
 	std::cout << "close connection : " << getCloseConnection() << std::endl;
 	std::cout << "get method : " << getGetMethod() << std::endl;
@@ -209,55 +180,39 @@ void clientRequest::printRequest(){
 	std::cout << "URL : " << getURL() << std::endl;
 	std::cout << "valid request : " << getValidRequest() << std::endl;
 	std::cout << "referer : " << getReferer() << std::endl;
-	std::cout << "port number : " << getPortNumber() << std::endl;
-	std::cout << "ip : " << getIp() << std::endl;
-	std::cout << "Content-Length: " << getContentLength() << std::endl;
-	std::cout << "binaryDataBoundary: " << getBinaryDataBoundary() << std::endl;
 }
 
-bool clientRequest::getValidRequest(){
+bool request::getValidRequest(){
 	return this->_validRequest;
 }
-bool clientRequest::getGetMethod(){
+bool request::getGetMethod(){
 	return this->_get;
 }
-bool clientRequest::getPostMethod(){
+bool request::getPostMethod(){
 	return this->_post;
 }
-bool clientRequest::getDeleteMethod(){
+bool request::getDeleteMethod(){
 	return this->_delete;
 }
-bool clientRequest::getAliveConnection(){
+bool request::getAliveConnection(){
 	return this->_aliveConnection;
 }
-bool clientRequest::getCloseConnection(){
+bool request::getCloseConnection(){
 	return this->_closeConnection;
 }
-bool clientRequest::getURL(){
+bool request::getURL(){
 	return this->_URL;
 }
-std::string clientRequest::getReferer(){
+std::string request::getReferer(){
 	return this->_referer;
 }
-int clientRequest::getPortNumber(){
-	return this->_portNumber;
-}
-int clientRequest::getContentLength(){
-	return this->_contentLength;
-}
-std::string clientRequest::getIp(){
-	return this->_ip;
-}
-std::string clientRequest::getStringURL() {
+std::string request::getStringURL() {
 	return this->_stringURL;
 }
-std::string clientRequest::getBinaryDataBoundary(){
-	return this->_binaryDataBoundary;
-}
-std::string clientRequest::getBinaryData() {
-	return this->_binaryData;
-}
 
+std::string &request::getRequestString(){
+	return this->_request;
+}
 
 
 /*int main() {

@@ -58,6 +58,18 @@ std::string parsing::getValue(std::string str, std::string key, int number){
 	return "";
 }
 
+std::string parsing::vectorToString(const std::vector<uint8_t>& inputVector) {
+	const char* dataPtr = reinterpret_cast<const char*>(inputVector.data());
+	return std::string(dataPtr, inputVector.size());
+}
+
+std::string parsing::vectorToLimitedString(const std::vector<uint8_t>& data, size_t maxBytes) {
+	size_t length = std::min(maxBytes, data.size());
+	std::string result(data.begin(), data.begin() + length);
+
+	return result;
+}
+
 //std::string parsing::findValue(std::string str, int number) {
 //	size_t spacePos = str.find(' ');
 //	if (spacePos != std::string::npos) {

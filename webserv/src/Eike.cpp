@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 #include "../includes/Header.h"
-#include "../includes/clientRequest.hpp"
+#include "../includes/request.hpp"
 #include "../includes/parsing.hpp"
 #include "../includes/server.hpp"
 #include "../includes/response.hpp"
@@ -20,7 +20,7 @@ int main(){
 
 //	Config conf = Config("../config_parser/confFiles/server.conf");
 //	Server serv = Server(conf);
-//	clientRequest test = clientRequest("GET /favicon.ico HTTP/1.1\\n\n"
+//	request test = request("GET /favicon.ico HTTP/1.1\\n\n"
 //				  "Host: localhost:8080\\n\n"
 //				  "Connection: keep-alive\\n\n"
 //				  "sec-ch-ua: Google Chrome;v=\"117\", Not;A=Brand;v=8, Chromium;v=117\\n\n"

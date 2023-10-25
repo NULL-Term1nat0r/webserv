@@ -3,7 +3,7 @@
 #define response_HPP
 
 #include "Header.h"
-#include "clientRequest.hpp"
+#include "request.hpp"
 
 class response
 {

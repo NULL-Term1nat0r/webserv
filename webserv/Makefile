@@ -18,14 +18,17 @@ CC = c++
 CFLAGS = -Wall -Werror -Wextra -std=c++98 -g
 
 SRCS =	src/Eike.cpp \
-		src/clientRequest.cpp \
+		src/request.cpp \
 		src/parsing.cpp \
-		src/webServer.cpp \
 		src/response.cpp \
 		src/server.cpp \
 		src/server2.cpp \
 		src/server3.cpp \
-		src/config.cpp
+		src/config.cpp \
+		src/getRequest.cpp \
+		src/postRequest.cpp \
+		src/deleteRequest.cpp
+
 OBJS = ${SRCS:.cpp=.o}
 
 RM = rm -rf
