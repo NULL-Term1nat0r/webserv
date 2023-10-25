@@ -26,11 +26,14 @@ typedef struct ServerConf
 	ServerConf();
 	~ServerConf();
 	std::map<std::string, LocationStruc>	locations;//vector before
-	std::map<std::string, std::string>		errorPages;//maybe add some more
+	// std::map<std::string, std::string>		errorPages;//maybe add some more // change to int, std::string
 	short unsigned							port;
 	std::string								serverName;
 	int										bodySize;
 	//??index, root, default_server
+
+	//new
+	std::map<int, std::string>		errorPages;//maybe add some more
 } ServerConf;
 
 class Server
