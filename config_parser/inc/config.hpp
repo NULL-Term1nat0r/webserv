@@ -55,7 +55,8 @@ class Config
 		void																					_handleLocation(std::ifstream &nginxConfFile, std::string &line, int i);
 		void																					_serverBlock(std::ifstream &nginxConfFile, std::string &line, int i);
 		void																					_globalBlock(std::ifstream &nginxConfFile, std::string &line);
-		bool																					_fileOpen(std::ifstream &nginxConfFile);
+		bool																					_fileOpen(
+				const std::ifstream &nginxConfFile);
 		void																					_tokenizeErrorPage(std::vector<std::string> &tokens);
 		std::vector<std::string>																_tokenize(const std::string& line);
 		std::vector<std::map<std::string, std::map<std::string, std::vector<std::string> > > >	_confFile;
