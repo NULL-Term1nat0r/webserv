@@ -180,7 +180,7 @@ void	Binary::_getFileName(const std::string& contentType)
             else
                 _fileType = _fileName.substr(_fileName.find_last_of('.'), _fileName.size() - _fileName.find_last_of('.'));
             _checkIfFileTypeExisting();
-            if (_fileType != "not found")
+            if (_fileType != "not found")//change that
                 _fileName = _fileType + _fileName;
             else
                 _fileName = ""; //error
