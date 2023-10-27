@@ -1,88 +1,104 @@
 #include <iostream>
-#include <cstring>
-#include <unistd.h>
-
-#define MAX_LINE_LENGTH 4096 // Maximum line length
-
-void test(int *socket) {
-	*socket = 2;
-}
-std::string readNextLine(int fileDescriptor) {
-	static char buffer[MAX_LINE_LENGTH];
-	static ssize_t bytesRead = 0;
-	static char* currentPosition = buffer;
-
-	std::string line;
-	bool lineComplete = false;
-
-	while (!lineComplete) {
-		if (currentPosition >= buffer + bytesRead) {
-			// Refill the buffer
-			bytesRead = read(fileDescriptor, buffer, MAX_LINE_LENGTH);
-
-			if (bytesRead <= 0) {
-				// End of file or error
-				break;
-			}
-
-			currentPosition = buffer;
-		}
-
-		// Find the end of the line
-		char* lineEnd = strchr(currentPosition, '\n');
-		if (lineEnd) {
-			// Line found
-			size_t lineLength = lineEnd - currentPosition;
-			line.append(currentPosition, lineLength);
-			currentPosition = lineEnd + 1; // Move past the '\n'
-			lineComplete = true;
-		} else {
-			// Line not complete in this buffer, append all of it
-			line.append(currentPosition, bytesRead - (currentPosition - buffer));
-			currentPosition = buffer + bytesRead; // Indicate buffer is empty
-		}
-	}
-
-	return line;
-}
+#include <fstream>
 
 int main() {
+	// Open the file for appending
+	std::ofstream file("example.txt", std::ios::app);
 
-	const char* filename = "clientRequest.cpp"; // Replace with your file's path
-	int fileDescriptor = open(filename, O_RDONLY);
+	if (file.is_open()) {
+		// Append data to the file
+		file << "This is some additional text.\n";
 
-	if (fileDescriptor == -1) {
-		std::cerr << "Error opening the file." << std::endl;
-		return 1;
+		// Close the file when done
+		file.close();
+
+		std::cout << "Data appended successfully." << std::endl;
+	} else {
+		std::cerr << "Failed to open the file for appending." << std::endl;
 	}
-	std::string line;
-	while (true) {
-		line = readNextLine(fileDescriptor);
-		if (line.empty()) {
-			break; // End of file or error
-		}
-		std::cout << "Line: " << line << std::endl;
-	}
-
-	// Close the file descriptor and perform cleanup
-	close(fileDescriptor);
 
 	return 0;
 }
 
 
 
-std::vector<uint8_t> buffer(serv._buffSize); // Allocate a vector for a chunk
-ssize_t bytes_received = 0;
-ssize_t total_bytes_received = 0;
-std::vector<uint8_t> request; // This vector will store the accumulated data
-
-while ((bytes_received = recv(clientSocket, buffer.data(), serv._buffSize, 0)) > 0) {
-total_bytes_received += bytes_received;
-request.insert(request.end(), buffer.begin(), buffer.begin() + bytes_received);
-// You can also use request.insert(request.end(), buffer.begin(), buffer.begin() + bytes_received) to append the data.
-std::fill(buffer.begin(), buffer.end(), 0); // Clear the buffer
-}
-
-// Now, 'request' contains the accumulated data as a vector of uint8_t.
-
+//#include <iostream>
+//#include <map>
+//
+//class base {
+//public:
+//	base() {}
+//	virtual ~base() {}
+//	virtual void print() {}
+//};
+//
+//class a : public base {
+//public:
+//	a() : _a(1) {}
+//	~a() {}
+//	void print() {
+//		std::cout << "value of a: " << _a << std::endl;
+//	}
+//private:
+//	int _a;
+//};
+//
+//class b : public base {
+//public:
+//	b() : _b(2) {}
+//	~b() {}
+//	void print() {
+//		std::cout << "value of b: " << _b << std::endl;
+//	}
+//private:
+//	int _b;
+//};
+//
+//class cd{
+//public:
+//	cd() : _c(3), _d(4) {}
+//	~cd() {}
+//	void print() {
+//		std::cout << "value of c: " << _c << std::endl;
+//		std::cout << "value of d: " << _d << std::endl;
+//	}
+//private:
+//	int _c;
+//	int _d;
+//};
+//int main() {
+//	std::map<std::string, void*> map;  // Use void* to store pointers to objects
+//
+//	a* classA = new a();  // Dynamically allocate objects
+//	b* classB = new b();
+//	cd* classCD = new cd();
+//
+//
+//	map["test1"] = static_cast<void*>(classA);  // Store the void* pointers in the map
+//	map["test2"] = static_cast<void*>(classB);
+//	map["test3"] = static_cast<void*>(classCD);
+//
+//
+//	// Access and cast the objects through the map
+//	a* classAFromMap = static_cast<a*>(map["test1"]);
+//	if (classAFromMap) {
+//		classAFromMap->print();
+//	}
+//
+//	b* classBFromMap = static_cast<b*>(map["test2"]);
+//	if (classBFromMap) {
+//		classBFromMap->print();
+//	}
+//
+//	void *d = static_cast<a*>(map["test3"]);
+//	cd* classCDFromMap = static_cast<cd*>(d);
+//	if (classCDFromMap) {
+//		classCDFromMap->print();
+//	}
+//
+//	// Don't forget to clean up the dynamically allocated objects
+//	delete classA;
+//	delete classB;
+//
+//	return 0;
+//}

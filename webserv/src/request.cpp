@@ -2,7 +2,7 @@
 
 request::request(std::vector<uint8_t> &clientRequest)
 {
-	this->_request = parsing::vectorToLimitedString(clientRequest, 900);
+	this->_request = parsing::vectorToString(clientRequest);
 	parseProtocol();
 }
 

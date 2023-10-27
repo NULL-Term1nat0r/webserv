@@ -26,12 +26,34 @@ struct sockaddr_in* Server::_configureServerAddress(){
 	return server_addr;
 }
 
-void 	Server::_addSocket(int socket, std::vector<struct pollfd> &pollFileDescriptors, std::vector<long long> &socketTimeouts){
+void *Server::_returnClassPointer(int clientSocket, std::map<int, void *> &requestClass) {
+	// Iterate through the map
+	std::map<int, void*>::iterator it;
+	for (it = requestClass.begin(); it != requestClass.end(); ++it) {
+		if (it->first == clientSocket) {
+			return it->second;
+		}
+	}
+	return NULL;
+}
+
+void Server::_changeClassPointer(int clientSocket, std::map<int, void *> &requestClass, request *newRequest) {
+	// Iterate through the map
+	std::map<int, void*>::iterator it;
+	for (it = requestClass.begin(); it != requestClass.end(); ++it) {
+		if (it->first == clientSocket) {
+			it->second = static_cast<void*>(newRequest);
+		}
+	}
+}
+
+void 	Server::_addSocket(int socket, std::vector<struct pollfd> &pollFileDescriptors, std::vector<long long> &socketTimeouts, std::map<int, void *> &requestClass){
 	struct pollfd _pollfd;
 	_pollfd.fd = socket;
 	_pollfd.events = POLLIN;
 	pollFileDescriptors.push_back(_pollfd);
 	socketTimeouts.push_back(time(NULL));
+	requestClass.insert(std::make_pair(socket, (void *)NULL));
 }
 
 void Server::_removeSocket(int index, std::vector<struct pollfd> &pollFileDescriptors, std::vector<long long> &socketTimeouts){
@@ -41,25 +63,19 @@ void Server::_removeSocket(int index, std::vector<struct pollfd> &pollFileDescri
 	std::cerr << "removed socket: " << index <<  std::endl;
 }
 
-std::vector<uint8_t> Server::_processData(Server &serv, int clientSocket, std::vector<struct pollfd> &pollFileDescriptors, std::vector<long long> &socketTimeouts) {
+std::vector<uint8_t> Server::_processPostRequest(Server &serv, int clientSocket, std::vector<struct pollfd> &pollFileDescriptors, std::vector<long long> &socketTimeouts, std::map<int, void *> &requestClass) {
 	std::vector<uint8_t> buffer(serv._buffSize); // Allocate a vector for a chunk
-	ssize_t bytes_received = 0;
-	ssize_t total_bytes_received = 0;
-	std::vector<uint8_t> request;// This vector will store the accumulated data
-//	long long currentTime = time(NULL);
+	void *a = _returnClassPointer(clientSocket, requestClass);
+	a = NULL;
 
-	while ((bytes_received = recv(clientSocket, &buffer[0], serv._buffSize, 0)) > 0) {
-		total_bytes_received += bytes_received;
-		request.insert(request.end(), buffer.begin(), buffer.begin() + bytes_received);
-		std::fill(buffer.begin(), buffer.end(), 0); // Clear the buffer
+	std::vector<uint8_t> request;// This vector will store the accumulated data
+
+	if (time(NULL) - socketTimeouts[clientSocket] > serv._clientTimeout) {
+		_removeSocket(clientSocket, pollFileDescriptors, socketTimeouts);
 	}
-	if (bytes_received < 0) {
-		_removeSocket(clientSocket, pollFileDescriptors, socketTimeouts);// Handle the receive error
-		std::cerr << "Error receiving data." << std::endl;
-	} else {
-		std::cout << "Total bytes received: " << total_bytes_received << std::endl;
-	}
-	return (request);
+	ssize_t recievedBytes = recv(clientSocket, &buffer[0], serv._buffSize, MSG_DONTWAIT);
+	recievedBytes = 0;
+	return buffer;
 }
 
 int Server::_createSocket(int port, Server &serv) {
@@ -70,7 +86,6 @@ int Server::_createSocket(int port, Server &serv) {
 	server_addr.sin_family = AF_INET;
 	server_addr.sin_port = htons(port);
 	server_addr.sin_addr.s_addr = INADDR_ANY;
-
 
 	int serverSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (serverSocket < 0) {
@@ -83,54 +98,59 @@ int Server::_createSocket(int port, Server &serv) {
 		close(serverSocket);
 		exit(EXIT_FAILURE);
 	}
-
-
 	if (bind(serverSocket, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
 		std::cerr << "Error binding socket" << std::endl;
 		return -1;
 	}
-
 	if (listen(serverSocket, 5) < 0) {
 		std::cerr << "Error listening" << std::endl;
 		return -1;
 	}
-
 	std::cout << "Server listening on port " << port << std::endl;
 	return serverSocket;
-
 }
 
-void Server::_handleNewConnection(int serverSocket, std::vector<struct pollfd> &pollFileDescriptors, std::vector<long long> &socketTimeouts) {
+void Server::_handleNewConnection(int serverSocket, std::vector<struct pollfd> &pollFileDescriptors, std::vector<long long> &socketTimeouts, std::map<int, void *> &requestClass) {
 	int client_socket = accept(serverSocket, nullptr, nullptr);
 	if (client_socket < 0) {
 		std::cerr << "Error accepting connection" << std::endl;
 	} else {
 		std::cout << "Accepted new connection" << std::endl;
-		Server::_addSocket(client_socket, pollFileDescriptors, socketTimeouts);
+		Server::_addSocket(client_socket, pollFileDescriptors, socketTimeouts, requestClass);
 		std::cout << "new client socket got created number: " << client_socket << std::endl;
 	}
 }
 
-void Server::_handleClientData(Server &serv, int clientSocket, std::vector<struct pollfd> &pollFileDescriptors, std::vector<long long> &socketTimeouts) {
+void Server::_handleClientData(Server &serv, int clientSocket, std::vector<struct pollfd> &pollFileDescriptors, std::vector<long long> &socketTimeouts, std::map<int, void *> &requestClass) {
 //	char buffer[90000];
-	std::vector<uint8_t> clientRequest;
-	clientRequest = Server::_processData(serv, clientSocket, pollFileDescriptors, socketTimeouts);
-	std::string check = parsing::vectorToLimitedString(clientRequest, 900);
+//	char buffer[serv._buffSize];
+	std::vector<uint8_t> clientRequest(serv._buffSize);
+	recv(clientSocket, &clientRequest[0], serv._buffSize, MSG_DONTWAIT);
+	std::string str(clientRequest.begin(), clientRequest.end());
+	std::string check = parsing::vectorToString(clientRequest);
 	std::cout << check << std::endl;
 
 		if (check.find("POST") != std::string::npos) {
-			std::cout << "post request incoming\n";
-			request newClientRequest(clientRequest);
-			newClientRequest.printRequest();
-			response newResponse(newClientRequest.getStringURL());
-			send(clientSocket, newResponse.getResponse().c_str(), newResponse.getResponse().length(), 0);
+			if (_returnClassPointer(clientSocket, requestClass) != NULL)
+				_processPostRequest(serv, clientSocket, pollFileDescriptors, socketTimeouts, requestClass);
+			else{
+				postRequest *newRequest = new postRequest(clientRequest);
+				_changeClassPointer(clientSocket, requestClass, newRequest);
+			}
+			_processPostRequest(serv, clientSocket, pollFileDescriptors, socketTimeouts, requestClass);
+			std::cout << static_cast<postRequest *>(_returnClassPointer(clientSocket, requestClass))->getMultiFormData() << std::endl;
+//			response newResponse(postRequest.getStringURL());
+//			send(clientSocket, newResponse.getResponse().c_str(), newResponse.getResponse().length(), MSG_DONTWAIT);
 		}
-		else {
+		else if (check.find("GET") != std::string::npos){
 			std::cout << "get request incoming\n";
 			request newClientRequest(clientRequest);
 			response newResponse(newClientRequest.getStringURL());
 			send(clientSocket, newResponse.getResponse().c_str(), newResponse.getResponse().length(), 0);
 			std::cout << "send response: \n" << newResponse.getResponse() << std::endl;
+		}
+		else {
+			std::cout << "no request incoming\n";
 		}
 		close(clientSocket);
 }
@@ -143,8 +163,9 @@ int Server::_serverRoutine(Server &serv, int index) {
 	}
 	std::vector<struct pollfd> pollFileDescriptors;
 	std::vector<long long> socketTimeouts;
+	std::map<int, void*> requestClass;
 
-	_addSocket(serverSocket, pollFileDescriptors, socketTimeouts);
+	_addSocket(serverSocket, pollFileDescriptors, socketTimeouts, requestClass);
 
 	while (true) {
 		int num_ready = poll(&pollFileDescriptors[0], pollFileDescriptors.size(), 0);
@@ -153,17 +174,17 @@ int Server::_serverRoutine(Server &serv, int index) {
 			return 1;
 		}
 		if (pollFileDescriptors[0].revents & POLLIN) {
-			_handleNewConnection(serverSocket, pollFileDescriptors, socketTimeouts);
+			_handleNewConnection(serverSocket, pollFileDescriptors, socketTimeouts, requestClass);
 		}
 		for (size_t i = 1; i < pollFileDescriptors.size(); ++i) {
-			std::cout << "size pollFileDescriptors: " << pollFileDescriptors.size() << std::endl;
+//			std::cout << "size pollFileDescriptors: " << pollFileDescriptors.size() << std::endl;
 			if (pollFileDescriptors[i].revents & POLLIN) {
-				_handleClientData(serv, pollFileDescriptors[i].fd, pollFileDescriptors, socketTimeouts);
+				_handleClientData(serv, pollFileDescriptors[i].fd, pollFileDescriptors, socketTimeouts, requestClass);
 			}
 //			std::cout << "if (time: " << time(NULL) << "- socketTimeouts[" << i << "]: " << socketTimeouts[i] << " > serv._clienttimeout: " << serv._clientTimeout << std::endl;
-//			if (time(NULL) - socketTimeouts[i] > serv._clientTimeout) {
-//				_removeSocket(i, pollFileDescriptors, socketTimeouts);
-//			}
+			if (time(NULL) - socketTimeouts[i] > serv._clientTimeout) {
+				_removeSocket(i, pollFileDescriptors, socketTimeouts);
+			}
 		}
 	}
 	close(serverSocket);

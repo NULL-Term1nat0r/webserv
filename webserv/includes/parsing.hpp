@@ -21,6 +21,8 @@ public:
 	static std::string getValue(std::string str, std::string key, int number);
 	static std::string vectorToString(const std::vector<uint8_t>& inputVector);
 	static std::string vectorToLimitedString(const std::vector<uint8_t>& data, size_t maxBytes);
+	static std::string getStringBetweenQuotes(std::string &input);
+	static std::string getLineOfKey(std::string str, std::string key);
 //	int findConnection(std::string str);
 //	int findPortNumber(std::string str);
 //	int findIp(std::string str);

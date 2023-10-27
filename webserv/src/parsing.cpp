@@ -49,7 +49,7 @@ std::string parsing::getValue(std::string str, std::string key, int number){
 	std::string line;
 	std::string value;
 	std::istringstream iss(str);
-	while (std::getline(iss, line))
+	while (std::getline(iss, line, '\n'))
 	{
 		value = parsing::findValue(line, 1);
 		if (value == key)
@@ -59,8 +59,11 @@ std::string parsing::getValue(std::string str, std::string key, int number){
 }
 
 std::string parsing::vectorToString(const std::vector<uint8_t>& inputVector) {
-	const char* dataPtr = reinterpret_cast<const char*>(inputVector.data());
-	return std::string(dataPtr, inputVector.size());
+	std::string result;
+	for (size_t i = 0; i < inputVector.size(); ++i) {
+		result += static_cast<char>(inputVector[i]);
+	}
+	return result;
 }
 
 std::string parsing::vectorToLimitedString(const std::vector<uint8_t>& data, size_t maxBytes) {
@@ -69,6 +72,26 @@ std::string parsing::vectorToLimitedString(const std::vector<uint8_t>& data, siz
 
 	return result;
 }
+
+std::string parsing::getStringBetweenQuotes(std::string &input) {
+	size_t startPos = input.find('"');
+	size_t endPos = input.find('"', startPos + 1);
+	std::string result = input.substr(startPos + 1, endPos - startPos - 1);
+	return result;
+}
+
+std::string parsing::getLineOfKey(std::string str, std::string key) {
+	std::string line;
+	std::istringstream iss(str);
+	while (std::getline(iss, line, '\n'))
+	{
+		if (parsing::findWord(line, key))
+			return line;
+	}
+	return "";
+}
+
+
 
 //std::string parsing::findValue(std::string str, int number) {
 //	size_t spacePos = str.find(' ');

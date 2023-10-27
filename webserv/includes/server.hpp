@@ -4,6 +4,7 @@
 #include "Header.h"
 #include "config.hpp"
 #include "request.hpp"
+#include "postRequest.hpp"
 #include "response.hpp"
 
 typedef struct LocationStruc
@@ -110,13 +111,15 @@ class Server
 		//*** server3.cpp ***//
 		//*******************//
 		struct sockaddr_in*			_configureServerAddress();
+		static void*						_returnClassPointer(int clientSocket, std::map<int, void*> &requestClass);
+		static void					_changeClassPointer(int clientSocket, std::map<int, void*> &requestClass, request *newClassPointer);
 		static int 					_createSocket(int port, Server &serv);
-		static void 				_handleNewConnection(int server_socket, std::vector<struct pollfd> &pollFileDescriptors, std::vector<long long> &socketTimeouts);
-		static void 				_handleClientData(Server &serv, int clientSocket, std::vector<struct pollfd> &pollFileDescriptors, std::vector<long long> &socketTimeouts);
-		static void 				_addSocket(int socket, std::vector<struct pollfd> &pollFileDescriptors, std::vector<long long> &socketTimeouts);
+		static void 				_handleNewConnection(int server_socket, std::vector<struct pollfd> &pollFileDescriptors, std::vector<long long> &socketTimeouts, std::map<int, void *> &requestClass);
+		static void 				_handleClientData(Server &serv, int clientSocket, std::vector<struct pollfd> &pollFileDescriptors, std::vector<long long> &socketTimeouts, std::map<int, void *> &requestClass);
+		static void 				_addSocket(int socket, std::vector<struct pollfd> &pollFileDescriptors, std::vector<long long> &socketTimeouts, std::map<int, void *> &requestClass);
 		static void 				_removeSocket(int index, std::vector<struct pollfd> &pollFileDescriptors, std::vector<long long> &socketTimeouts);
 //		void 						_setPollStruct(std::vector<struct pollfd> &poll_fds, int socket);
-		static std::vector<uint8_t>  _processData(Server &serv, int clientSocket, std::vector<struct pollfd> &pollFileDescriptors, std::vector<long long> &socketTimeouts);
+		static std::vector<uint8_t>  _processPostRequest(Server &serv, int clientSocket, std::vector<struct pollfd> &pollFileDescriptors, std::vector<long long> &socketTimeouts, std::map<int, void *> &requestClass);
 		int							_serverRoutine(Server &serv, int index);
 
 		//*******************//
