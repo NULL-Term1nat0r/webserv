@@ -1,24 +1,106 @@
 #include <iostream>
 #include <fstream>
+#include <vector>
+
+std::string vectorToString(const std::vector<uint8_t>& inputVector) {
+	std::string result;
+	for (size_t i = 0; i < inputVector.size(); ++i) {
+		result += static_cast<char>(inputVector[i]);
+	}
+	std::cout << "-------VECTORTOSTRING-----------------: \n" << result << std::endl;
+	return result;
+}
+
+class parent{
+public:
+	parent() {}
+	virtual ~parent() {}
+	virtual void print() {
+		std::cout << "test\n";
+	}
+};
+
+class a : public parent{
+	int _a;
+};
+
+class b : public parent {
+	int _b;
+};
+
+parent *returnClassPointer(){
+
+	a *newPointer = new a();
+	return newPointer;
+}
 
 int main() {
-	// Open the file for appending
-	std::ofstream file("example.txt", std::ios::app);
+	void *classParent = returnClassPointer();
+	if (dynamic_cast<a*>(static_cast<parent*>(classParent)))
+		std::cout << "a" << std::endl;
+	if (dynamic_cast<b*>(static_cast<parent*>(classParent)))
+		std::cout << "b" << std::endl;
 
-	if (file.is_open()) {
-		// Append data to the file
-		file << "This is some additional text.\n";
 
-		// Close the file when done
-		file.close();
 
-		std::cout << "Data appended successfully." << std::endl;
-	} else {
-		std::cerr << "Failed to open the file for appending." << std::endl;
-	}
 
+//	void *classParent = new a();
+//	if (dynamic_cast<a*>(static_cast<parent*>(classParent)))
+//		std::cout << "a" << std::endl;
+//	if (dynamic_cast<b*>(static_cast<parent*>(classParent)))
+//		std::cout << "b" << std::endl;
 	return 0;
 }
+
+
+
+
+
+
+//#include <iostream>
+//#include <fstream>
+//#include <string>
+//#include <vector>
+//#include <fstream>
+//
+//
+//std::string returnValue(std::string key, std::string source, std::string limiter){
+//	size_t start = source.find(key);
+//	size_t end = source.find(limiter, start + key.length());
+//	return source.substr(start + key.length(), end - start - key.length());
+//}
+//
+//int main() {
+//	// Open the file for reading
+//	std::ifstream inputFile("../../ReadmeFiles/postRequest.txt");
+//
+//	// Check if the file is opened successfully
+//	if (!inputFile.is_open()) {
+//		std::cerr << "Error: Unable to open the file." << std::endl;
+//		return 1;
+//	}
+//
+//	// Vector to store characters read from the file
+//	std::vector<char> charVector;
+//
+//	char ch;
+//	// Read characters from the file one by one and store them in the vector
+//	while (inputFile.get(ch)) {
+//		charVector.push_back(ch);
+//	}
+//
+//	// Close the file
+//	inputFile.close();
+//
+//	// Print the characters stored in the vector
+//	std::cout << "Characters read from the file and stored in the vector:" << std::endl;
+//	for (char character : charVector) {
+//		std::cout << character;
+//	}
+//	std::cout << std::endl;
+//
+//	return 0;
+//}
 
 
 

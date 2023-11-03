@@ -13,19 +13,16 @@ public:
 	parsing();
 	~parsing();
 
-	static int findWord(std::string str, std::string word);
-	static int findMethod(std::string str);
-	static int findProtocol(std::string str);
-	static std::string findValue(std::string str, int number);
-	static int checkIfFound(std::string array[], std::string str);
-	static std::string getValue(std::string str, std::string key, int number);
+//	static int checkIfFound(std::string array[], std::string str);
+//	static std::string getValue(std::string str, std::string key, int number);
 	static std::string vectorToString(const std::vector<uint8_t>& inputVector);
 	static std::string vectorToLimitedString(const std::vector<uint8_t>& data, size_t maxBytes);
-	static std::string getStringBetweenQuotes(std::string &input);
-	static std::string getLineOfKey(std::string str, std::string key);
-//	int findConnection(std::string str);
-//	int findPortNumber(std::string str);
-//	int findIp(std::string str);
+//	static std::string getLineOfKey(std::string str, std::string key);
+
+
+	static std::string returnValue(std::string key, std::string source, std::string limiter);
+	static std::vector<uint8_t> unsignedCharToVector(unsigned char *data, size_t size);
+
 };
 
 #endif

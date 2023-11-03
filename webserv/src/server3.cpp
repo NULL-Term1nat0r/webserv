@@ -26,9 +26,9 @@ struct sockaddr_in* Server::_configureServerAddress(){
 	return server_addr;
 }
 
-void *Server::_returnClassPointer(int clientSocket, std::map<int, void *> &requestClass) {
+request *Server::_returnClassPointer(int clientSocket, std::map<int, request*> &requestClass) {
 	// Iterate through the map
-	std::map<int, void*>::iterator it;
+	std::map<int, request*>::iterator it;
 	for (it = requestClass.begin(); it != requestClass.end(); ++it) {
 		if (it->first == clientSocket) {
 			return it->second;
@@ -37,23 +37,23 @@ void *Server::_returnClassPointer(int clientSocket, std::map<int, void *> &reque
 	return NULL;
 }
 
-void Server::_changeClassPointer(int clientSocket, std::map<int, void *> &requestClass, request *newRequest) {
+void Server::_changeClassPointer(int clientSocket, std::map<int, request*> &requestClass, request *newRequest) {
 	// Iterate through the map
-	std::map<int, void*>::iterator it;
+	std::map<int, request*>::iterator it;
 	for (it = requestClass.begin(); it != requestClass.end(); ++it) {
 		if (it->first == clientSocket) {
-			it->second = static_cast<void*>(newRequest);
+			it->second = newRequest;
 		}
 	}
 }
 
-void 	Server::_addSocket(int socket, std::vector<struct pollfd> &pollFileDescriptors, std::vector<long long> &socketTimeouts, std::map<int, void *> &requestClass){
+void 	Server::_addSocket(int socket, std::vector<struct pollfd> &pollFileDescriptors, std::vector<long long> &socketTimeouts, std::map<int, request *> &requestClass){
 	struct pollfd _pollfd;
 	_pollfd.fd = socket;
 	_pollfd.events = POLLIN;
 	pollFileDescriptors.push_back(_pollfd);
 	socketTimeouts.push_back(time(NULL));
-	requestClass.insert(std::make_pair(socket, (void *)NULL));
+	requestClass.insert(std::make_pair(socket, (request *)NULL));
 }
 
 void Server::_removeSocket(int index, std::vector<struct pollfd> &pollFileDescriptors, std::vector<long long> &socketTimeouts){
@@ -61,21 +61,6 @@ void Server::_removeSocket(int index, std::vector<struct pollfd> &pollFileDescri
 	pollFileDescriptors.erase(pollFileDescriptors.begin() + index);
 	socketTimeouts.erase(socketTimeouts.begin() + index);
 	std::cerr << "removed socket: " << index <<  std::endl;
-}
-
-std::vector<uint8_t> Server::_processPostRequest(Server &serv, int clientSocket, std::vector<struct pollfd> &pollFileDescriptors, std::vector<long long> &socketTimeouts, std::map<int, void *> &requestClass) {
-	std::vector<uint8_t> buffer(serv._buffSize); // Allocate a vector for a chunk
-	void *a = _returnClassPointer(clientSocket, requestClass);
-	a = NULL;
-
-	std::vector<uint8_t> request;// This vector will store the accumulated data
-
-	if (time(NULL) - socketTimeouts[clientSocket] > serv._clientTimeout) {
-		_removeSocket(clientSocket, pollFileDescriptors, socketTimeouts);
-	}
-	ssize_t recievedBytes = recv(clientSocket, &buffer[0], serv._buffSize, MSG_DONTWAIT);
-	recievedBytes = 0;
-	return buffer;
 }
 
 int Server::_createSocket(int port, Server &serv) {
@@ -110,7 +95,7 @@ int Server::_createSocket(int port, Server &serv) {
 	return serverSocket;
 }
 
-void Server::_handleNewConnection(int serverSocket, std::vector<struct pollfd> &pollFileDescriptors, std::vector<long long> &socketTimeouts, std::map<int, void *> &requestClass) {
+void Server::_handleNewConnection(int serverSocket, std::vector<struct pollfd> &pollFileDescriptors, std::vector<long long> &socketTimeouts, std::map<int, request *> &requestClass) {
 	int client_socket = accept(serverSocket, nullptr, nullptr);
 	if (client_socket < 0) {
 		std::cerr << "Error accepting connection" << std::endl;
@@ -121,38 +106,81 @@ void Server::_handleNewConnection(int serverSocket, std::vector<struct pollfd> &
 	}
 }
 
-void Server::_handleClientData(Server &serv, int clientSocket, std::vector<struct pollfd> &pollFileDescriptors, std::vector<long long> &socketTimeouts, std::map<int, void *> &requestClass) {
-//	char buffer[90000];
-//	char buffer[serv._buffSize];
-	std::vector<uint8_t> clientRequest(serv._buffSize);
-	recv(clientSocket, &clientRequest[0], serv._buffSize, MSG_DONTWAIT);
-	std::string str(clientRequest.begin(), clientRequest.end());
-	std::string check = parsing::vectorToString(clientRequest);
-	std::cout << check << std::endl;
+//void Server::_processPostRequest(Server &serv, int clientSocket, std::map<int, void *> &requestClass, std::vector<uint8_t> &clientRequest) {
+//	if (_returnClassPointer(clientSocket, requestClass) == NULL) {
+//		postRequest *newRequest = new postRequest(clientRequest);
+//		newRequest->printPostRequest();
+//		_changeClassPointer(clientSocket, requestClass, newRequest);
+//	}
+//	postRequest *a = static_cast<postRequest *>(_returnClassPointer(clientSocket, requestClass));
+//	if (!a->getAllChunksSent()){
+//		try {
+//			a->writeBinaryToFile(clientRequest);
+//		}
+//		catch (std::exception &e){
+//			std::cout << "caught exception of post Request" << std::endl;
+//		}
+//	}
+//	else
+//		std::cout << "all chunks sent" << std::endl;
+//}
 
-		if (check.find("POST") != std::string::npos) {
-			if (_returnClassPointer(clientSocket, requestClass) != NULL)
-				_processPostRequest(serv, clientSocket, pollFileDescriptors, socketTimeouts, requestClass);
-			else{
-				postRequest *newRequest = new postRequest(clientRequest);
-				_changeClassPointer(clientSocket, requestClass, newRequest);
+
+void Server::_handleClientData(Server &serv, int clientSocket, std::vector<struct pollfd> &pollFileDescriptors, std::vector<long long> &socketTimeouts, std::map<int, request *> &requestClass) {
+	std::vector<uint8_t> clientRequest(serv._buffSize);
+	recv(clientSocket, &clientRequest[0], serv._buffSize, 0);
+//	clientRequest = parsing::unsignedCharToVector(buffer, 2000);
+//	std::string str(clientRequest.begin(), clientRequest.end());
+//	std::string check = parsing::vectorToString(clientRequest);
+//	std::cout << check << std::endl;
+	request newRequest = request(clientRequest);
+
+	if (_returnClassPointer(clientSocket, requestClass) == NULL) {
+		if (newRequest.getPostMethod()){
+			postRequest *newPostRequest = new postRequest(clientRequest);
+			_changeClassPointer(clientSocket, requestClass, newPostRequest);
+		}
+		else if (newRequest.getGetMethod()){
+			getRequest *newGetRequest = new getRequest(clientRequest);
+			_changeClassPointer(clientSocket, requestClass, newGetRequest);
+		}
+		else if (newRequest.getDeleteMethod()){
+			deleteRequest *newDeleteRequest = new deleteRequest(clientRequest);
+			_changeClassPointer(clientSocket, requestClass, newDeleteRequest);
+		}
+//		else
+//			std::cout << "wrong request method: " << newRequest.getRequestString() << std::endl;
+	}
+	request *classPointer = _returnClassPointer(clientSocket, requestClass);
+	if  (dynamic_cast<postRequest*>(static_cast<request*>(classPointer))){
+		std::cout << "post request incoming\n";
+		postRequest *postR = static_cast<postRequest *>(_returnClassPointer(clientSocket, requestClass));
+		if (!postR->getAllChunksSent()){
+			try {
+				postR->writeBinaryToFile(clientRequest);
 			}
-			_processPostRequest(serv, clientSocket, pollFileDescriptors, socketTimeouts, requestClass);
-			std::cout << static_cast<postRequest *>(_returnClassPointer(clientSocket, requestClass))->getMultiFormData() << std::endl;
-//			response newResponse(postRequest.getStringURL());
-//			send(clientSocket, newResponse.getResponse().c_str(), newResponse.getResponse().length(), MSG_DONTWAIT);
+			catch (std::exception &e){
+				std::cout << "caught exception of post Request" << std::endl;
+			}
 		}
-		else if (check.find("GET") != std::string::npos){
-			std::cout << "get request incoming\n";
-			request newClientRequest(clientRequest);
-			response newResponse(newClientRequest.getStringURL());
-			send(clientSocket, newResponse.getResponse().c_str(), newResponse.getResponse().length(), 0);
-			std::cout << "send response: \n" << newResponse.getResponse() << std::endl;
+		else{
+			_changeClassPointer(clientSocket, requestClass, NULL);
+			std::cout << "all chunks sent server3.cpp" << std::endl;
 		}
-		else {
-			std::cout << "no request incoming\n";
-		}
-		close(clientSocket);
+	}
+	else if (dynamic_cast<getRequest*>(static_cast<request*>(classPointer))){
+		std::cout << "get request incoming\n";
+		getRequest *get = static_cast<getRequest *>(_returnClassPointer(clientSocket, requestClass));
+		request newClientRequest(clientRequest);
+		response newResponse(newClientRequest.getStringURL());
+		send(clientSocket, newResponse.getResponse().c_str(), newResponse.getResponse().length(), 0);
+		_changeClassPointer(clientSocket, requestClass, NULL);
+	}
+	else if (dynamic_cast<deleteRequest*>(static_cast<request*>(classPointer))){
+		std::cout << "delete request incoming\n";
+		deleteRequest *deleteR = static_cast<deleteRequest *>(_returnClassPointer(clientSocket, requestClass));
+	}
+//		close(clientSocket);
 }
 
 int Server::_serverRoutine(Server &serv, int index) {
@@ -163,7 +191,7 @@ int Server::_serverRoutine(Server &serv, int index) {
 	}
 	std::vector<struct pollfd> pollFileDescriptors;
 	std::vector<long long> socketTimeouts;
-	std::map<int, void*> requestClass;
+	std::map<int, request*> requestClass;
 
 	_addSocket(serverSocket, pollFileDescriptors, socketTimeouts, requestClass);
 
@@ -182,9 +210,9 @@ int Server::_serverRoutine(Server &serv, int index) {
 				_handleClientData(serv, pollFileDescriptors[i].fd, pollFileDescriptors, socketTimeouts, requestClass);
 			}
 //			std::cout << "if (time: " << time(NULL) << "- socketTimeouts[" << i << "]: " << socketTimeouts[i] << " > serv._clienttimeout: " << serv._clientTimeout << std::endl;
-			if (time(NULL) - socketTimeouts[i] > serv._clientTimeout) {
-				_removeSocket(i, pollFileDescriptors, socketTimeouts);
-			}
+//			if (time(NULL) - socketTimeouts[i] > serv._clientTimeout) {
+//				_removeSocket(i, pollFileDescriptors, socketTimeouts);
+//			}
 		}
 	}
 	close(serverSocket);

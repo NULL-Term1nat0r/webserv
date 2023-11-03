@@ -30,7 +30,6 @@ class request{
 		bool _closeConnection;
 
 		std::string _stringURL;
-		std::string _referer;
 		std::string _stringHttpProtocol;
 
 		std::string _request;
@@ -40,7 +39,7 @@ class request{
 	public:
 		explicit request(std::vector<uint8_t> &clientRequest);
 		request();
-		~request();
+		virtual ~request();
 
 		bool getValidRequest();
 
@@ -57,15 +56,8 @@ class request{
 		std::string getReferer();
 		std::string &getRequestString();
 
-		void parseURL(std::string line);
-		void parseHttpProtocol(std::string line);
-		void parseConnectionType(std::string line);
-		void parseReferer();
-
-		void parseProtocol();
-		void parseGetRequest();
-		void parsePostRequest();
-		void parseDeleteRequest();
+		void setDefaultValues();
+		void parseRequest();
 
 		void validateRequest();
 		void printRequest();

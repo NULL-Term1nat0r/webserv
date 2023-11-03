@@ -44,6 +44,8 @@ private:
 	bool					_multiFormData;
 	bool					_textData;
 	bool					_cgi;
+	bool					_firstChunk;
+	bool					_allChunksSent;
 
 	bool					_firstChunkSent;
 
@@ -69,6 +71,9 @@ public:
 	int getContentLength();
 	bool getMultiFormData();
 	bool getTextData();
+	bool getAllChunksSent();
+
+	void printPostRequest();
 
 	class postException: public std::exception
 	{

@@ -15,7 +15,7 @@ TESTSERV = testserv
 
 CC = c++
 
-CFLAGS = -Wall -Werror -Wextra -std=c++98 -g
+CFLAGS = -Wall -Wextra -std=c++98 -g
 
 SRCS =	src/Eike.cpp \
 		src/request.cpp \
