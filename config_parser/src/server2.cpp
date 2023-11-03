@@ -121,12 +121,13 @@ void	Server::_setGlobalServerValues(std::map<std::string, std::vector<std::strin
 void	Server::_setBuffSize(std::map<std::string, std::vector<std::string> > globalContext) {
 	if (globalContext.find("buff_size") != globalContext.end()) {
 		_buffSize = atoi(globalContext["buff_size"][0].c_str());
-		if (_buffSize < 2000)
+		if (_buffSize < 9000 || _buffSize > 1000000)
 			throw WrongAmount();
 	}
 }
 
-
+//200 201 301 // read on at 400
+//400 403 404 405 413 500 501 504
 
 void	Server::_setErrorPage400(std::map<std::string, std::vector<std::string> > location, ServerConf &conf) {
 	if (location.find("error_page400") != location.end())

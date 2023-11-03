@@ -1,0 +1,26 @@
+"POST /upload HTTP/1.1\r\n
+Host: localhost:2021\r\n
+Connection: keep-alive\r\n
+Content-Length: 431\r\n
+Cache-Control: max-age=0\r\n
+sec-ch-ua: \"Chromium\";v=\"116\", \"Not)A;Brand\";v=\"24\", \"Google Chrome\";v=\"116\"\r\n
+sec-ch-ua-mobile: ?0\r\nsec-ch-ua-platform: \"macOS\"\r\n
+Upgrade-Insecure-Requests: 1\r\nOrigin: http://localhost:2021\r\nContent-Type: multipart/form-data; boundary=----WebKitFormBoundaryGG9teZBRABg3UEtC\r\nUser-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36\r\n
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7\r\n
+Sec-Fetch-Site: same-origin\r\n
+Sec-Fetch-Mode: navigate\r\n
+Sec-Fetch-User: ?1\r\n
+Sec-Fetch-Dest: document\r\n
+Referer: http://localhost:2021/\r\n
+Accept-Encoding: gzip, deflate, br\r\n
+Accept-Language: en-GB,en-US;q=0.9,en;q=0.8\r\n
+\r\n
+------WebKitFormBoundaryGG9teZBRABg3UEtC\r\nContent-Disposition: form-data; name=\"fileToUpload\"; filename=\"test.png\"\r\n
+Content-Type: image/png\r\n
+\r\n
+\x89PNG\r\n
+\U0000001a\n\0\0\0\rIHDR\0\0\0\x81\0\0\0j\U00000001\U00000003\0\0\0\xa1\xed\xa0R\0\0\0\U00000006PLTE\xff\xff\xff\0\0\0U\xc2\xd3~\0\0\0%IDATx\x9cc`\U00000018\U00000005\xa3\x80\xba\x80i\xa0\U0000001d\x80\U000000050\xe2\x97\U000000069\x99\x85.\U0000000e\U00000019\U00000005\xa3`\U00000014\x8ch\0\00\xbe\0\n\U0000000f[\xf7\x8c\0\0\0\U0000000eeXIfMM\0*\0\0\0\b\0\0\0\0\0\0\0\xd2S\x93\0\0\0\0IEND\xaeB`\x82\r\n------WebKitFormBoundaryGG9teZBRABg3UEtC\r\n
+Content-Disposition: form-data; name=\"submit\"\r\n
+\r\n
+Upload File0\0\0\0\0\0\0\0\0\0\0\r\n
+------WebKitFormBoundaryGG9teZBRABg3UEtC--\r\n\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"

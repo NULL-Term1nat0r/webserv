@@ -15,6 +15,8 @@ class Binary {
 		void	postRequest(std::string contentType, std::vector<uint8_t> fileData);
 		void	cutFileEnd();
 		void	cutFileStart();
+
+		void	checkLastChunk(std::vector<uint8_t> &lastChunk, std::string startBoundary);
 	private:
 		void	_initExtensionMap();
 		void	_checkIfFileTypeExisting();
