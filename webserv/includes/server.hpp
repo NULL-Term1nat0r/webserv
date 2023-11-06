@@ -117,7 +117,7 @@ class Server
 		static void					_changeClassPointer(int clientSocket, std::map<int, request*> &requestClass, request *newClassPointer);
 		static int 					_createSocket(int port, Server &serv);
 		static void 				_handleNewConnection(int server_socket, std::vector<struct pollfd> &pollFileDescriptors, std::vector<long long> &socketTimeouts, std::map<int, request *> &requestClass);
-		static void 				_handleClientData(Server &serv, int clientSocket, std::vector<struct pollfd> &pollFileDescriptors, std::vector<long long> &socketTimeouts, std::map<int, request *> &requestClass);
+		static void 				_handleClientData(Server &serv, struct pollfd &client, std::vector<long long> &socketTimeouts, std::map<int, request *> &requestClass);
 		static void 				_addSocket(int socket, std::vector<struct pollfd> &pollFileDescriptors, std::vector<long long> &socketTimeouts, std::map<int, request *> &requestClass);
 		static void 				_removeSocket(int index, std::vector<struct pollfd> &pollFileDescriptors, std::vector<long long> &socketTimeouts);
 //		void 						_setPollStruct(std::vector<struct pollfd> &poll_fds, int socket);

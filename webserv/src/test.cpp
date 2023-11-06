@@ -1,56 +1,56 @@
-#include <iostream>
-#include <fstream>
-#include <vector>
-
-std::string vectorToString(const std::vector<uint8_t>& inputVector) {
-	std::string result;
-	for (size_t i = 0; i < inputVector.size(); ++i) {
-		result += static_cast<char>(inputVector[i]);
-	}
-	std::cout << "-------VECTORTOSTRING-----------------: \n" << result << std::endl;
-	return result;
-}
-
-class parent{
-public:
-	parent() {}
-	virtual ~parent() {}
-	virtual void print() {
-		std::cout << "test\n";
-	}
-};
-
-class a : public parent{
-	int _a;
-};
-
-class b : public parent {
-	int _b;
-};
-
-parent *returnClassPointer(){
-
-	a *newPointer = new a();
-	return newPointer;
-}
-
-int main() {
-	void *classParent = returnClassPointer();
-	if (dynamic_cast<a*>(static_cast<parent*>(classParent)))
-		std::cout << "a" << std::endl;
-	if (dynamic_cast<b*>(static_cast<parent*>(classParent)))
-		std::cout << "b" << std::endl;
-
-
-
-
-//	void *classParent = new a();
+//#include <iostream>
+//#include <fstream>
+//#include <vector>
+//
+//std::string vectorToString(const std::vector<uint8_t>& inputVector) {
+//	std::string result;
+//	for (size_t i = 0; i < inputVector.size(); ++i) {
+//		result += static_cast<char>(inputVector[i]);
+//	}
+//	std::cout << "-------VECTORTOSTRING-----------------: \n" << result << std::endl;
+//	return result;
+//}
+//
+//class parent{
+//public:
+//	parent() {}
+//	virtual ~parent() {}
+//	virtual void print() {
+//		std::cout << "test\n";
+//	}
+//};
+//
+//class a : public parent{
+//	int _a;
+//};
+//
+//class b : public parent {
+//	int _b;
+//};
+//
+//parent *returnClassPointer(){
+//
+//	a *newPointer = new a();
+//	return newPointer;
+//}
+//
+//int main() {
+//	void *classParent = returnClassPointer();
 //	if (dynamic_cast<a*>(static_cast<parent*>(classParent)))
 //		std::cout << "a" << std::endl;
 //	if (dynamic_cast<b*>(static_cast<parent*>(classParent)))
 //		std::cout << "b" << std::endl;
-	return 0;
-}
+//
+//
+//
+//
+////	void *classParent = new a();
+////	if (dynamic_cast<a*>(static_cast<parent*>(classParent)))
+////		std::cout << "a" << std::endl;
+////	if (dynamic_cast<b*>(static_cast<parent*>(classParent)))
+////		std::cout << "b" << std::endl;
+//	return 0;
+//}
 
 
 
@@ -157,8 +157,8 @@ int main() {
 //
 //
 //	map["test1"] = static_cast<void*>(classA);  // Store the void* pointers in the map
-//	map["test2"] = static_cast<void*>(classB);
-//	map["test3"] = static_cast<void*>(classCD);
+//	map["test2.png"] = static_cast<void*>(classB);
+//	map["test3.png"] = static_cast<void*>(classCD);
 //
 //
 //	// Access and cast the objects through the map
@@ -167,12 +167,12 @@ int main() {
 //		classAFromMap->print();
 //	}
 //
-//	b* classBFromMap = static_cast<b*>(map["test2"]);
+//	b* classBFromMap = static_cast<b*>(map["test2.png"]);
 //	if (classBFromMap) {
 //		classBFromMap->print();
 //	}
 //
-//	void *d = static_cast<a*>(map["test3"]);
+//	void *d = static_cast<a*>(map["test3.png"]);
 //	cd* classCDFromMap = static_cast<cd*>(d);
 //	if (classCDFromMap) {
 //		classCDFromMap->print();
@@ -184,3 +184,29 @@ int main() {
 //
 //	return 0;
 //}
+#include <iostream>
+#include <fstream>
+
+int main() {
+	std::ifstream file("../html_files/upload/greek-philosopher-coding-some-skript-in-c--.png", std::ios::binary);
+
+	if (file.is_open()) {
+		file.seekg(0, std::ios::end); // Move the file pointer to the end of the file
+		std::streampos fileSize = file.tellg(); // Get the position, which is the file size
+		file.close(); // Close the file
+
+		if (fileSize != -1) {
+			std::cout << "File size: " << static_cast<long>(fileSize) << " bytes" << std::endl;
+		} else {
+			std::cerr << "Error: Unable to determine the file size." << std::endl;
+		}
+	} else {
+		std::cerr << "Error: Unable to open the file." << std::endl;
+	}
+
+	return 0;
+}
+
+
+
+

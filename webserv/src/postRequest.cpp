@@ -29,11 +29,12 @@ postRequest::postRequest(){}
 postRequest::~postRequest() {}
 
 void postRequest::printPostRequest() {
-	std::cout << "boundary: " << this->_boundary << std::endl;
+/*	std::cout << "boundary: " << this->_boundary << std::endl;
 	std::cout << "contentLength: " << this->_contentLength << std::endl;
 	std::cout << "fileName: " << this->_fileName << std::endl;
 	std::cout << "fileType: " << this->_fileType << std::endl;
-	std::cout << "filePath: " << this->_filePath << std::endl;
+	std::cout << "filePath: " << this->_filePath << std::endl;*/
+	std::cout << "allChunksSent: " << this->_allChunksSent << std::endl;
 	std::cout << "dataRecieved: " << this->_dataRecieved << std::endl;
 }
 
@@ -52,15 +53,36 @@ void postRequest::parseFileType(std::string &data) {
 }
 
 void postRequest::writeBinaryToFile(std::vector<uint8_t> &data){
-	if (!_firstChunkSent) {
-		size_t boundaryPos = getRequestString().find(this->_boundary);
+	if (!_firstChunkSent) { //first chunk is revieced
+		handleFirstChunk(data);
+	}
+	if (_firstChunkSent && (_contentLength - _dataRecieved) > data.size()) { //chunks after first chunk
+		handleMiddleChunk(data);
+	}
+	if (_firstChunkSent && (_contentLength - _dataRecieved) <= data.size() && !_allChunksSent){ //last chunk recieved
+		handleLastChunk(data);
+	}
+	_firstChunkSent = true;
+//	static int i = 0;
+//	std::cout << "chunk gets written to file: " << i << std::endl;
+//	i++;
+	_dataRecieved += data.size();
+//	std::cout << "dataRecieved: " << _dataRecieved << " ContentLength: " << _contentLength << std::endl;
+}
+
+void postRequest::handleFirstChunk(std::vector<uint8_t> &data){
+	if (this->_contentLength <= data.size()){
+		//handle end and start boundary
+		std::cout << " everything is in one chunk\n";
+	}
+	else {
+		size_t boundaryPos = getRequestString().find(this->_fileType + "\r\n\r\n");
 		if (boundaryPos != std::string::npos) {
-			boundaryPos += this->_boundary.length();
+			boundaryPos += this->_fileType.length() + 4;
 		} else {
 			std::cout << "boundary not found" << std::endl;
 			throw postException();
 		}
-//		std::ofstream file(this->_filePath, std::ios::out | std::ios::binary);
 		std::ofstream file(this->_filePath, std::ios::out | std::ios::binary);
 
 		if (file.is_open()) {
@@ -73,27 +95,52 @@ void postRequest::writeBinaryToFile(std::vector<uint8_t> &data){
 			throw postException();
 		}
 	}
-	if (_firstChunkSent) {
-		std::ofstream file(this->_filePath, std::ios::app | std::ios::binary);
-		if (file.is_open()){
-			file.write(reinterpret_cast<char *>(&data[0]), data.size());
-			file.close();
-		}
-		else {
-			std::cout << "File not open" << std::endl;
-			throw postException();
-		}
+}
+
+
+void postRequest::handleMiddleChunk(std::vector<uint8_t> &data){
+	std::ofstream file(this->_filePath, std::ios::app | std::ios::binary);
+	if (file.is_open()){
+		file.write(reinterpret_cast<char *>(&data[0]), data.size());
+		file.close();
 	}
-	_firstChunkSent = true;
-	static int i = 0;
-	std::cout << "chunk gets written to file: " << i << std::endl;
-	i++;
-	_dataRecieved += data.size();
-	std::cout << "dataRecieved: " << _dataRecieved << " ContentLength: " << _contentLength << std::endl;
-	if (_dataRecieved >= _contentLength){
-		std::cout << "all chunks sent" << std::endl;
-		_allChunksSent = true;
+	else {
+		std::cout << "File not open" << std::endl;
+		throw postException();
 	}
+}
+
+void postRequest::handleLastChunk(std::vector<uint8_t> &data){
+	this->_allChunksSent = true;
+	checkLastChunk(data, this->_boundary);
+	std::ofstream file(this->_filePath, std::ios::app | std::ios::binary);
+	if (file.is_open()){
+		file.write(reinterpret_cast<char *>(&data[0]), data.size());
+		file.close();
+	}
+	else {
+		std::cout << "File not open" << std::endl;
+		throw postException();
+	}
+	std::cout << "recieved last chunk in if statement\n";
+	std::cout << "boolean allchunksSent = " << this->_allChunksSent << std::endl;
+}
+
+std::vector<uint8_t>::iterator postRequest::findEndBoundary(std::vector<uint8_t>& lastChunk, const std::vector<uint8_t>& boundary) {
+	for (std::vector<uint8_t>::iterator it = lastChunk.begin(); it != lastChunk.end(); ++it) {
+		if (std::equal(boundary.begin(), boundary.end(), it))
+			return it;
+	}
+	return lastChunk.end();
+}
+
+void	postRequest::checkLastChunk(std::vector<uint8_t> &lastChunk, std::string startBoundary) {
+	std::string endBoundary = "\r\n--" + startBoundary;
+	std::vector<uint8_t> boundary = std::vector<uint8_t>(endBoundary.begin(), endBoundary.end());
+	std::vector<uint8_t>::iterator boundaryPos = findEndBoundary(lastChunk, boundary);
+	if (boundaryPos != lastChunk.end())
+		lastChunk.erase(boundaryPos, lastChunk.end());
+
 }
 
 std::string postRequest::getBoundary() {

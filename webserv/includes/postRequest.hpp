@@ -65,7 +65,18 @@ public:
 	void writeBinaryToFile(std::vector<uint8_t> &data);
 	void parseFirstChunk(std::vector<uint8_t> &data);
 
-	int checkPostrequest();
+	void	cutLastChunk(std::vector<uint8_t> &lastChunk, std::string startBoundary);
+
+	void handleFirstChunk(std::vector<uint8_t> &data);
+	void handleMiddleChunk(std::vector<uint8_t> &data);
+	void handleLastChunk(std::vector<uint8_t> &data);
+
+	std::vector<uint8_t>::iterator findEndBoundary(std::vector<uint8_t>& lastChunk, const std::vector<uint8_t>& boundary);
+	void checkLastChunk(std::vector<uint8_t> &lastChunk, std::string startBoundary);
+
+
+
+		int checkPostrequest();
 
 	std::string getBoundary();
 	int getContentLength();
