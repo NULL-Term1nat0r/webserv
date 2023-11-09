@@ -1,119 +1,219 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   server.cpp                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: estruckm <estruckm@student.1337.ma>        +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/11/06 15:13:02 by estruckm          #+#    #+#             */
+/*   Updated: 2023/11/06 15:13:02 by estruckm         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "../includes/server.hpp"
 
-LocationStruc::LocationStruc() : allowGet(false), allowPost(false), allowDelete(false), rewrite(), autoindex(), root(), index(), cgi() {}
+server::server(serverConf &serverConf, int serverIndex) : serverConfig(serverConf), serverIndex(serverIndex) {
+	std::cout << "server " << serverIndex << " constructor for port: " << serverConfig._server[serverIndex].port << " got called\n" << std::endl;
+	try {
+		createServerSocket();
+	}
+	catch (std::exception &e){
+		std::cout << "caught exception of server" << std::endl;
+	}
+}
 
-LocationStruc::~LocationStruc(){}
+server::~server() {
+	close(serverSocket);
+}
 
-ServerConf::ServerConf() : locations(), errorPages(), port(0), serverName() {}
+void server::createServerSocket() {
+	struct sockaddr_in serverAddress;
+	memset(&serverAddress, 0, sizeof(serverAddress));
+	serverAddress.sin_family = AF_INET;
+	serverAddress.sin_port = htons(serverConfig._server[serverIndex].port);
+//	std::cout << "serversocker with port: " << serverConfig._server[serverIndex].port << std::endl;
+	serverAddress.sin_addr.s_addr = INADDR_ANY;
 
+	this->serverSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	if (this->serverSocket < 0)
+		throw std::runtime_error("Socket creation failed");
 
-ServerConf::~ServerConf() {}
+	int opt = 1;
+	if (setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1)
+	{
+		close(this->serverSocket);
+		throw std::runtime_error("setsockopt");
+	}
+	if (bind(this->serverSocket, (struct sockaddr *)&serverAddress, sizeof(serverAddress)) < 0)
+		throw std::runtime_error("Socket binding failed");
 
-void	Server::_setCgi(std::map<std::string, std::vector<std::string> > location, std::string locationName, ServerConf &conf) {
-	if (location.find("cgi") != location.end()) {
-		for (size_t i = 0; i < location["cgi"].size(); i++) {
-			if (location["cgi"][i] != ".py" && location["cgi"][i] != ".php" && location["cgi"][i] != ".js") //modify later
-			{
-				std::cout << "extension: " << location["cgi"][i] << std::endl;
-				throw WrongCgiExtension();
+	if (listen(this->serverSocket, 5) < 0)
+		throw std::runtime_error("Socket listening failed");
+	addSocket(this->serverSocket);
+}
+
+void server::addSocket(int clientSocket) {
+	struct pollfd _pollfd;
+	_pollfd.fd = clientSocket;
+	_pollfd.events = POLLIN;
+	pollEvents.push_back(_pollfd);
+	clientTimeouts.push_back(time(NULL));
+	clientRequests[clientSocket] = (request *)NULL;
+	clientResponses[clientSocket] = (response *)NULL;
+}
+
+void server::removeSocket(int index) {
+	close(pollEvents[index].fd);
+	clientTimeouts.erase(clientTimeouts.begin() + index);
+	clientRequests.erase(pollEvents[index].fd);
+	clientResponses.erase(pollEvents[index].fd);
+	pollEvents.erase(pollEvents.begin() + index);
+}
+
+void server::updateClientRequests(int clientSocket, request *newRequest) {
+	clientRequests[clientSocket] = newRequest;
+}
+
+void server::updateClientResponses(int clientSocket, response *newResponse) {
+	clientResponses[clientSocket] = newResponse;
+}
+
+request *server::returnRequestClass(int clientSocket) {
+	if (clientRequests.find(clientSocket) != clientRequests.end())
+		return clientRequests[clientSocket];
+	return NULL;
+}
+
+response *server::returnResponseClass(int clientSocket) {
+	if (clientResponses.find(clientSocket) != clientResponses.end())
+		return clientResponses[clientSocket];
+	return NULL;
+}
+
+void server::handleNewConnection() {
+	int clientSocket;
+	struct sockaddr_in clientAddress;
+	socklen_t clientAddressSize = sizeof(clientAddress);
+
+	clientSocket = accept(serverSocket, (struct sockaddr *)&clientAddress, &clientAddressSize);
+	if (clientSocket < 0)
+		throw std::runtime_error("Socket accept failed");
+
+//	fcntl(clientSocket, F_SETFL, O_NONBLOCK);
+	addSocket(clientSocket);
+}
+
+void server::handleClientRequest(int clientSocket) {
+	std::vector<uint8_t> clientRequest(serverConfig._buffSize);
+	recv(clientSocket, &clientRequest[0], serverConfig._buffSize, 0);
+	request newRequest = request(clientRequest);
+
+	if (returnRequestClass(clientSocket) == NULL) {
+		if (newRequest.getPostMethod()){
+			postRequest *newPostRequest = new postRequest(clientRequest);
+			updateClientRequests(clientSocket, newPostRequest);
+		}
+		else if (newRequest.getGetMethod()){
+			getRequest *newGetRequest = new getRequest(clientRequest);
+			updateClientRequests(clientSocket, newGetRequest);
+		}
+		else if (newRequest.getDeleteMethod()){
+			deleteRequest *newDeleteRequest = new deleteRequest(clientRequest);
+			updateClientRequests(clientSocket, newDeleteRequest);
+		}
+		
+	}
+	request *requestPointer = returnRequestClass(clientSocket);
+	if  (dynamic_cast<postRequest*>(static_cast<request*>(requestPointer))){
+		std::cout << "post request incoming\n";
+		postRequest *postR = static_cast<postRequest *>(returnRequestClass(clientSocket));
+		postR->printPostRequest();
+		if (!postR->getAllChunksSent()){
+			try {
+				postR->writeBinaryToFile(clientRequest);
+			}
+			catch (std::exception &e){
+				std::cout << "caught exception of post Request" << std::endl;
+			}
+			if (postR->getAllChunksSent()) {
+
+				response newResponse(returnRequestClass(clientSocket)->getStringURL());
+				send(clientSocket, newResponse.getResponse().c_str(), newResponse.getResponse().length(), 0);
+				updateClientRequests(clientSocket, NULL);
+				std::cout << "all chunks sent server3.cpp" << std::endl;
+				pollEvents[clientSocket].events = POLLOUT;
 			}
 		}
-		conf.locations[locationName].cgi = location["cgi"];
+	}
+	else if (dynamic_cast<getRequest*>(static_cast<request*>(requestPointer))){
+		std::cout << "get request incoming\n";
+		getRequest *get = static_cast<getRequest *>(returnRequestClass(clientSocket));
+		request newClientRequest(clientRequest);
+		response newResponse(newClientRequest.getStringURL());
+		send(clientSocket, newResponse.getResponse().c_str(), newResponse.getResponse().length(), 0);
+		updateClientRequests(clientSocket, NULL);
+	}
+	else if (dynamic_cast<deleteRequest*>(static_cast<request*>(requestPointer))){
+		std::cout << "delete request incoming\n";
+		deleteRequest *deleteR = static_cast<deleteRequest *>(returnRequestClass(clientSocket));
+	}
+//		close(clientSocket);
+	
+}
+
+void server::serverRoutine(){
+	serverConfig._server[serverIndex].port = 9;
+//	std::cout << "serverRoutine got called for port " << serverConfig._server[serverIndex].port << std::endl;
+	int num_ready = poll(&pollEvents[0], pollEvents.size(), 0);
+	if (num_ready < 0) {
+		std::cout << "num_ready smaller 0 " << std::endl;
+		//throw pollNotWorking();
+	}
+//	std::cout << "pollEvent -> size: " << pollEvents.size() << std::endl;
+	if (pollEvents[0].revents & POLLIN) {
+		handleNewConnection();
+	}
+	for (size_t i = 0; i < pollEvents.size(); ++i) {
+		if (pollEvents[i].revents != 32)
+//			std::cout << "size revents: " << pollEvents[i].revents << " pollin: " << POLLIN << std::endl;
+		if (pollEvents[i].revents & POLLIN) {
+			if (pollEvents[i].fd == serverSocket) {
+				std::cout << "new connection incoming" << std::endl;
+				handleNewConnection();
+			}
+			else {
+				handleClientRequest(pollEvents[i].fd);
+				std::cout << "handle clientRequest incoming" << std::endl;
+			}
+		}
+		if (pollEvents[i].revents & POLLOUT) {
+			std::cout << "POLLOUT activated" << std::endl;//something
+		}
+//			std:
+//			std::cout << "if (time: " << time(NULL) << "- socketTimeouts[" << i << "]: " << socketTimeouts[i] << " > serv._clienttimeout: " << serv._clientTimeout << std::endl;
+//			if (time(NULL) - socketTimeouts[i] > serv._clientTimeout) {
+//				_removeSocket(i, pollEvents, socketTimeouts);
+//			}
 	}
 }
 
-void	Server::_setRewrite(std::map<std::string, std::vector<std::string> > location, std::string locationName, ServerConf &conf) {
-	if (location.find("rewrite") != location.end())
-			conf.locations[locationName].rewrite = location["rewrite"];
-}
-
-void	Server::_setAllowMethods(std::map<std::string, std::vector<std::string> > location, std::string locationName, ServerConf &conf) {
-	if (location.find("allow_methods") != location.end()) {
-		for (size_t j = 0; j < location["allow_methods"].size(); j++) {
-			if (location["allow_methods"][j] == "GET")
-				conf.locations[locationName].allowGet = true;
-			else if (location["allow_methods"][j] == "POST")
-				conf.locations[locationName].allowPost = true;
-			else if (location["allow_methods"][j] == "DELETE")
-				conf.locations[locationName].allowDelete = true;
+void server::runAllServers(std::string configFilePath) {
+	Config conf(configFilePath);
+	serverConf serverConfigs(conf);
+	std::vector<server *> servers;
+	for (int i = 0; i < static_cast<int>(serverConfigs._server.size()); i++) {
+		try{
+			server *serverClass = new server(serverConfigs, i);
+			servers.push_back(serverClass);
+		}
+		catch (std::exception &e){
+			std::cout << "caught exception of server" << std::endl;
 		}
 	}
-	else {
-		conf.locations[locationName].allowDelete = true;
-		conf.locations[locationName].allowGet = true;
-		conf.locations[locationName].allowPost = true;
-	}
-}
-
-void	Server::_setAutoIndex(std::map<std::string, std::vector<std::string> > location, std::string locationName, ServerConf &conf) {
-	if (location.find("autoindex") != location.end())
-		conf.locations[locationName].autoindex = location["autoindex"][0];
-}
-
-void	Server::_setRoot(std::map<std::string, std::vector<std::string> > location, std::string locationName, ServerConf &conf) {
-	if (location.find("root") != location.end())
-		conf.locations[locationName].root = location["root"][0];
-}
-
-void	Server::_setIndex(std::map<std::string, std::vector<std::string> > location, std::string locationName, ServerConf &conf) { // ??????????+/
-	if (location.find("index") != location.end())
-		conf.locations[locationName].index = location["index"][0];
-}
-
-void	Server::_setLocationServerValues(std::map<std::string, std::vector<std::string> > location, std::string locationName, ServerConf &conf, size_t i) {
-	if (i == 0)
-		conf.locations = std::map<std::string, LocationStruc>();
-	locationName = locationName.substr(8, locationName.size() - 8);
-	conf.locations[locationName] = LocationStruc();
-	void (Server::*locationFunc[]) (std::map<std::string, std::vector<std::string> > location, std::string locationName, ServerConf &conf)
-		= {&Server::_setCgi, &Server::_setRewrite, &Server::_setAutoIndex, &Server::_setRoot, &Server::_setIndex, &Server::_setAllowMethods};
-	for (size_t j = 0; j < 6; j++)
-		(this->*locationFunc[j])(location, locationName, conf);
-}
-
-void	Server::_setServerValues(std::map<std::string, std::map<std::string, std::vector<std::string> > > server, std::vector<std::string> locations) {
-	ServerConf	conf;
-	for (size_t i = 0, j = 0; j < locations.size(); j++) {
-		if (locations[j] == "noLocation")
-			_setGlobalServerValues(server[locations[j]], conf);
-		else
-			_setLocationServerValues(server[locations[j]], locations[j], conf, i++);
-	}
-	_server.push_back(conf);
-}
-
-void	Server::_serverValues(Config conf) {
-	std::vector<std::map<std::string, std::map<std::string, std::vector<std::string> > > >	serverContext = conf.getConfFile();
-	std::vector<std::vector<std::string> >	locations = conf.getLocations();
-	for (size_t i = 0; i < serverContext.size(); i++)
-		_setServerValues(serverContext[i], locations[i]);
-}
-
-void	Server::_checkDuplicatePorts() {
-	for (size_t i = 0; i < _server.size() - 1; i++) {
-		for (size_t j = i + 1 ; j < _server.size(); j++) {
-			if (_server[i].port == _server[j].port)
-				throw PortAlreadyInUse();
+	while (true) {
+		for (int i = 0; i < servers.size(); i++){
+			servers[i]->serverRoutine();
 		}
 	}
 }
 
-void	Server::getServerConf(Config conf) {
-	_globalValues(conf);
-	_serverValues(conf);
-	_checkDuplicatePorts();
-}
-
-
-//
-//void Server::startAllServers(std::string file_path){
-//	Config conf = Config((char *)file_path.c_str());
-//	Server serv = Server(conf);
-//
-//	for (size_t i = 0; i < serv._server.size(); i++)
-//	{
-//		std::cout << "server name: " << serv._server[i].serverName << std::endl;
-//	}
-//	return 0;
-//}

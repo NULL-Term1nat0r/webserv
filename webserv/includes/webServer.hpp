@@ -5,7 +5,7 @@
 #include "Header.h"
 
 #include "request.hpp"
-#include "server.hpp"
+#include "serverConf.hpp"
 
 class webServer
 {

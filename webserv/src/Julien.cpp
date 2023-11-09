@@ -12,7 +12,7 @@
 
 
 #include "../includes/config.hpp"
-#include "../includes/server.hpp"
+#include "../includes/serverConf.hpp"
 
 void	wrongArgAmount() {
 	std::cerr << "Error: Number of arguments has to be exactly 2." << std::endl;

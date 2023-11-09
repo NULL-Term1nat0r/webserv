@@ -9,6 +9,9 @@ class response
 {
 private:
 	std::string _response;
+	long _dataSend;
+	bool _allChunkSent;
+
 
 public:
 	response();

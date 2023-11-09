@@ -24,6 +24,7 @@ class request{
 		bool _post;
 		bool _delete;
 		bool _URL;
+		bool _cgi
 		bool _httpProtocol;
 
 		bool _aliveConnection;

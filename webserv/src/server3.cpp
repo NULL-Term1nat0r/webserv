@@ -1,9 +1,9 @@
 #include <netdb.h>
-#include "../includes/server.hpp"
+#include "../includes/serverConf.hpp"
 
-void 	Server::_startServers(std::string pathConfigFile){
+void 	serverConf::_startServers(std::string pathConfigFile){
 	Config conf((char *)pathConfigFile.c_str());
-	Server serv(conf);
+	serverConf serv(conf);
 
 	for (size_t i = 0; i < serv._server.size(); i++)
 	{
@@ -13,27 +13,24 @@ void 	Server::_startServers(std::string pathConfigFile){
 	}
 }
 
+//struct sockaddr_in* serverConf::_configureServerAddress(){
+//	struct sockaddr_in *server_addr = new sockaddr_in;
+//	memset(server_addr, 0, sizeof(*server_addr));
+//	server_addr->sin_family = AF_INET;
+//	server_addr->sin_port = htons(SERVER_PORT);
+//	server_addr->sin_addr.s_addr = INADDR_ANY;
+//
+//	return server_addr;
+//}
 
-
-struct sockaddr_in* Server::_configureServerAddress(){
-
-	struct sockaddr_in *server_addr = new sockaddr_in;
-	memset(server_addr, 0, sizeof(*server_addr));
-	server_addr->sin_family = AF_INET;
-	server_addr->sin_port = htons(SERVER_PORT);
-	server_addr->sin_addr.s_addr = INADDR_ANY;
-
-	return server_addr;
-}
-
-request *Server::_returnClassPointer(int clientSocket, std::map<int, request*> &requestClass) {
+request *serverConf::_returnClassPointer(int clientSocket, std::map<int, request*> &requestClass) {
 	// Iterate through the map
 	if (requestClass.find(clientSocket) != requestClass.end())
 		return requestClass[clientSocket];
 	return NULL;
 }
 
-void Server::_changeClassPointer(int clientSocket, std::map<int, request*> &requestClass, request *newRequest) {
+void serverConf::_changeClassPointer(int clientSocket, std::map<int, request*> &requestClass, request *newRequest) {
 	// Iterate through the map
 	std::map<int, request*>::iterator it;
 	for (it = requestClass.begin(); it != requestClass.end(); ++it) {
@@ -43,7 +40,7 @@ void Server::_changeClassPointer(int clientSocket, std::map<int, request*> &requ
 	}
 }
 
-void 	Server::_addSocket(int socket, std::vector<struct pollfd> &pollFileDescriptors, std::vector<long long> &socketTimeouts, std::map<int, request *> &requestClass){
+void 	serverConf::_addSocket(int socket, std::vector<struct pollfd> &pollFileDescriptors, std::vector<long long> &socketTimeouts, std::map<int, request *> &requestClass){
 	struct pollfd _pollfd;
 	_pollfd.fd = socket;
 	_pollfd.events = POLLIN;
@@ -52,15 +49,15 @@ void 	Server::_addSocket(int socket, std::vector<struct pollfd> &pollFileDescrip
 	requestClass[socket] = (request *)NULL;
 }
 
-void Server::_removeSocket(int index, std::vector<struct pollfd> &pollFileDescriptors, std::vector<long long> &socketTimeouts){
+void serverConf::_removeSocket(int index, std::vector<struct pollfd> &pollFileDescriptors, std::vector<long long> &socketTimeouts){
 	close(pollFileDescriptors[index].fd);
 	pollFileDescriptors.erase(pollFileDescriptors.begin() + index);
 	socketTimeouts.erase(socketTimeouts.begin() + index);
 	std::cerr << "removed socket: " << index <<  std::endl;
 }
 
-int Server::_createSocket(int port, Server &serv) {
-	Server haha = serv;
+int serverConf::_createSocket(int port, serverConf &serv) {
+	serverConf haha = serv;
 
 	struct sockaddr_in server_addr;
 	memset(&server_addr, 0, sizeof(server_addr));
@@ -91,13 +88,13 @@ int Server::_createSocket(int port, Server &serv) {
 	return serverSocket;
 }
 
-void Server::_handleNewConnection(int serverSocket, std::vector<struct pollfd> &pollFileDescriptors, std::vector<long long> &socketTimeouts, std::map<int, request *> &requestClass) {
+void serverConf::_handleNewConnection(int serverSocket, std::vector<struct pollfd> &pollFileDescriptors, std::vector<long long> &socketTimeouts, std::map<int, request *> &requestClass) {
 	int client_socket = accept(serverSocket, nullptr, nullptr);
 	if (client_socket < 0) {
 		std::cerr << "Error accepting connection" << std::endl;
 	} else {
 		std::cout << "Accepted new connection" << std::endl;
-		Server::_addSocket(client_socket, pollFileDescriptors, socketTimeouts, requestClass);
+		serverConf::_addSocket(client_socket, pollFileDescriptors, socketTimeouts, requestClass);
 		std::cout << "new client socket got created number: " << client_socket << std::endl;
 	}
 }
@@ -124,7 +121,7 @@ void Server::_handleNewConnection(int serverSocket, std::vector<struct pollfd> &
 //}
 
 
-void Server::_handleClientData(Server &serv, struct pollfd &client, std::vector<long long> &socketTimeouts, std::map<int, request *> &requestClass) {
+void serverConf::_handleClientData(serverConf &serv, struct pollfd &client, std::vector<long long> &socketTimeouts, std::map<int, request *> &requestClass) {
 	std::vector<uint8_t> clientRequest(serv._buffSize);
 	recv(client.fd, &clientRequest[0], serv._buffSize, 0);
 	request newRequest = request(clientRequest);
@@ -182,7 +179,7 @@ void Server::_handleClientData(Server &serv, struct pollfd &client, std::vector<
 //		close(clientSocket);
 }
 
-int Server::_serverRoutine(Server &serv, int index) {
+int serverConf::_serverRoutine(serverConf &serv, int index) {
 	index = 0;
 	int serverSocket = _createSocket(serv._server[index].port, serv);
 	if (serverSocket < 0) {

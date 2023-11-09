@@ -22,8 +22,8 @@ SRCS =	src/Eike.cpp \
 		src/parsing.cpp \
 		src/response.cpp \
 		src/server.cpp \
-		src/server2.cpp \
-		src/server3.cpp \
+		src/serverConfig1.cpp\
+		src/serverConfig2.cpp \
 		src/config.cpp \
 		src/getRequest.cpp \
 		src/postRequest.cpp \
