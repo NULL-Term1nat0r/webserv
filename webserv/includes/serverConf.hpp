@@ -109,24 +109,6 @@ class serverConf
 		void						_setBackLog(std::map<std::string, std::vector<std::string> > globalContext);
 		void						_globalValues(Config conf);	
 		void						_checkDuplicatePorts();
-		//*******************//
-		//*** server3.cpp ***//
-		//*******************//
-		struct sockaddr_in*			_configureServerAddress();
-		static request*				_returnClassPointer(int clientSocket, std::map<int, request*> &requestClass);
-		static void					_changeClassPointer(int clientSocket, std::map<int, request*> &requestClass, request *newClassPointer);
-		static int 					_createSocket(int port, serverConf &serv);
-		static void 				_handleNewConnection(int server_socket, std::vector<struct pollfd> &pollFileDescriptors, std::vector<long long> &socketTimeouts, std::map<int, request *> &requestClass);
-		static void 				_handleClientData(serverConf &serv, struct pollfd &client, std::vector<long long> &socketTimeouts, std::map<int, request *> &requestClass);
-		static void 				_addSocket(int socket, std::vector<struct pollfd> &pollFileDescriptors, std::vector<long long> &socketTimeouts, std::map<int, request *> &requestClass);
-		static void 				_removeSocket(int index, std::vector<struct pollfd> &pollFileDescriptors, std::vector<long long> &socketTimeouts);
-//		void 						_setPollStruct(std::vector<struct pollfd> &poll_fds, int socket);
-		static void  				_processPostRequest(serverConf &serv, int clientSocket, std::map<int, request *> &requestClass, std::vector<uint8_t> &clientRequest);
-		int							_serverRoutine(serverConf &serv, int index);
-
-		//*******************//
-		//**** variables ****//
-		//*******************//
 };
 
 #endif
