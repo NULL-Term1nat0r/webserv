@@ -34,48 +34,58 @@ response &response::operator=(const response &other)
 	return *this;
 }
 
-//bool clientRequest::isCgi()
-//{
-//	std::cout << "are you going in here or not" << std::endl;
-//	switch (validCgiExtension())
-//	{
-////		case IS_COOKIE:
-////			return false;
-////		case METHOD_NOT_ALLOWED:
-////			return mySend(METHOD_NOT_ALLOWED), true;
-////		case GATEWAY_TIMEOUT:
-////			return mySend(GATEWAY_TIMEOUT), true;
-////		case NOT_FOUND:
-////			return mySend(NOT_FOUND), true;
-////		case FORBIDDEN:
-////			return mySend(FORBIDDEN), true;
-////		case INTERNAL_ERROR:
-////			return mySend(INTERNAL_ERROR), true;
-//		case  (2 < 1):
-//			return false;
-//		default:
-//			return cgiOutput(), true;
-//	}
-//}
-
 std::string response::createResponse(std::string url){
+
 	std::string filePath = "./html_files" + url + "/" + getFile("./html_files" + url);
-	if (isCgi())		// added by me
-		return 0;		// added by me
 	std::ifstream htmlFile(filePath);
-	if (!htmlFile) {
+
+	if (!htmlFile && !cgiCheckConditions(url)) {
 		return "HTTP/1.1 404 Not Found\r\n\r\n<h1>404 Not Found</h1>";
 	}
+
+		// vv----cgi----vv
+	else if (!htmlFile && cgiCheckConditions(url)) {  //std::ifstream("src/tmp_cgi")
+		std::ifstream inputFile("src/tmp_cgi.txt");
+		if (!inputFile.is_open())
+			return "HTTP/1.1 500 Internal Server Error\r\n\r\n<h1>500 Internal Server Error</h1>";
+		std::string cgiContent((std::istreambuf_iterator<char>(inputFile)), std::istreambuf_iterator<char>());
+		std::string response = "HTTP/1.1 200 OK\r\n";
+		response += "Content-Type: text/html\r\n";
+		response += "Content-Length: " + std::to_string(cgiContent.length()) + "\r\n";
+		//response += "Set-Cookie: session_token=""; SameSite=None; Secure; HttpOnly\r\n";
+		response += "\r\n" + cgiContent;
+
+		remove("src/tmp_cgi.txt");
+		inputFile.close();
+		return response;
+	}
+	// ^^----cgi----^^
+
 	std::string htmlContent((std::istreambuf_iterator<char>(htmlFile)), std::istreambuf_iterator<char>());
 
 	// Create an HTTP response with the HTML content
 	std::string response = "HTTP/1.1 200 OK\r\n";
 	response += "Content-Type: text/html\r\n";
 	response += "Content-Length: " + std::to_string(htmlContent.length()) + "\r\n";
+	//response += "Set-Cookie: session_token=""; SameSite=None; Secure; HttpOnly\r\n";
 	response += "\r\n" + htmlContent;
 
 	return response;
 }
+
+
+//----cgi
+bool response::cgiCheckConditions(std::string url) const {
+
+	cgi cgiHandler;
+
+	if (cgiHandler.cgiValidExtension(url)) {
+        cgiHandler.executeCgi();
+        return true;
+    }
+	return false;
+}
+//----cgi
 
 std::string response::getFile(std::string directoryPath){
 // Open the directory

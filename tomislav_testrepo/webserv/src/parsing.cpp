@@ -13,93 +13,32 @@ parsing::~parsing()
 	std::cout << "parsing destructor called" << std::endl;
 }
 
-int parsing::findWord(std::string str, std::string word){
-
-
-	size_t found = str.find(word);
-
-	while (found != std::string::npos) {
-		found = str.find(word, found + 1);
-		return 1;
+std::string parsing::vectorToString(const std::vector<uint8_t>& inputVector) {
+	std::string result;
+	for (size_t i = 0; i < inputVector.size(); ++i) {
+		result += static_cast<char>(inputVector[i]);
 	}
-	return 0;
+	return result;
 }
 
-int parsing::findMethod(std::string str){
-	std::string methodType[3] = {"GET", "POST", "DELETE"};
-	for (int i = 0; i < 3; i++)
-	{
-		if (parsing::findWord(str, methodType[i]))
-			return i;
+std::string parsing::returnValue(std::string key, std::string source, std::string limiter){
+	size_t start = source.find(key);
+	size_t end = source.find(limiter, start + key.length());
+	if (key == "filename=\""){
+		if (source.find(key) == std::string::npos)
+			std::cout << "key not found" << std::endl;
 	}
-	return 0;
+	return source.substr(start + key.length(), end - start - key.length());
 }
 
-int parsing::findProtocol(std::string str){
-	std::string protocolType[2] = {"HTTP/1.1", "HTTP/1.0"};
-	for (int i = 0; i < 2; i++)
-	{
-		if (parsing::findWord(str, protocolType[i]))
-			return i;
+std::vector<uint8_t> parsing::unsignedCharToVector(unsigned char *data, size_t size){
+	std::vector<uint8_t> result;
+	result.reserve(size); // Reserve space for the expected number of elements to avoid reallocation
+
+	for (size_t i = 0; i < size; ++i) {
+		result.push_back(data[i]);
 	}
-	return 0;
+
+	return result;
 }
-
-std::string parsing::getValue(std::string str, std::string key, int number){
-	std::string line;
-	std::string value;
-	std::istringstream iss(str);
-	while (std::getline(iss, line))
-	{
-		value = parsing::findValue(line, 1);
-		if (value == key)
-			return parsing::findValue(line, number);
-	}
-	return "";
-}
-
-//std::string parsing::findValue(std::string str, int number) {
-//	size_t spacePos = str.find(' ');
-//	if (spacePos != std::string::npos) {
-//		std::string referer = str.substr(spacePos + 1);
-//		referer.erase(0, referer.find_first_not_of(" \t\n\r\f\v"));
-//		return referer;
-//	} else
-//		return "";
-//}
-//
-//size_t spacePos = str.find(' ');
-//if (spacePos != std::string::npos) {
-//std::string referer = str.substr(spacePos + 1);
-//referer.erase(0, referer.find_first_not_of(" \t\n\r\f\v"));
-//return referer;
-//} else
-//return "";
-
-std::string parsing::findValue(std::string str, int number) {
-	std::istringstream iss(str);
-
-	std::vector<std::string> words;
-	std::string word;
-
-	while (iss >> word) {
-		words.push_back(word);
-	}
-	if (number >= 1 && static_cast<size_t>(number) <= words.size()) {
-		words[number - 1].erase(0, words[number - 1].find_first_not_of(" \t\n\r\f\v"));
-		return words[number - 1];
-	} else {
-		return "";
-	}
-}
-
-int parsing::checkIfFound(std::string array[], std::string str){
-	for (int i = 0; i < 3; i++)
-	{
-		if (parsing::findWord(str, array[i]))
-			return i;
-	}
-	return -1;
-}
-
 

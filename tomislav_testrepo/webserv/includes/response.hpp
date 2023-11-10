@@ -3,20 +3,14 @@
 #define response_HPP
 
 #include "Header.h"
-#include "clientRequest.hpp"
+#include "request.hpp"
+#include "cgi.hpp"		// is it needed?
 
-//struct cgiInfo
-//{
-//	std::string 	_cgiPath;		// to find a path to the cgi file
-//	std::string 	_query;			// to find a query string
-//	std::string 	_fileExtension;	// to find a file extension
-//	std::string 	_body;
-//};
-
-class response : public clientRequest
+class response
 {
 private:
 	std::string _response;
+	std::map<std::string, std::string> cookies;
 
 public:
 	response();
@@ -33,14 +27,8 @@ public:
 	std::string getResponse();
 	std::string createResponse(std::string url);
 	std::string getFile(std::string directoryPath);
-//	int	callCGI();	// added by me
-//	int inputCheck();	// added by me
-//	bool checkLanguage() const;	// added by me
-//	int validCgiExtension();	// added by me
-//	void executeCgi();	// added by me
 
-
-
+	bool cgiCheckConditions(std::string url) const;
 };
 
 bool hasHtmlExtension(const char* filename);

@@ -11,18 +11,24 @@
 # **************************************************************************** #
 
 NAME = webserv
-#TESTSERV = testserv
+TESTSERV = testserv
 
 CC = c++
 
-CFLAGS = -Wall -Werror -Wextra -std=c++98 -g
+CFLAGS = -Wall -Wextra -std=c++98 -g
 
 SRCS =	src/Eike.cpp \
-		src/clientRequest.cpp \
+		src/request.cpp \
 		src/parsing.cpp \
-		src/webServer.cpp \
 		src/response.cpp \
-		src/CGI.cpp \
+		src/server.cpp \
+		src/server2.cpp \
+		src/server3.cpp \
+		src/config.cpp \
+		src/getRequest.cpp \
+		src/postRequest.cpp \
+		src/cgi.cpp \
+		src/deleteRequest.cpp
 
 OBJS = ${SRCS:.cpp=.o}
 
@@ -69,3 +75,4 @@ siegebig:
 	./tests/siege10000.sh
 
 .PHONY: all clean fclean re build start stop
+.NOTPARALLEL: all clean fclean re build start stop

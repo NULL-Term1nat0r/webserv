@@ -4,29 +4,64 @@
     <title>CGI Example</title>
 </head>
 <body>
+
+
+
 <h1>GET py</h1>
 <h2>Enter your name:</h2>
-<form action="/cgi-bin/simple.py" method="get">
+<form action="cgi-bin/simple.py" method="get">
     <input type="text" name="name">
     <input type="submit" value="Submit">
 </form>
 <h1>POST py</h1>
 <h2>Enter your name:</h2>
-<form action="/cgi-bin/simple.py" method="post"> <!--  -->
+<form action="/cgi-bin/simple.py" method="post">
     <input type="text" name="name">
     <input type="submit" value="Submit">
 </form>
-<!--<h1>GET pl</h1>-->
+
+
+
+<h1>GET php</h1>
+<h2>Enter your name:</h2>
+<form action="cgi-bin/simple.php" method="get">
+    <input type="text" name="name">
+    <input type="submit" value="Submit">
+</form>
+<h1>POST php</h1>
+<h2>Enter your name:</h2>
+<form action="/cgi-bin/simple.php" method="post"> <!--  -->
+    <input type="text" name="name">
+    <input type="submit" value="Submit">
+</form>
+
+
+
+
+<div class="form-section"><br><br>
+    <h3>Change ur name</h3>
+    <form action="/cookie-set" method="post">
+        <label for="text-input">Text:</label>
+        <input type="text" id="text-input" name="textData">
+        <button onclick="goToIndexPage()">submit</button>
+    </form>
+</div>
+
+<!--</form>-->
+<!--<h1>GET js</h1>-->
 <!--<h2>Enter your name:</h2>-->
-<!--<form action="cgi-bin/simple.pl" method="get">-->
+<!--<form action="cgi-bin/simple.js" method="get">-->
 <!--    <input type="text" name="name">-->
 <!--    <input type="submit" value="Submit">-->
 <!--</form>-->
-<!--<h1>POST pl</h1>-->
+<!--<h1>POST js</h1>-->
 <!--<h2>Enter your name:</h2>-->
-<!--<form action="/cgi-bin/simple.pl" method="post"> &lt;!&ndash;  &ndash;&gt;-->
+<!--<form action="/cgi-bin/simple.js" method="post"> &lt;!&ndash;  &ndash;&gt;-->
 <!--    <input type="text" name="name">-->
 <!--    <input type="submit" value="Submit">-->
 <!--</form>-->
+
+
+
 </body>
 </html>

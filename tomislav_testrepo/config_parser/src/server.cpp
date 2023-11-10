@@ -9,9 +9,18 @@ ServerConf::ServerConf() : locations(), errorPages(), port(0), serverName() {}
 
 ServerConf::~ServerConf() {}
 
+//check valid file extensions
 void	Server::_setCgi(std::map<std::string, std::vector<std::string> > location, std::string locationName, ServerConf &conf, size_t i) {
-	if (location.find("cgi") != location.end())
+	if (location.find("cgi") != location.end()) {
+		for (size_t i = 0; i < location["cgi"].size(); i++) {
+			if (location["cgi"][i] != ".py" && location["cgi"][i] != ".php" && location["cgi"][i] != ".js") //modify later
+			{
+				std::cout << "extension: " << location["cgi"][i] << std::endl;
+				throw WrongCgiExtension();
+			}
+		}
 		conf.locations[locationName].cgi = location["cgi"];
+	}
 }
 
 void	Server::_setRewrite(std::map<std::string, std::vector<std::string> > location, std::string locationName, ServerConf &conf, size_t i) {
