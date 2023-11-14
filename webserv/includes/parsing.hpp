@@ -22,6 +22,8 @@ public:
 
 	static std::string returnValue(std::string key, std::string source, std::string limiter);
 	static std::vector<uint8_t> unsignedCharToVector(unsigned char *data, size_t size);
+	static std::string getFileExtension(std::string filePath);
+	static std::string getFileType(std::string filePath);
 
 };
 

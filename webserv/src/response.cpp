@@ -1,30 +1,16 @@
 
 #include "../includes/response.hpp"
 
-response::response(std::string url){
-	this->_response = createResponse(url);
+response::response(std::string filePath){
+//	this->serverClass = serverClass;
+	this->filePath = filePath;
+	this->startPosition = 0;
+	this->_dataSend = 0;
+	this->firstChunkSent = false;
+	this->_allChunkSent = false;
+	this->bodySize = countFileSize(this->filePath);
 }
-
-response::response()
-{
-	std::cout << "response default constructor called" << std::endl;
-}
-
-//response::response(std::string type)
-//{
-//	std::cout << "response constructor with type called" << std::endl;
-//}
-
-response::response(const response &other)
-{
-	*this = other;
-	std::cout << "response copy constructor called" << std::endl;
-}
-
-response::~response()
-{
-	std::cout << "response destructor called" << std::endl;
-}
+response::~response(){}
 
 response &response::operator=(const response &other)
 {
@@ -34,49 +20,68 @@ response &response::operator=(const response &other)
 	return *this;
 }
 
-std::string response::createResponse(std::string url){
-
-	std::string filePath = "./html_files" + url + "/" + getFile("./html_files" + url);
-	std::ifstream htmlFile(filePath);
-	if (!htmlFile) {
-		return "HTTP/1.1 404 Not Found\r\n\r\n<h1>404 Not Found</h1>";
-	}
-	std::string htmlContent((std::istreambuf_iterator<char>(htmlFile)), std::istreambuf_iterator<char>());
-
-	// Create an HTTP response with the HTML content
-	std::string response = "HTTP/1.1 200 OK\r\n";
-	response += "Content-Type: text/html\r\n";
-	response += "Content-Length: " + std::to_string(htmlContent.length()) + "\r\n";
-	response += "\r\n" + htmlContent;
-
-	return response;
+const char	*response::responseInvalidFileException::what() const throw() {
+	return "Invalid File Exception";
 }
 
-std::string response::getFile(std::string directoryPath){
-// Open the directory
-	DIR* dir = opendir(directoryPath.c_str());
-
-	if (dir == nullptr) {
-		return "";
+std::string response::getChunk(int chunkSize){
+	if (!this->firstChunkSent){
+		this->firstChunkSent = true;
+		std::cout << "chunk sent \n" << std::endl;
+		return (createFirstChunk(chunkSize));
 	}
-
-	// Read the contents of the directory
-	struct dirent* entry;
-	while ((entry = readdir(dir)) != nullptr) {
-		if (entry->d_type == DT_REG && hasHtmlExtension(entry->d_name)) {
-			closedir(dir);
-			return  entry->d_name;
-		}
+	else{
+		std::cout << "chunk sent \n" << std::endl;
+		return (readFileContent(chunkSize));
 	}
-	closedir(dir);
-	return "";
 }
 
-std::string response::getResponse(){
-	return this->_response;
+std::string response::createFirstChunk(int chunkSize){
+	std::ifstream file(this->filePath.c_str(), std::ios::binary);
+	
+	if (!file.is_open())
+		throw responseInvalidFileException();
+	std::string header;
+	std::string body;
+	std::string responseChunk;
+	header += "HTTP/1.1 200 OK\r\n";
+	header += "Content-Type: " + parsing::getFileType(this->filePath) + "\r\n";
+	header += "Content-Length: " + std::to_string(countFileSize(this->filePath)) + "\r\n";
+	header += "\r\n";
+	body = readFileContent(chunkSize - header.length());
+	_dataSend = body.length();
+	this->startPosition = body.length();
+	return responseChunk = header + body;
 }
 
-bool hasHtmlExtension(const char* filename) {
-	const char* extension = strrchr(filename, '.');
-	return (extension != nullptr && strcmp(extension, ".html") == 0);
+std::string response::readFileContent(int chunkSize){
+	std::ifstream file(this->filePath.c_str(), std::ios::binary);
+	if (!file.is_open()){
+		throw responseInvalidFileException();
+	}
+	file.seekg(this->startPosition);
+	this->startPosition += chunkSize;
+	char *buffer = new char[chunkSize];
+	file.read(buffer, chunkSize);
+	std::string result(buffer, file.gcount());
+	delete[] buffer;
+	file.close();
+	_dataSend += result.length();
+	if (_dataSend >= bodySize){
+		std::cout << "compare _dataSend: " << _dataSend << " with bodySize: " << bodySize << std::endl;
+		_allChunkSent = true;
+	}
+	return result;
+}
+
+long response::countFileSize(std::string filePath){
+	std::ifstream file(filePath.c_str(), std::ios::binary);
+
+	if (!file.is_open())
+		throw responseInvalidFileException();
+	file.seekg(0, std::ios::end);
+	long fileSize = file.tellg();
+	file.close();
+
+	return fileSize;
 }

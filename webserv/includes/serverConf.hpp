@@ -3,11 +3,6 @@
 
 #include "Header.h"
 #include "config.hpp"
-#include "request.hpp"
-#include "postRequest.hpp"
-#include "deleteRequest.hpp"
-#include "getRequest.hpp"
-#include "response.hpp"
 
 typedef struct LocationStruc
 {

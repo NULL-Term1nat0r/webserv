@@ -6,7 +6,7 @@
 /*   By: estruckm <estruckm@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/06 10:02:17 by estruckm          #+#    #+#             */
-/*   Updated: 2023/11/06 10:02:17 by estruckm         ###   ########.fr       */
+/*   Updated: 2023/11/13 17:25:27 by estruckm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #define SERVER_HPP
 
 #include "Header.h"
-#include "config.hpp"
+//#include "config.hpp"
 #include "request.hpp"
 #include "postRequest.hpp"
 #include "deleteRequest.hpp"
@@ -22,27 +22,46 @@
 #include "response.hpp"
 #include "serverConf.hpp"
 
+class response;
+
 class server {
 
 	private:
-		serverConf &serverConfig;
-		int serverSocket;
-		int serverIndex;
-
-		std::vector<struct pollfd> pollEvents;
-		std::vector<long long> clientTimeouts;
-		std::map<int, request*> clientRequests;
-		std::map<int, response*> clientResponses;
 
 	public:
 		server(serverConf &serverConf, int serverIndex);
 		~server();
+
+		class client {
+			public:
+
+				client(int clientSocket);
+				~client();
+
+				int executeClientRequest(int buffSize, std::vector<struct pollfd> pollEvents, std::vector<client> &clients);
+				int executeClientResponse(int buffSize, std::vector<struct pollfd> pollEvents, std::vector<client> &clients);
+
+				int clientSocket;
+				time_t lastActivity;
+				request *clientRequest;
+				response *clientResponse;
+		};
 
 		class pollNotWorking : public std::exception
 		{
 			public:
 				virtual const char	*what() const throw();
 		};
+
+		serverConf &serverConfig;
+		int serverSocket;
+		int serverIndex;
+		std::vector<struct pollfd> pollEvents;
+		std::vector<client> clients;
+
+		std::vector<long long> clientTimeouts;
+		std::map<int, request*> clientRequests;
+		std::map<int, response*> clientResponses;
 
 		request *returnRequestClass(int clientSocket);
 		response *returnResponseClass(int clientSocket);
@@ -64,7 +83,9 @@ class server {
 
 		static void runAllServers(std::string configFilePath);
 
+		serverConf& getServerConfig();
+		int getServerIndex();
 };
-		
+
 
 #endif

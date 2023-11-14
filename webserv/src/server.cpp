@@ -14,6 +14,7 @@
 
 server::server(serverConf &serverConf, int serverIndex) : serverConfig(serverConf), serverIndex(serverIndex) {
 	std::cout << "server " << serverIndex << " constructor for port: " << serverConfig._server[serverIndex].port << " got called\n" << std::endl;
+	std::cout << "server" << this->serverIndex << " constructor for port: " << this->serverConfig._server[this->serverIndex].port << " got called\n" << std::endl;
 	try {
 		createServerSocket();
 	}
@@ -57,9 +58,9 @@ void server::addSocket(int clientSocket) {
 	_pollfd.fd = clientSocket;
 	_pollfd.events = POLLIN;
 	pollEvents.push_back(_pollfd);
+	client newClient(clientSocket);
+	clients.push_back(newClient);
 	clientTimeouts.push_back(time(NULL));
-	clientRequests[clientSocket] = (request *)NULL;
-	clientResponses[clientSocket] = (response *)NULL;
 }
 
 void server::removeSocket(int index) {
@@ -103,92 +104,100 @@ void server::handleNewConnection() {
 	addSocket(clientSocket);
 }
 
-void server::handleClientRequest(int clientSocket) {
-	std::vector<uint8_t> clientRequest(serverConfig._buffSize);
-	recv(clientSocket, &clientRequest[0], serverConfig._buffSize, 0);
-	request newRequest = request(clientRequest);
+//void server::handleClientRequest(int clientSocket) {
+//	std::vector<uint8_t> clientRequest(serverConfig._buffSize);
+//	recv(clientSocket, &clientRequest[0], serverConfig._buffSize, 0);
+//	request newRequest = request(clientRequest);
+//
+//	if (returnRequestClass(clientSocket) == NULL) {
+//		if (newRequest.getPostMethod()){
+//			postRequest *newPostRequest = new postRequest(clientRequest);
+//			updateClientRequests(clientSocket, newPostRequest);
+//		}
+//		else if (newRequest.getGetMethod()){
+//			getRequest *newGetRequest = new getRequest(clientRequest);
+//			updateClientRequests(clientSocket, newGetRequest);
+//		}
+//		else if (newRequest.getDeleteMethod()){
+//			deleteRequest *newDeleteRequest = new deleteRequest(clientRequest);
+//			updateClientRequests(clientSocket, newDeleteRequest);
+//		}
+//
+//	}
+//	request *requestPointer = returnRequestClass(clientSocket);
+//	if  (dynamic_cast<postRequest*>(static_cast<request*>(requestPointer))){
+//		std::cout << "post request incoming\n";
+//		postRequest *postR = static_cast<postRequest *>(returnRequestClass(clientSocket));
+//		postR->printPostRequest();
+//		if (!postR->getAllChunksSent()){
+//			try {
+//				postR->writeBinaryToFile(clientRequest);
+//			}
+//			catch (std::exception &e){
+//				std::cout << "caught exception of post Request" << std::endl;
+//			}
+//			if (postR->getAllChunksSent()) {
+////				response newResponse = response(returnRequestClass(clientSocket)->getStringURL());
+////				send(clientSocket, newResponse.getResponse().c_str(), newResponse.getResponse().length(), 0);
+//				updateClientRequests(clientSocket, NULL);
+//				std::cout << "all chunks sent server3.cpp" << std::endl;
+//				pollEvents[clientSocket].events = POLLOUT;
+//			}
+//		}
+//	}
+//	else if (dynamic_cast<getRequest*>(static_cast<request*>(requestPointer))){
+//		std::cout << "get request incoming\n";
+//		getRequest *get = static_cast<getRequest *>(returnRequestClass(clientSocket));
+//		request newClientRequest(clientRequest);
+////		response newResponse(newClientRequest.getStringURL());
+////		send(clientSocket, newResponse.getResponse().c_str(), newResponse.getResponse().length(), 0);
+//		updateClientRequests(clientSocket, NULL);
+//	}
+//	else if (dynamic_cast<deleteRequest*>(static_cast<request*>(requestPointer))){
+//		std::cout << "delete request incoming\n";
+//		deleteRequest *deleteR = static_cast<deleteRequest *>(returnRequestClass(clientSocket));
+//	}
+////		close(clientSocket);
+//}
 
-	if (returnRequestClass(clientSocket) == NULL) {
-		if (newRequest.getPostMethod()){
-			postRequest *newPostRequest = new postRequest(clientRequest);
-			updateClientRequests(clientSocket, newPostRequest);
-		}
-		else if (newRequest.getGetMethod()){
-			getRequest *newGetRequest = new getRequest(clientRequest);
-			updateClientRequests(clientSocket, newGetRequest);
-		}
-		else if (newRequest.getDeleteMethod()){
-			deleteRequest *newDeleteRequest = new deleteRequest(clientRequest);
-			updateClientRequests(clientSocket, newDeleteRequest);
-		}
-		
-	}
-	request *requestPointer = returnRequestClass(clientSocket);
-	if  (dynamic_cast<postRequest*>(static_cast<request*>(requestPointer))){
-		std::cout << "post request incoming\n";
-		postRequest *postR = static_cast<postRequest *>(returnRequestClass(clientSocket));
-		postR->printPostRequest();
-		if (!postR->getAllChunksSent()){
-			try {
-				postR->writeBinaryToFile(clientRequest);
-			}
-			catch (std::exception &e){
-				std::cout << "caught exception of post Request" << std::endl;
-			}
-			if (postR->getAllChunksSent()) {
-
-				response newResponse(returnRequestClass(clientSocket)->getStringURL());
-				send(clientSocket, newResponse.getResponse().c_str(), newResponse.getResponse().length(), 0);
-				updateClientRequests(clientSocket, NULL);
-				std::cout << "all chunks sent server3.cpp" << std::endl;
-				pollEvents[clientSocket].events = POLLOUT;
-			}
-		}
-	}
-	else if (dynamic_cast<getRequest*>(static_cast<request*>(requestPointer))){
-		std::cout << "get request incoming\n";
-		getRequest *get = static_cast<getRequest *>(returnRequestClass(clientSocket));
-		request newClientRequest(clientRequest);
-		response newResponse(newClientRequest.getStringURL());
-		send(clientSocket, newResponse.getResponse().c_str(), newResponse.getResponse().length(), 0);
-		updateClientRequests(clientSocket, NULL);
-	}
-	else if (dynamic_cast<deleteRequest*>(static_cast<request*>(requestPointer))){
-		std::cout << "delete request incoming\n";
-		deleteRequest *deleteR = static_cast<deleteRequest *>(returnRequestClass(clientSocket));
-	}
-//		close(clientSocket);
-	
-}
+//void server::handleClientResponse(int clientSocket) {
+//	response *responsePointer = returnResponseClass(clientSocket);
+//	if (responsePointer != NULL) {
+//		std::string responseString = responsePointer->getResponse();
+//		send(clientSocket, responseString.c_str(), responseString.length(), 0);
+//		updateClientResponses(clientSocket, NULL);
+//	}
+//}
 
 void server::serverRoutine(){
-	serverConfig._server[serverIndex].port = 9;
-//	std::cout << "serverRoutine got called for port " << serverConfig._server[serverIndex].port << std::endl;
-	int num_ready = poll(&pollEvents[0], pollEvents.size(), 0);
+
+	int num_ready = poll(&this->pollEvents[0], this->pollEvents.size(), 0);
 	if (num_ready < 0) {
 		std::cout << "num_ready smaller 0 " << std::endl;
 		//throw pollNotWorking();
-	}
-//	std::cout << "pollEvent -> size: " << pollEvents.size() << std::endl;
-	if (pollEvents[0].revents & POLLIN) {
-		handleNewConnection();
-	}
-	for (size_t i = 0; i < pollEvents.size(); ++i) {
-		if (pollEvents[i].revents != 32)
-//			std::cout << "size revents: " << pollEvents[i].revents << " pollin: " << POLLIN << std::endl;
-		if (pollEvents[i].revents & POLLIN) {
-			if (pollEvents[i].fd == serverSocket) {
+	}//	std::cout << "pollEvent -> size: " << pollEvents.size() << std::endl;
+//	if (this->pollEvents[0].revents & POLLIN) {
+//		handleNewConnection();
+//	}
+	for (size_t i = 0; i < this->pollEvents.size(); ++i) {
+		if (this->pollEvents[i].revents == POLLIN) {
+			if (this->pollEvents[i].fd == this->serverSocket) {
 				std::cout << "new connection incoming" << std::endl;
 				handleNewConnection();
 			}
 			else {
-				handleClientRequest(pollEvents[i].fd);
-				std::cout << "handle clientRequest incoming" << std::endl;
+				this->pollEvents[i].revents = clients[i].executeClientRequest(this->serverConfig._buffSize, this->pollEvents, this->clients);
+//				std::cout << "address of clientclass: " << &clients[i] << std::endl;
+//				std::cout << "clientSocket.events = " << this->pollEvents[i].events << std::endl;
+//				std::cout << "address of pollEvents: " << &this->pollEvents << std::endl;
+//				std::cout << "address of struct in container: " << &this->pollEvents[i] << std::endl;
+//				std::cout << "address of eventInt: " << &this->pollEvents[i].events << std::endl;
 			}
 		}
-		if (pollEvents[i].revents & POLLOUT) {
-			std::cout << "POLLOUT activated" << std::endl;//something
+		if (pollEvents[i].revents == 0 && clients[i].clientResponse != NULL) {
+			this->pollEvents[i].revents = clients[i].executeClientResponse(this->serverConfig._buffSize, this->pollEvents, this->clients);
 		}
+		usleep(300000);
 //			std:
 //			std::cout << "if (time: " << time(NULL) << "- socketTimeouts[" << i << "]: " << socketTimeouts[i] << " > serv._clienttimeout: " << serv._clientTimeout << std::endl;
 //			if (time(NULL) - socketTimeouts[i] > serv._clientTimeout) {
@@ -201,7 +210,8 @@ void server::runAllServers(std::string configFilePath) {
 	Config conf(configFilePath);
 	serverConf serverConfigs(conf);
 	std::vector<server *> servers;
-	for (int i = 0; i < static_cast<int>(serverConfigs._server.size()); i++) {
+//	for (int i = 0; i < static_cast<int>(serverConfigs._server.size()); i++) {
+	for (int i = 0; i < 1; i++) {
 		try{
 			server *serverClass = new server(serverConfigs, i);
 			servers.push_back(serverClass);
@@ -211,9 +221,19 @@ void server::runAllServers(std::string configFilePath) {
 		}
 	}
 	while (true) {
+//		for (int i = 0; i < servers.size(); i++){
 		for (int i = 0; i < servers.size(); i++){
 			servers[i]->serverRoutine();
 		}
 	}
 }
+
+serverConf& server::getServerConfig(){
+	return this->serverConfig;
+}
+
+int server::getServerIndex(){
+	return this->serverIndex;
+}
+
 

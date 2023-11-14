@@ -24,7 +24,7 @@ class request{
 		bool _post;
 		bool _delete;
 		bool _URL;
-		bool _cgi
+		bool _cgi;
 		bool _httpProtocol;
 
 		bool _aliveConnection;
@@ -65,3 +65,12 @@ class request{
 };
 
 #endif
+
+
+
+/*
+steps for response class:
+		what do I dont know ?
+			- how much is the contenlength, all data or just file data
+		- inherit from request class to get the url string
+		-*/

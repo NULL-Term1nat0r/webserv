@@ -3,20 +3,16 @@
 #define response_HPP
 
 #include "Header.h"
-#include "request.hpp"
+#include "server.hpp"
 
-class response
+class server;
+
+class response : public request
 {
 private:
-	std::string _response;
-	long _dataSend;
-	bool _allChunkSent;
-
 
 public:
-	response();
-	response(std::string url);
-	response(const response &other);
+	response(std::string filePath);
 	~response();
 	response &operator=(const response &other);
 
@@ -25,9 +21,24 @@ public:
 		virtual const char *what() const throw();
 	};
 
+	std::string url;
+	std::string filePath;
+
+	long _dataSend;
+	long startPosition;
+	long bodySize;
+	bool firstChunkSent;
+	bool _allChunkSent;
+
 	std::string getResponse();
-	std::string createResponse(std::string url);
-	std::string getFile(std::string directoryPath);
+	long countFileSize(std::string filePath);
+	std::string readFileContent(int chunkSize);
+
+	std::string createFirstChunk(int chunkSize);
+	std::string getChunk(int chunkSize);
+
+
+
 };
 
 bool hasHtmlExtension(const char* filename);

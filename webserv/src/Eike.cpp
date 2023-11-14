@@ -13,8 +13,8 @@
 #include "../includes/Header.h"
 #include "../includes/request.hpp"
 #include "../includes/parsing.hpp"
-#include "../includes/serverConf.hpp"
-#include "../includes/response.hpp"
+//#include "../includes/serverConf.hpp"
+//#include "../includes/response.hpp"
 #include "../includes/server.hpp"
 
 int main(){

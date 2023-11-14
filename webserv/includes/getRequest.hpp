@@ -31,11 +31,24 @@
 
 class getRequest : public request{
 private:
+	std::string filePath;
 
 public:
 	explicit getRequest(std::vector<uint8_t> &getRequest);
 	getRequest();
 	~getRequest();
+
+	class getRequestInvalidFileException : public std::exception
+	{
+		virtual const char *what() const throw();
+	};
+
+	bool fileExists(const char* filePath);
+	std::string createFilePath();
+
+	std::string getErrorPagePath(int errorCode);
+
+	std::string getFilePath();
 
 };
 

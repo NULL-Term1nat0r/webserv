@@ -42,3 +42,61 @@ std::vector<uint8_t> parsing::unsignedCharToVector(unsigned char *data, size_t s
 	return result;
 }
 
+std::string parsing::getFileExtension(std::string filePath){
+	size_t start = filePath.find_last_of('.');
+	if (start == std::string::npos)
+		return "";
+	else{
+		return filePath.substr(start + 1);
+	}
+
+}
+
+std::string parsing::getFileType(std::string filePath){
+	std::string extension = getFileExtension(filePath);
+	if (extension == "")
+		return "text/plain";
+	if (extension == "html")
+		return "text/html";
+	if (extension == "css")
+		return "text/css";
+	if (extension == "js")
+		return "text/javascript";
+	if (extension == "jpg")
+		return "image/jpeg";
+	if (extension == "jpeg")
+		return "image/jpeg";
+	if (extension == "png")
+		return "image/png";
+	if (extension == "gif")
+		return "image/gif";
+	if (extension == "svg")
+		return "image/svg+xml";
+	if (extension == "ico")
+		return "image/x-icon";
+	if (extension == "mp3")
+		return "audio/mpeg";
+	if (extension == "mp4")
+		return "video/mp4";
+	if (extension == "woff")
+		return "font/woff";
+	if (extension == "woff2")
+		return "font/woff2";
+	if (extension == "ttf")
+		return "font/ttf";
+    if (extension == "otf")
+		return "font/otf";
+	if (extension == "txt")
+		return "text/plain";
+	if (extension == "pdf")
+		return "application/pdf";
+	if (extension == "json")
+		return "application/json";
+	if (extension == "xml")
+		return "application/xml";
+	if (extension == "zip")
+		return "application/zip";
+	if (extension == "tar")
+		return "application/x-tar";
+	return "";
+}
