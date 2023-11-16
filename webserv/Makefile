@@ -14,6 +14,7 @@ SRC =   src/client.cpp \
 		src/server.cpp \
 		src/Eike.cpp \
 		src/parsing.cpp \
+		src/cgiRequest.cpp
 
 
 
@@ -31,6 +32,7 @@ HEADER = includes/config.hpp \
          includes/response.hpp \
          includes/server.hpp \
          includes/parsing.hpp \
+         includes/cgiRequest.hpp \
          includes/Header.h
 
 CC =  c++

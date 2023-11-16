@@ -42,6 +42,11 @@ std::vector<uint8_t> parsing::unsignedCharToVector(unsigned char *data, size_t s
 	return result;
 }
 
+std::string parsing::getErrorFilePath(int errorCode){
+	std::string filePath = "./html_files/errorPages/error" + std::to_string(errorCode) + ".html";
+	return filePath;
+}
+
 std::string parsing::getFileExtension(std::string filePath){
 	size_t start = filePath.find_last_of('.');
 	if (start == std::string::npos)
@@ -60,8 +65,10 @@ std::string parsing::getFileType(std::string filePath){
 		return "text/html";
 	if (extension == "css")
 		return "text/css";
-	if (extension == "js")
-		return "text/javascript";
+	if (extension == "py")
+		return "text/html";
+	if (extension == "php")
+		return "text/html";
 	if (extension == "jpg")
 		return "image/jpeg";
 	if (extension == "jpeg")

@@ -13,8 +13,17 @@
 #include "../includes/deleteRequest.hpp"
 
 deleteRequest::deleteRequest(std::vector<uint8_t> &deleteRequest) : request(deleteRequest){
-	std::cout << "deleteRequest constructor called\n";
+	deleteFile(getStringURL().c_str());
 }
 deleteRequest::deleteRequest(){}
 
 deleteRequest::~deleteRequest() {}
+
+const char	*deleteRequest::deleteRequestInvalidFileException::what() const throw() {
+	return "Couldn't remove file\n";
+}
+
+void deleteRequest::deleteFile(const char*filePath){
+	if (remove(filePath) != 0)
+		throw deleteRequestInvalidFileException();
+}

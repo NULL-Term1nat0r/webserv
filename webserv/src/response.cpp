@@ -10,6 +10,7 @@ response::response(std::string filePath){
 	this->_allChunkSent = false;
 	this->bodySize = countFileSize(this->filePath);
 }
+
 response::~response(){}
 
 response &response::operator=(const response &other)
@@ -27,11 +28,11 @@ const char	*response::responseInvalidFileException::what() const throw() {
 std::string response::getChunk(int chunkSize){
 	if (!this->firstChunkSent){
 		this->firstChunkSent = true;
-		std::cout << "chunk sent \n" << std::endl;
+//		std::cout << "chunk sent \n" << std::endl;
 		return (createFirstChunk(chunkSize));
 	}
 	else{
-		std::cout << "chunk sent \n" << std::endl;
+//		std::cout << "chunk sent \n" << std::endl;
 		return (readFileContent(chunkSize));
 	}
 }
@@ -68,7 +69,7 @@ std::string response::readFileContent(int chunkSize){
 	file.close();
 	_dataSend += result.length();
 	if (_dataSend >= bodySize){
-		std::cout << "compare _dataSend: " << _dataSend << " with bodySize: " << bodySize << std::endl;
+//		std::cout << "compare _dataSend: " << _dataSend << " with bodySize: " << bodySize << std::endl;
 		_allChunkSent = true;
 	}
 	return result;
@@ -84,4 +85,10 @@ long response::countFileSize(std::string filePath){
 	file.close();
 
 	return fileSize;
+}
+
+bool response::removeFile(const char* filepath) {
+	if (std::remove(filepath) == 0)
+		return false;
+	return true;
 }

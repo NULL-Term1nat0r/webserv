@@ -37,6 +37,14 @@ public:
 	deleteRequest();
 	~deleteRequest();
 
+	class deleteRequestInvalidFileException : public std::exception
+	{
+		public:
+			virtual const char	*what() const throw();
+	};
+
+	void deleteFile(const char*filePath);
+
 };
 
 #endif

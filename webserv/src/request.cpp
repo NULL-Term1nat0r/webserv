@@ -36,11 +36,26 @@ void request::parseRequest() {
 		this->_stringURL = parsing::returnValue("POST ", this->_request,  " ");
 	else if (this->_request.find("DELETE") != std::string::npos)
 		this->_stringURL = parsing::returnValue("POST ", this->_request,  " ");
+	this->_cgi = checkCgi(this->_stringURL);
 	this->_stringHttpProtocol = parsing::returnValue("HTTP/", this->_request, "\r");
 	if (parsing::returnValue("Connection: ", this->_request, "\r") == "keep-alive")
 		this->_aliveConnection = true;
 	else if (parsing::returnValue("Connection: ", this->_request, "\r") == "close")
 		this->_closeConnection = true;
+}
+
+bool request::checkCgi(std::string url) {
+	if (url == "/")
+		return false;
+	int start = url.find(".");
+	if (start != std::string::npos){
+		std::string urlSubString = url.substr(start);
+		if (urlSubString.find("py?") != std::string::npos)
+			return true;
+		if (urlSubString.find("php?") != std::string::npos)
+			return true;
+	}
+	return false;
 }
 
 void request::validateRequest(){
@@ -96,6 +111,14 @@ bool request::getPostMethod(){
 
 bool request::getDeleteMethod(){
 	return this->_delete;
+}
+
+bool request::getCgiMethod(){
+	return this->_cgi;
+}
+
+bool request::getCgi(){
+	return this->_cgi;
 }
 
 

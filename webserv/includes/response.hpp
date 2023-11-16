@@ -37,10 +37,7 @@ public:
 	std::string createFirstChunk(int chunkSize);
 	std::string getChunk(int chunkSize);
 
-
-
+	bool removeFile(const char* filepath);
 };
-
-bool hasHtmlExtension(const char* filename);
 
 #endif

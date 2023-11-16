@@ -32,7 +32,6 @@ void server::createServerSocket() {
 	memset(&serverAddress, 0, sizeof(serverAddress));
 	serverAddress.sin_family = AF_INET;
 	serverAddress.sin_port = htons(serverConfig._server[serverIndex].port);
-//	std::cout << "serversocker with port: " << serverConfig._server[serverIndex].port << std::endl;
 	serverAddress.sin_addr.s_addr = INADDR_ANY;
 
 	this->serverSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -104,81 +103,13 @@ void server::handleNewConnection() {
 	addSocket(clientSocket);
 }
 
-//void server::handleClientRequest(int clientSocket) {
-//	std::vector<uint8_t> clientRequest(serverConfig._buffSize);
-//	recv(clientSocket, &clientRequest[0], serverConfig._buffSize, 0);
-//	request newRequest = request(clientRequest);
-//
-//	if (returnRequestClass(clientSocket) == NULL) {
-//		if (newRequest.getPostMethod()){
-//			postRequest *newPostRequest = new postRequest(clientRequest);
-//			updateClientRequests(clientSocket, newPostRequest);
-//		}
-//		else if (newRequest.getGetMethod()){
-//			getRequest *newGetRequest = new getRequest(clientRequest);
-//			updateClientRequests(clientSocket, newGetRequest);
-//		}
-//		else if (newRequest.getDeleteMethod()){
-//			deleteRequest *newDeleteRequest = new deleteRequest(clientRequest);
-//			updateClientRequests(clientSocket, newDeleteRequest);
-//		}
-//
-//	}
-//	request *requestPointer = returnRequestClass(clientSocket);
-//	if  (dynamic_cast<postRequest*>(static_cast<request*>(requestPointer))){
-//		std::cout << "post request incoming\n";
-//		postRequest *postR = static_cast<postRequest *>(returnRequestClass(clientSocket));
-//		postR->printPostRequest();
-//		if (!postR->getAllChunksSent()){
-//			try {
-//				postR->writeBinaryToFile(clientRequest);
-//			}
-//			catch (std::exception &e){
-//				std::cout << "caught exception of post Request" << std::endl;
-//			}
-//			if (postR->getAllChunksSent()) {
-////				response newResponse = response(returnRequestClass(clientSocket)->getStringURL());
-////				send(clientSocket, newResponse.getResponse().c_str(), newResponse.getResponse().length(), 0);
-//				updateClientRequests(clientSocket, NULL);
-//				std::cout << "all chunks sent server3.cpp" << std::endl;
-//				pollEvents[clientSocket].events = POLLOUT;
-//			}
-//		}
-//	}
-//	else if (dynamic_cast<getRequest*>(static_cast<request*>(requestPointer))){
-//		std::cout << "get request incoming\n";
-//		getRequest *get = static_cast<getRequest *>(returnRequestClass(clientSocket));
-//		request newClientRequest(clientRequest);
-////		response newResponse(newClientRequest.getStringURL());
-////		send(clientSocket, newResponse.getResponse().c_str(), newResponse.getResponse().length(), 0);
-//		updateClientRequests(clientSocket, NULL);
-//	}
-//	else if (dynamic_cast<deleteRequest*>(static_cast<request*>(requestPointer))){
-//		std::cout << "delete request incoming\n";
-//		deleteRequest *deleteR = static_cast<deleteRequest *>(returnRequestClass(clientSocket));
-//	}
-////		close(clientSocket);
-//}
-
-//void server::handleClientResponse(int clientSocket) {
-//	response *responsePointer = returnResponseClass(clientSocket);
-//	if (responsePointer != NULL) {
-//		std::string responseString = responsePointer->getResponse();
-//		send(clientSocket, responseString.c_str(), responseString.length(), 0);
-//		updateClientResponses(clientSocket, NULL);
-//	}
-//}
-
 void server::serverRoutine(){
 
 	int num_ready = poll(&this->pollEvents[0], this->pollEvents.size(), 0);
 	if (num_ready < 0) {
 		std::cout << "num_ready smaller 0 " << std::endl;
 		//throw pollNotWorking();
-	}//	std::cout << "pollEvent -> size: " << pollEvents.size() << std::endl;
-//	if (this->pollEvents[0].revents & POLLIN) {
-//		handleNewConnection();
-//	}
+	}
 	for (size_t i = 0; i < this->pollEvents.size(); ++i) {
 		if (this->pollEvents[i].revents == POLLIN) {
 			if (this->pollEvents[i].fd == this->serverSocket) {
@@ -186,18 +117,12 @@ void server::serverRoutine(){
 				handleNewConnection();
 			}
 			else {
-				this->pollEvents[i].revents = clients[i].executeClientRequest(this->serverConfig._buffSize, this->pollEvents, this->clients);
-//				std::cout << "address of clientclass: " << &clients[i] << std::endl;
-//				std::cout << "clientSocket.events = " << this->pollEvents[i].events << std::endl;
-//				std::cout << "address of pollEvents: " << &this->pollEvents << std::endl;
-//				std::cout << "address of struct in container: " << &this->pollEvents[i] << std::endl;
-//				std::cout << "address of eventInt: " << &this->pollEvents[i].events << std::endl;
+				clients[i].executeClientRequest(this->serverConfig._buffSize, this->pollEvents, this->clients);
 			}
 		}
 		if (pollEvents[i].revents == 0 && clients[i].clientResponse != NULL) {
-			this->pollEvents[i].revents = clients[i].executeClientResponse(this->serverConfig._buffSize, this->pollEvents, this->clients);
+			clients[i].executeClientResponse(this->serverConfig._buffSize, this->pollEvents, this->clients);
 		}
-		usleep(300000);
 //			std:
 //			std::cout << "if (time: " << time(NULL) << "- socketTimeouts[" << i << "]: " << socketTimeouts[i] << " > serv._clienttimeout: " << serv._clientTimeout << std::endl;
 //			if (time(NULL) - socketTimeouts[i] > serv._clientTimeout) {

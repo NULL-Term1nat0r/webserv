@@ -24,6 +24,7 @@
 #include <cstdlib>
 
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <arpa/inet.h>
 #include <poll.h>
 #include <cstdlib>

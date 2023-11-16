@@ -44,9 +44,11 @@ class request{
 
 		bool getValidRequest();
 
+
 		bool getGetMethod();
 		bool getPostMethod();
 		bool getDeleteMethod();
+		bool getCgi();
 
 		bool getURL();
 
@@ -56,6 +58,9 @@ class request{
 		std::string getStringURL();
 		std::string getReferer();
 		std::string &getRequestString();
+		bool getCgiMethod();
+
+		bool checkCgi(std::string url);
 
 		void setDefaultValues();
 		void parseRequest();

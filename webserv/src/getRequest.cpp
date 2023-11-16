@@ -13,6 +13,7 @@
 #include "../includes/getRequest.hpp"
 
 getRequest::getRequest(std::vector<uint8_t> &getRequest) : request(getRequest){
+	std::cout << "ResponseUrl: " << getStringURL() << std::endl;
 	this->filePath = createFilePath();
 }
 getRequest::getRequest(){}
@@ -27,11 +28,11 @@ std::string getRequest::createFilePath(){
 	if (getStringURL() == "/"){				//if url is "/" return index.html
 		return "./html_files/index.html";
 	}
-	else if (fileExists(("./html_files" + getStringURL()).c_str())){ //if url is a file return it
+	else if (fileExists(("./html_files" + getStringURL()).c_str())){
 		return "./html_files" + getStringURL();
 	}
-	else if (fileExists(("./html_files" + getStringURL() + ".html").c_str())){ // if url is a directory return file.html
-		return "./html_files" + getStringURL() + "html";
+	else if (fileExists(("./html_files" + getStringURL() +  getStringURL() + ".html").c_str())){ // if url is a directory return file.html
+		return "./html_files" + getStringURL() + getStringURL() +  ".html";
 	}
 	else{
 		return getErrorPagePath(404); // if url is not found return 404 error page
@@ -39,8 +40,14 @@ std::string getRequest::createFilePath(){
 }
 
 bool getRequest::fileExists(const char* filePath) {
-	std::ifstream file(filePath);
-	return file.good();
+	struct stat fileStat;
+
+	std::cout << "filePath existing check: " << filePath << std::endl;
+
+	if (stat(filePath, &fileStat) == 0) {
+		return S_ISREG(fileStat.st_mode) != 0;
+	}
+	return false;
 }
 
 std::string getRequest::getErrorPagePath(int errorCode){

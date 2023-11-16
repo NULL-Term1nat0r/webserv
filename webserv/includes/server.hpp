@@ -19,6 +19,7 @@
 #include "postRequest.hpp"
 #include "deleteRequest.hpp"
 #include "getRequest.hpp"
+#include "cgiRequest.hpp"
 #include "response.hpp"
 #include "serverConf.hpp"
 
@@ -38,8 +39,8 @@ class server {
 				client(int clientSocket);
 				~client();
 
-				int executeClientRequest(int buffSize, std::vector<struct pollfd> pollEvents, std::vector<client> &clients);
-				int executeClientResponse(int buffSize, std::vector<struct pollfd> pollEvents, std::vector<client> &clients);
+				void executeClientRequest(int buffSize, std::vector<struct pollfd> pollEvents, std::vector<client> &clients);
+				void executeClientResponse(int buffSize, std::vector<struct pollfd> pollEvents, std::vector<client> &clients);
 
 				int clientSocket;
 				time_t lastActivity;

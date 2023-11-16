@@ -6,18 +6,21 @@ server::client::client(int clientSocket) :  clientSocket(clientSocket), lastActi
 server::client::~client() {
 }
 
-int server::client::executeClientRequest(int buffSize, std::vector<struct pollfd> pollEvents, std::vector<client> &clients){
-//	std::cout << "address of client class: " << this << std::endl;
-//	std::cout << "execute client request called\n";
-//	std::cout << "adress pollevents from server << : " << &pollEvents << std::endl;
-//	std::cout << "address of struct in container: " << &pollEvents[clientSocket] << std::endl;
-//	std::cout << "address of eventInt: " << &pollEvents[clientSocket].events << std::endl;
+void server::client::executeClientRequest(int buffSize, std::vector<struct pollfd> pollEvents, std::vector<client> &clients){
 	std::vector<uint8_t> _request(buffSize);
 	recv(this->clientSocket, &_request[0], buffSize, 0);
 
 	if (this->clientRequest == NULL) {
 		request newRequest = request(_request);
-		if (newRequest.getPostMethod()){
+		std::cout << " bew client request url: " << newRequest.getStringURL() << std::endl;
+		std::cout << parsing::vectorToString(_request) << std::endl;
+		std::cout << "get cgi method: " << newRequest.getCgi() << std::endl;
+		if (newRequest.getGetMethod() && newRequest.getCgi()) {
+			std::cout << "create new CgiRequest\n";
+			cgiRequest *newCgiRequest = new cgiRequest(_request);
+			this->clientRequest = newCgiRequest;
+		}
+		else if (newRequest.getPostMethod()){
 			std::cout << "create new PostRequest\n";
 			postRequest *newPostRequest = new postRequest(_request);
 			this->clientRequest = newPostRequest;
@@ -44,9 +47,10 @@ int server::client::executeClientRequest(int buffSize, std::vector<struct pollfd
 				std::cout << "caught exception of post Request" << std::endl;
 			}
 			if (postR->getAllChunksSent()) {
+				response *newResponse = new response("./html_files/uploadSuccessful.html");
+				clientResponse = newResponse;
 				delete this->clientRequest;
 				this->clientRequest = NULL;
-				return 0;
 			}
 		}
 	}
@@ -56,29 +60,40 @@ int server::client::executeClientRequest(int buffSize, std::vector<struct pollfd
 		clientResponse = newResponse;
 		delete clientRequest;
 		clientRequest = NULL;
-		return POLLOUT;
 		std::cout << "changed event to POLLOUT: " << pollEvents[clientSocket].events << std::endl;
 	}
 	else if (dynamic_cast<deleteRequest*>(static_cast<request*>(this->clientRequest))){
 		std::cout << "delete request incoming\n";
-		return 0;
+	}
+	else if (dynamic_cast<cgiRequest*>(static_cast<request*>(this->clientRequest))){
+		std::cout << "cgi request incoming\n";
+		cgiRequest *cgiR = static_cast<cgiRequest *>(this->clientRequest);
+		cgiR->executeCgi();
+		response *newResponse = new response(cgiR->getFilePath());
+		clientResponse = newResponse;
+		delete clientRequest;
+		clientRequest = NULL;
 	}
 }
 
-int server::client::executeClientResponse(int buffSize, std::vector<struct pollfd> pollEvents, std::vector<client> &clients){
+void server::client::executeClientResponse(int buffSize, std::vector<struct pollfd> pollEvents, std::vector<client> &clients){
 	std::cout << "execute client response called\n";
+	std::cout << "filepath Response: " << this->clientResponse->filePath << std::endl;
 	if (this->clientResponse != NULL){
-		if (this->clientResponse->_allChunkSent){
+		if (this->clientResponse->_allChunkSent && this->clientResponse->filePath.find("src/tmp_cgi") != std::string::npos) {
+			if (this->clientResponse->removeFile(this->clientResponse->filePath.c_str()))
+				std::cout << "file removed\n";
+			else
+				std::cout << "file not removed\n";
+		}
+		else if (this->clientResponse->_allChunkSent && this->clientResponse->filePath.find("src/tmp_cgi.html") == std::string::npos) {
 			std::cout << "all chunks are sent return 0 now\n";
 			delete this->clientResponse;
 			this->clientResponse = NULL;
-			return 0;
 		}
 		else {
 			std::string chunk = this->clientResponse->getChunk(buffSize);
 			send(this->clientSocket, &chunk[0], chunk.length(), 0);
-			return POLLOUT;
 		}
 	}
-	return 0;
 }
