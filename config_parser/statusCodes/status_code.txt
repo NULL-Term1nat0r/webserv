@@ -1,0 +1,21 @@
+400 403 404 405 413 500 501 504
+
+what to do for  unknown error
+
+200 201 301 400 403 404 405 408 413 414 415 500 501 504 505
+
+200 OK
+201 new resource created //for uploading files
+301 redirection (moved to a new location)
+400 Bad request (could not be understand by server due to wrong syntax)
+
+404 Not Found (nothing matching the URL)
+405 Method not allowed
+408 Request Timeout
+413 Request is too large
+
+415 Unsupported File Type
+500 internal error of the server (maybe for cgi)
+
+504 Gateway Timeout (probably for cgi)
+505 HTTP Version Not Supported  
