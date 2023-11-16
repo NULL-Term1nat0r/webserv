@@ -12,16 +12,20 @@
 
 #include "../includes/cgiRequest.hpp"
 
+bool cgiRequest::_errorSignal = false;
+
 
 cgiRequest::cgiRequest(std::vector<uint8_t> &requestContainer) : request(requestContainer) {
 	_cgiPath = "";
 	_query = "";
-	_fileExtension = "";
 	_errorCode = 200;		// set to 200 for no error. or 201
 	_isError = false;
 	fileIsReady = false;
 	_cgiFilePath = "";
 	_alarmSignal = false;
+	_fileDescriptor = 0;
+	_execPath = "";
+	_execExtension = "";
 }
 
 cgiRequest::cgiRequest() {}
@@ -30,14 +34,7 @@ cgiRequest::~cgiRequest() {}
 
 bool cgiRequest::cgiCheckLanguage() const {
 
-	int result = false;
-
-	if (_fileExtension == ".py")
-		result = std::system("python3 --version");
-	else if (_fileExtension == ".php")
-		result = std::system("php --version");
-
-	if (result == 0)
+	if (std::system((_execExtension +  " --version").c_str()))
 		return true;
 	return false;
 }
@@ -57,14 +54,14 @@ void cgiRequest::getErrorHtmlContent(int _errorCode) {
 	_isError = true;
 	}
 
-int cgiRequest::cgiValidExtension(std::string url) {
+bool cgiRequest::createTemporaryFile(){
+	_fileDescriptor= open(_tempFile.c_str(), O_CREAT | O_WRONLY, S_IRUSR | S_IWUSR);
+	if (_fileDescriptor != -1)
+		return true;
+	return false;
+}
 
-	_isError = false;
-	_alarmSignal = false;
-
-	std::vector<std::string> allowed_ending;
-	allowed_ending.push_back(".py");
-	allowed_ending.push_back(".php");
+bool cgiRequest::cgiValidExtension(std::string url) {
 
 	size_t pos = url.find("?");
 	if (pos != std::string::npos) {
@@ -72,128 +69,95 @@ int cgiRequest::cgiValidExtension(std::string url) {
 		_query = "QUERY_STRING=" + url.substr(pos + 1);
 	}
 	else
-	{
 		_cgiPath = "html_files" + url;
+	std::cout << "cgiPath: " << _cgiPath << std::endl;
+	_tempFile = "html_files/tmp_cgi.txt";
+	if (_cgiPath.find(".php") != std::string::npos)
+		_execExtension = "php";
+	if (_cgiPath.find(".py") != std::string::npos)
+		_execExtension = "python3";
+	_execPath = "/usr/bin/" + _execExtension;
+	std::cout << "execPath: " << _execPath << std::endl;
+	_skriptName = _cgiPath.substr(_cgiPath.find_last_of("/") + 1);
+	_workingDirectory = _cgiPath.substr(0, _cgiPath.find(_skriptName) - 1);
+	std::cout << "workingDirectory: " << _workingDirectory << std::endl;
+	std::cout << "skirptName: " << _skriptName << std::endl;
+	if (!createTemporaryFile()) {
+		std::cout << "file didnt got created\n";
+		getErrorHtmlContent(500);
+		return false;
 	}
-	size_t dot = _cgiPath.find_last_of(".");
-	if (dot != std::string::npos) {
-		std::string temp = _cgiPath.substr(dot);
-		for (size_t i = 0; i < allowed_ending.size(); i++) {
-			if (_cgiPath.size() >= allowed_ending[i].size() && temp == allowed_ending[i]) {
-				_fileExtension = temp;
-				if (!inputCheck()) {
-					_errorCode = 500;
-					getErrorHtmlContent(_errorCode);
-					return false;
-				}
-				return true;
-			}
-		}
-	}
-	_errorCode = 400;
-	getErrorHtmlContent(_errorCode);
-	return false;
+	return true;
 }
 
 void cgiRequest::handleAlarmSignal(int signal) {
+	if (signal == SIGALRM)
+		cgiRequest::_errorSignal = true;
 	std::cerr << "ERROR: CGI script execution timed out (504 Gateway Timeout)" << std::endl;
-	remove("src/tmp_cgi.html");
-	return ;
 }
 
-int cgiRequest::executeCgi() {
-	if (_isError)
-		return 0;
+bool cgiRequest::executeCgi() {
+	std::cout << "cgi request incoming\n";
 
+	if (!cgiValidExtension(getStringURL()))
+		return false;
 
-	if (cgiValidExtension(getStringURL()) == false)
-		return 0;
-	//_readingStarted = true;
 	int status;
-	std::string exec;
-
-	if (_fileExtension == ".py") {
-		exec = "python3";
-	} else if (_fileExtension == ".php") {
-		exec = "php";
-	} else {
-		_errorCode = 501;
-		getErrorHtmlContent(_errorCode);
-		return 0;
-	}
 	char *query = (char*)_query.c_str();
 	char *cmd = (char*)_cgiPath.c_str();
-	char *env[] = {query, 0};
-	char *argv[] = {const_cast<char *>(exec.c_str()), cmd, 0};
-
+	char *env[] = {query, NULL};
+	char *argv[] = {const_cast<char *>(_execPath.c_str()), const_cast<char *>(_skriptName.c_str()), NULL};
 
 	signal(SIGALRM, handleAlarmSignal);
-	alarm(5);
+	//alarm(5);
 	// cgi timeout here
-
-	FILE *fileDescriptor = fopen("src/tmp_cgi.html", "w+");
-
-	if (!fileDescriptor) {
-		_errorCode = 500;
-		getErrorHtmlContent(_errorCode);
-		exit(1);
-	}
-
-	int fd = fileno(fileDescriptor);
-
-	if (fd < 3) {
-		_errorCode = 500;
-		getErrorHtmlContent(_errorCode);
-		fclose(fileDescriptor);
-		exit(1);
-	}
-
 	pid_t childId = fork();
 	if (childId == -1) {
-		_errorCode = 500;
-		getErrorHtmlContent(_errorCode);
-		fclose(fileDescriptor);
+		std::cout << "chile didnt ot created\n";
+		getErrorHtmlContent(500);
+		close(_fileDescriptor);
 		return 0;
-
-	} else if (childId == 0) {
-		//set a boolean flag that reading from the process has started
-		if (dup2(fd, STDOUT_FILENO) == -1)
-			exit(0);		//setting the timeout for the script
-		if (_fileExtension == ".py") {
-			execve("/usr/bin/python3", argv, env);
-		} else if (_fileExtension == ".php") {
-			execve("/usr/bin/php", argv, env);
-		} else {
-			execve("/usr/bin/node", argv, env);
+	}
+	else if (childId == 0) {
+		if (dup2(_fileDescriptor, STDOUT_FILENO) == -1)
+			exit(69);		//setting the timeout for the script
+		if (chdir(_workingDirectory.c_str()) != 0){
+			exit(69);
 		}
-		fclose(fileDescriptor);
-		_errorCode = 500;
-		getErrorHtmlContent(_errorCode);
-		exit(1);
-
-	} else {
+		execve(_execPath.c_str(), argv, env);
+		std::cout << "execve didnt work\n";
+		exit(69);
+	}
+	else {
+		std::cout << "waiting for the process to  join\n";
 		waitpid(childId, &status, 0);
-		fclose(fileDescriptor);
+		std::cout << "process jioined\n";
+		close(_fileDescriptor);
 		if (_alarmSignal) {
-			_errorCode = 408;
-			getErrorHtmlContent(_errorCode);
-			remove("src/tmp_cgi.html");
-			return 0;
+			getErrorHtmlContent(408);
+			close(_fileDescriptor);
+//			remove(_tempFile.c_str());
+			return false;
 		}
-		alarm(0);	// cancel alarm
- 	}
+		if (cgiRequest::_errorSignal) {
+			getErrorHtmlContent(504);
+			close(_fileDescriptor);
+//			remove(_tempFile.c_str());
+			return false;
+		}
+		//alarm(0);
+	}
 
 	int exitStatus = WEXITSTATUS(status);
 	if ((WIFSIGNALED(status) && WTERMSIG(status) == SIGALRM) || (exitStatus != 0)) {
-		_errorCode = 504;
-		getErrorHtmlContent(_errorCode);
-		remove("src/tmp_cgi.html");
-		return 0;
+		getErrorHtmlContent(504);
+		close(_fileDescriptor);
+//		remove(_tempFile.c_str());
+		return false;
 	}
-	_cgiFilePath = "src/tmp_cgi.html";
-	return (1);
+	return true;
 }
 
 std::string cgiRequest::getFilePath() {
-	return _cgiFilePath;
+	return _tempFile;
 }

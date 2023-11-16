@@ -60,10 +60,14 @@ void server::client::executeClientRequest(int buffSize, std::vector<struct pollf
 		clientResponse = newResponse;
 		delete clientRequest;
 		clientRequest = NULL;
-		std::cout << "changed event to POLLOUT: " << pollEvents[clientSocket].events << std::endl;
 	}
 	else if (dynamic_cast<deleteRequest*>(static_cast<request*>(this->clientRequest))){
 		std::cout << "delete request incoming\n";
+		deleteRequest *_delete = static_cast<deleteRequest *>(this->clientRequest);
+		response *newResponse = new response("./html_files/deleteSuccessful.html");
+		clientResponse = newResponse;
+		delete clientRequest;
+		clientRequest = NULL;
 	}
 	else if (dynamic_cast<cgiRequest*>(static_cast<request*>(this->clientRequest))){
 		std::cout << "cgi request incoming\n";

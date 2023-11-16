@@ -19,8 +19,13 @@
 class cgiRequest : public request {
 private:
 	std::string _cgiPath;
+	std::string _skriptName;
+	std::string _tempFile;
+	std::string _workingDirectory;
+	int _fileDescriptor;
 	std::string _query;
-	std::string _fileExtension;
+	std::string _execExtension;
+	std::string _execPath;
 	std::string _cgiFilePath;
 	int	_errorCode;
 	bool fileIsReady;
@@ -31,10 +36,11 @@ public:
 	explicit cgiRequest(std::vector<uint8_t> &requestContainer);
 	cgiRequest();
 	~cgiRequest();
-
+	static bool _errorSignal;
 	bool cgiCheckLanguage() const;
-	int cgiValidExtension(std::string url);
-	int executeCgi();
+	bool cgiValidExtension(std::string url);
+	bool createTemporaryFile();
+	bool executeCgi();
 
 	bool inputCheck();
 	static void handleAlarmSignal(int signal);

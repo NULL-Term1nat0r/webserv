@@ -1,24 +1,61 @@
-#include <iostream>
+//#include <unistd.h>
+//#include "../includes/Header.h"
+//
+//int main() {
+//	// Path to the PHP interpreter
+//	const char* phpInterpreter = "/usr/bin/php";
+//
+//	// Path to the PHP script you want to execute
+//	const char* phpScript = "../html_files/upload/getImages.php";
+//
+//	// Arguments for execve
+//	const char* argv[] = {phpInterpreter, phpScript, NULL};
+//
+//	// Environment variables (can be nullptr for default environment)
+//	const char* envp[] = {NULL};
+//
+//	// Execute the PHP script using execve
+//	if (execve(phpInterpreter, const_cast<char* const*>(argv), const_cast<char* const*>(envp)) == -1) {
+//		// Handle error if execve fails
+//		perror("execve");
+//		return 1;
+//	}
+//
+//	return 0;
+//}
+
+
 #include <unistd.h>
+#include "../includes/Header.h"
 
 int main() {
-	// The path to your C++ executable
-	char* path = (char*)"program";
+	// Path to the PHP interpreter
+	const char* phpInterpreter = "/usr/bin/php";
 
-	// Arguments for your executable (program name is the first argument by convention)
-	char* args[] = {(char*)"your_executable", nullptr};
+	// Path to the PHP script you want to execute
+	const char* phpScript = "getImages.php";
 
-	// Environment variables (can be set to nullptr)
-	char* env[] = {nullptr};
+	// Working directory
+	const char* workingDir = "../html_files/upload"; // Change this to the directory path you want to set
 
-	// Execute the program
-	if (execve(path, args, env) == -1) {
-		perror("execve");  // Print an error message if execve fails
+	// Set the working directory
+	if (chdir(workingDir) != 0) {
+		perror("chdir");
 		return 1;
 	}
 
-	// This part of the code will only be reached if execve fails
-	std::cerr << "Error: execve failed." << std::endl;
-	return 1;
-}
+	// Arguments for execve
+	const char* argv[] = {phpInterpreter, phpScript, NULL};
 
+	// Environment variables (can be nullptr for default environment)
+	const char* envp[] = {NULL};
+
+	// Execute the PHP script using execve
+	if (execve(phpInterpreter, const_cast<char* const*>(argv), const_cast<char* const*>(envp)) == -1) {
+		// Handle error if execve fails
+		perror("execve");
+		return 1;
+	}
+
+	return 0;
+}

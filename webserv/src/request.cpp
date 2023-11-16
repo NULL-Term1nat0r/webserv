@@ -47,12 +47,10 @@ void request::parseRequest() {
 bool request::checkCgi(std::string url) {
 	if (url == "/")
 		return false;
-	int start = url.find(".");
-	if (start != std::string::npos){
-		std::string urlSubString = url.substr(start);
-		if (urlSubString.find("py?") != std::string::npos)
+	if (_get) {
+		if (url.find(".php") != std::string::npos)
 			return true;
-		if (urlSubString.find("php?") != std::string::npos)
+		if (url.find(".py") != std::string::npos)
 			return true;
 	}
 	return false;
