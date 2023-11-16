@@ -65,13 +65,13 @@ bool cgiRequest::cgiValidExtension(std::string url) {
 
 	size_t pos = url.find("?");
 	if (pos != std::string::npos) {
-		_cgiPath = "html_files" + url.substr(0, pos);
+		_cgiPath = "./html_files" + url.substr(0, pos);
 		_query = "QUERY_STRING=" + url.substr(pos + 1);
 	}
 	else
-		_cgiPath = "html_files" + url;
+		_cgiPath =  "./html_files" + url;
 	std::cout << "cgiPath: " << _cgiPath << std::endl;
-	_tempFile = "html_files/tmp_cgi.txt";
+	_tempFile = "./html_files/tmp_cgi.txt";
 	if (_cgiPath.find(".php") != std::string::npos)
 		_execExtension = "php";
 	if (_cgiPath.find(".py") != std::string::npos)
@@ -80,8 +80,6 @@ bool cgiRequest::cgiValidExtension(std::string url) {
 	std::cout << "execPath: " << _execPath << std::endl;
 	_skriptName = _cgiPath.substr(_cgiPath.find_last_of("/") + 1);
 	_workingDirectory = _cgiPath.substr(0, _cgiPath.find(_skriptName) - 1);
-	std::cout << "workingDirectory: " << _workingDirectory << std::endl;
-	std::cout << "skirptName: " << _skriptName << std::endl;
 	if (!createTemporaryFile()) {
 		std::cout << "file didnt got created\n";
 		getErrorHtmlContent(500);
@@ -129,9 +127,7 @@ bool cgiRequest::executeCgi() {
 		exit(69);
 	}
 	else {
-		std::cout << "waiting for the process to  join\n";
 		waitpid(childId, &status, 0);
-		std::cout << "process jioined\n";
 		close(_fileDescriptor);
 		if (_alarmSignal) {
 			getErrorHtmlContent(408);
