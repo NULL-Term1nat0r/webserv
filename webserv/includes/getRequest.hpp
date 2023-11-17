@@ -32,10 +32,10 @@
 class getRequest : public request{
 private:
 	std::string filePath;
-
+	serverConf &_serverConfig;
+	int serverIndex;
 public:
-	explicit getRequest(std::vector<uint8_t> &getRequest);
-	getRequest();
+	explicit getRequest(std::vector<uint8_t> &getRequest, serverConf &serverConfig, int serverIndex);
 	~getRequest();
 
 	class getRequestInvalidFileException : public std::exception
@@ -43,12 +43,16 @@ public:
 		virtual const char *what() const throw();
 	};
 
+	bool redirection;
+
+	std::string checkRewrite(std::string url);
 	bool fileExists(const char* filePath);
 	std::string createFilePath();
 
 	std::string getErrorPagePath(int errorCode);
 
 	std::string getFilePath();
+	bool getRedirection();
 
 };
 

@@ -22,6 +22,7 @@
 #include <fstream>
 #include <cstdio>
 #include <cstdlib>
+#include <algorithm>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -33,13 +34,11 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-
-
-
 #define SERVER_PORT 8080
 #define MAX_CLIENTS 10
 
 
 #include "parsing.hpp"
+#include "serverConf.hpp"
 
 #endif

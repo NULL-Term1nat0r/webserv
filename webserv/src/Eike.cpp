@@ -18,8 +18,11 @@
 #include "../includes/server.hpp"
 
 int main(){
-
-	server::runAllServers("../config_parser/confFiles/server.conf");
-
+	try {
+		server::runAllServers("../config_parser/confFiles/server.conf");
+	}
+	catch (std::exception &e) {
+		std::cout << e.what() << std::endl;
+	}
 	return 0;
 }

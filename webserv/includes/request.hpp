@@ -16,7 +16,7 @@
 #include "Header.h"
 
 
-class request{
+class request {
 	private:
 		bool _validRequest;
 
@@ -25,10 +25,14 @@ class request{
 		bool _delete;
 		bool _URL;
 		bool _cgi;
+		bool _invalidPageMethod;
 		bool _httpProtocol;
 
 		bool _aliveConnection;
 		bool _closeConnection;
+
+		serverConf &_serverConfig;
+		int _serverIndex;
 
 		std::string _stringURL;
 		std::string _stringHttpProtocol;
@@ -38,8 +42,7 @@ class request{
 
 
 	public:
-		explicit request(std::vector<uint8_t> &clientRequest);
-		request();
+		explicit request(std::vector<uint8_t> &clientRequest, serverConf &serverConfig, int serverIndex);
 		virtual ~request();
 
 		bool getValidRequest();
@@ -49,7 +52,7 @@ class request{
 		bool getPostMethod();
 		bool getDeleteMethod();
 		bool getCgi();
-
+		bool checkPageMethod(std::string method);
 		bool getURL();
 
 		bool getAliveConnection();

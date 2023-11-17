@@ -21,7 +21,6 @@
 #include "getRequest.hpp"
 #include "cgiRequest.hpp"
 #include "response.hpp"
-#include "serverConf.hpp"
 
 class response;
 
@@ -36,15 +35,27 @@ class server {
 		class client {
 			public:
 
-				client(int clientSocket);
+				client(int clientSocket, serverConf &serverConfig, int serverIndex);
 				~client();
 
-				void executeClientRequest(int buffSize, std::vector<struct pollfd> pollEvents, std::vector<client> &clients);
-				void executeClientResponse(int buffSize, std::vector<struct pollfd> pollEvents, std::vector<client> &clients);
+				void executeClientRequest();
+				void executeClientResponse();
+
+				void createNewRequest(std::vector<uint8_t> _request);
+				bool checkPostRequest(std::vector<uint8_t> _request);
+				bool checkGetRequest(std::vector<uint8_t> _request);
+				bool checkDeleteRequest(std::vector<uint8_t> _request);
+				bool checkCgiRequest(std::vector<uint8_t> _request);
+
 
 				int clientSocket;
+				serverConf &serverConfig;
+				int serverIndex;
 				time_t lastActivity;
-				request *clientRequest;
+				getRequest *clientGetRequest;
+				postRequest *clientPostRequest;
+				deleteRequest *clientDeleteRequest;
+				cgiRequest *clientCgiRequest;
 				response *clientResponse;
 		};
 
@@ -82,7 +93,7 @@ class server {
 
 		void serverRoutine();
 
-		static void runAllServers(std::string configFilePath);
+		static void runAllServers(char * configFilePath);
 
 		serverConf& getServerConfig();
 		int getServerIndex();

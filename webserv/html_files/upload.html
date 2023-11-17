@@ -1,0 +1,121 @@
+<!--<!DOCTYPE html>-->
+<!--<html lang="en">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+<!--    <title>Image Viewer</title>-->
+<!--    <style>-->
+<!--        body {-->
+<!--            font-family: Arial, sans-serif;-->
+<!--            margin: 20px;-->
+<!--        }-->
+<!--        #imageContainer {-->
+<!--            max-height: 400px;-->
+<!--            overflow-y: auto;-->
+<!--            border: 1px solid #ccc;-->
+<!--            padding: 10px;-->
+<!--        }-->
+<!--    </style>-->
+<!--</head>-->
+<!--<body>-->
+
+<!--<h1>Image Viewer</h1>-->
+
+<!--<div id="imageContainer"></div>-->
+
+<!--<script>-->
+<!--    // Fetch image filenames using XMLHttpRequest-->
+<!--    var xhr = new XMLHttpRequest();-->
+<!--    xhr.open('GET', './upload/getImages.php', true);-->
+
+<!--    xhr.onload = function () {-->
+<!--        if (xhr.status >= 200 && xhr.status < 400) {-->
+<!--            // Parse JSON response-->
+<!--            var data = JSON.parse(xhr.responseText);-->
+
+<!--            // Check if data is an object-->
+<!--            if (typeof data === 'object' && data !== null) {-->
+<!--                // Display images in the container-->
+<!--                var container = document.getElementById('imageContainer');-->
+
+<!--                // Loop through the object keys and values-->
+<!--                for (var key in data) {-->
+<!--                    if (data.hasOwnProperty(key)) {-->
+<!--                        var image = data[key];-->
+<!--                        container.innerHTML += '<img src="' + image + '" alt="' + image + '" style="max-width: 100%; margin-bottom: 10px;">';-->
+<!--                    }-->
+<!--                }-->
+<!--            } else {-->
+<!--                console.error('Data is not an object:', data);-->
+<!--            }-->
+<!--        }-->
+<!--    };-->
+
+<!--    xhr.send();-->
+
+<!--</script>-->
+
+<!--</body>-->
+<!--</html>-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Viewer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #imageList {
+            list-style-type: none;
+            padding: 0;
+        }
+        #imageList li {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Image Viewer</h1>
+
+<ul id="imageList"></ul>
+
+<script>
+    // Fetch image filenames using XMLHttpRequest
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '/upload/getImages.php', true);
+
+    xhr.onload = function() {
+        if (xhr.status >= 200 && xhr.status < 400) {
+            // Parse JSON response
+            var data = JSON.parse(xhr.responseText);
+
+            // Check if data is an object
+            if (typeof data === 'object' && data !== null) {
+                // Display images as hyperlinks in the list
+                var imageList = document.getElementById('imageList');
+                for (var key in data) {
+                    if (data.hasOwnProperty(key)) {
+                        var image = data[key];
+                        var listItem = document.createElement('li');
+                        var link = document.createElement('a');
+                        link.href = '/upload/' + encodeURIComponent(image); // Encode the image filename
+                        link.textContent = image;
+                        listItem.appendChild(link);
+                        imageList.appendChild(listItem);
+                    }
+                }
+            } else {
+                console.error('Data is not an object:', data);
+            }
+        }
+    };
+
+    xhr.send();
+</script>
+
+</body>
+</html>

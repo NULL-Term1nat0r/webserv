@@ -1,9 +1,10 @@
 
 #include "../includes/response.hpp"
 
-response::response(std::string filePath){
+response::response(std::string filePath, int statusCode) {
 //	this->serverClass = serverClass;
 	this->filePath = filePath;
+	this->statusCode = statusCode;
 	this->startPosition = 0;
 	this->_dataSend = 0;
 	this->firstChunkSent = false;
@@ -45,7 +46,14 @@ std::string response::createFirstChunk(int chunkSize){
 	std::string header;
 	std::string body;
 	std::string responseChunk;
-	header += "HTTP/1.1 200 OK\r\n";
+
+	std::stringstream ss;
+	ss << statusCode;
+	std::string _statusCode = ss.str();
+
+	std::cout << "statusCode for url: " << this->filePath << " is: " << _statusCode << std::endl;
+
+	header += "HTTP/1.1 " + _statusCode + " OK\r\n";
 	header += "Content-Type: " + parsing::getFileType(this->filePath) + "\r\n";
 	header += "Content-Length: " + std::to_string(countFileSize(this->filePath)) + "\r\n";
 	header += "\r\n";

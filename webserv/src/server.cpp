@@ -14,7 +14,6 @@
 
 server::server(serverConf &serverConf, int serverIndex) : serverConfig(serverConf), serverIndex(serverIndex) {
 	std::cout << "server " << serverIndex << " constructor for port: " << serverConfig._server[serverIndex].port << " got called\n" << std::endl;
-	std::cout << "server" << this->serverIndex << " constructor for port: " << this->serverConfig._server[this->serverIndex].port << " got called\n" << std::endl;
 	try {
 		createServerSocket();
 	}
@@ -57,7 +56,7 @@ void server::addSocket(int clientSocket) {
 	_pollfd.fd = clientSocket;
 	_pollfd.events = POLLIN;
 	pollEvents.push_back(_pollfd);
-	client newClient(clientSocket);
+	client newClient(clientSocket, serverConfig, serverIndex);
 	clients.push_back(newClient);
 	clientTimeouts.push_back(time(NULL));
 }
@@ -117,11 +116,11 @@ void server::serverRoutine(){
 				handleNewConnection();
 			}
 			else {
-				clients[i].executeClientRequest(this->serverConfig._buffSize, this->pollEvents, this->clients);
+				clients[i].executeClientRequest();
 			}
 		}
 		if (pollEvents[i].revents == 0 && clients[i].clientResponse != NULL) {
-			clients[i].executeClientResponse(this->serverConfig._buffSize, this->pollEvents, this->clients);
+			clients[i].executeClientResponse();
 		}
 //			std:
 //			std::cout << "if (time: " << time(NULL) << "- socketTimeouts[" << i << "]: " << socketTimeouts[i] << " > serv._clienttimeout: " << serv._clientTimeout << std::endl;
@@ -131,8 +130,9 @@ void server::serverRoutine(){
 	}
 }
 
-void server::runAllServers(std::string configFilePath) {
-	Config conf(configFilePath);
+void server::runAllServers(char *configFilePath) {
+	Config conf = Config();
+	conf.parseConfFile(configFilePath);
 	serverConf serverConfigs(conf);
 	std::vector<server *> servers;
 //	for (int i = 0; i < static_cast<int>(serverConfigs._server.size()); i++) {
@@ -148,6 +148,7 @@ void server::runAllServers(std::string configFilePath) {
 	while (true) {
 //		for (int i = 0; i < servers.size(); i++){
 		for (int i = 0; i < servers.size(); i++){
+//			std::cout << "rewrite for upload: " << servers[i]->serverConfig._server[0].locations["/random"].rewrite << std::endl;
 			servers[i]->serverRoutine();
 		}
 	}

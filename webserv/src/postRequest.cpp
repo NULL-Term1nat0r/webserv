@@ -12,7 +12,7 @@
 
 #include "../includes/postRequest.hpp"
 
-postRequest::postRequest(std::vector<uint8_t> &postRequest) : request(postRequest){
+postRequest::postRequest(std::vector<uint8_t> &postRequest, serverConf &serverConfig, int serverIndex) : request(postRequest, serverConfig, serverIndex), _serverConfig(serverConfig), serverIndex(serverIndex) {
 	this->_fileName = parsing::returnValue("filename=\"", getRequestString(), "\"\r\n");
 	parseDataType(getRequestString());
 	parseFileType(getRequestString());
@@ -24,7 +24,6 @@ postRequest::postRequest(std::vector<uint8_t> &postRequest) : request(postReques
 	this->_filePath = "./html_files/upload/" + this->_fileName;
 	this->_dataRecieved = 0;
 }
-postRequest::postRequest(){}
 
 postRequest::~postRequest() {}
 

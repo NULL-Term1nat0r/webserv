@@ -3,10 +3,6 @@
 
 Config::Config() {}
 
-Config::Config(std::string filePath){
-	parseConfFile(filePath);
-}
-
 Config::~Config() {}
 
 const char	*Config::BracketsNotClosed::what() const throw() {
@@ -36,7 +32,7 @@ const char	*Config::ContextExistsMoreThanOnce::what() const throw() {
 std::vector<std::map<std::string, std::map<std::string, std::vector<std::string> > > >	Config::getConfFile() const {
 	return _confFile;
 }
-	
+
 std::map<std::string, std::vector<std::string> >	Config::getGlobalContext() const {
 	return _globalContext;
 }
@@ -56,13 +52,13 @@ void	Config::_tokenizeErrorPage(std::vector<std::string> &tokens) {
 }
 
 std::vector<std::string>	Config::_tokenize(const std::string& line) {
-    std::vector<std::string> tokens;
-    std::istringstream iss(line);
-    std::string token;
-    while (iss >> token) {
+	std::vector<std::string> tokens;
+	std::istringstream iss(line);
+	std::string token;
+	while (iss >> token) {
 		if (token[0] == '#')
 			break;
-        tokens.push_back(token);
+		tokens.push_back(token);
 	}
 	if (tokens[tokens.size() - 1].find_first_of("#") != std::string::npos)
 		tokens[tokens.size() - 1] = tokens[tokens.size() - 1].substr(0, tokens[tokens.size() - 1].find_first_of("#"));
@@ -70,7 +66,7 @@ std::vector<std::string>	Config::_tokenize(const std::string& line) {
 		throw NoSemicolonAtTheEndOfContext();
 	tokens[tokens.size() - 1] = tokens[tokens.size() - 1].substr(0, tokens[tokens.size() - 1].size() - 1);
 	_tokenizeErrorPage(tokens);
-    return tokens;
+	return tokens;
 }
 
 bool	Config::_checkEmptyAndComments(std::string &line) {
@@ -92,12 +88,12 @@ void	Config::_putContext(std::ifstream &nginxConfFile, std::string &line, int i,
 			throw ContextExistsMoreThanOnce();
 		_confFile[i][prevLine.substr(0, prevLine.find_first_of("{"))][tmp[0]] = tmp2;
 	}
-	if (!line.find('}'))
-			throw BracketsNotClosed();
+	if ((line.find('}') == std::string::npos && line.find("location") == std::string::npos) || !_checkEmptyAndComments(line))
+		throw BracketsNotClosed();
 }
 
 bool	Config::_locationExists(std::string line, int i) {
-    if (std::find(_locations[i].begin(), _locations[i].end(), line) == _locations[i].end()) {
+	if (std::find(_locations[i].begin(), _locations[i].end(), line) == _locations[i].end()) {
 		_locations[i].push_back(line);
 		return false;
 	}
@@ -106,13 +102,13 @@ bool	Config::_locationExists(std::string line, int i) {
 
 //utils
 void	Config::_removeWhitespace(std::string& line) {
-    std::string::iterator it = line.begin();
-    while (it != line.end()) {
-        if (*it == ' ' || *it == '\t' || *it == '\n' || *it == '\r' || *it == '\f' || *it == '\v')
-            it = line.erase(it);
+	std::string::iterator it = line.begin();
+	while (it != line.end()) {
+		if (*it == ' ' || *it == '\t' || *it == '\n' || *it == '\r' || *it == '\f' || *it == '\v')
+			it = line.erase(it);
 		else
-            ++it;
-    }
+			++it;
+	}
 }
 
 void	Config::_handleLocation(std::ifstream &nginxConfFile, std::string &line, int i) {
@@ -133,7 +129,7 @@ void	Config::_serverBlock(std::ifstream &nginxConfFile, std::string &line, int i
 	_locations.push_back(std::vector<std::string>());
 	_confFile.push_back(std::map<std::string, std::map<std::string, std::vector<std::string> > >());
 	while ((line.find('{') != std::string::npos && _checkEmptyAndComments(line))
-		|| (std::getline(nginxConfFile, line) && line.find('}') == std::string::npos) || !_checkEmptyAndComments(line)) {
+		   || (std::getline(nginxConfFile, line) && line.find('}') == std::string::npos)) {
 		if (!_checkEmptyAndComments(line))
 			continue ;
 		if (line.find("location") == std::string::npos && line.find("server") == std::string::npos && line.find('{') != std::string::npos)
@@ -144,7 +140,7 @@ void	Config::_serverBlock(std::ifstream &nginxConfFile, std::string &line, int i
 			_handleNoLocation(nginxConfFile, line, i);
 	}
 	if (line.find('}') == std::string::npos || !_checkEmptyAndComments(line))
-			throw BracketsNotClosed();
+		throw BracketsNotClosed();
 }
 
 void	Config::_globalBlock(std::ifstream &nginxConfFile, std::string &line) {
@@ -159,28 +155,28 @@ void	Config::_globalBlock(std::ifstream &nginxConfFile, std::string &line) {
 		if (it != _globalContext.end())
 			throw ContextExistsMoreThanOnce();
 		_globalContext[tmp[0]] = tmp2;
-    } while (std::getline(nginxConfFile, line) && line.find('{') == std::string::npos);
+	} while (std::getline(nginxConfFile, line) && line.find('{') == std::string::npos);
 }
 
 // for utils
-bool	Config::_fileOpen(const std::ifstream &nginxConfFile) {
-	if (!nginxConfFile.is_open() || nginxConfFile.eof())
+bool	Config::_fileOpen(std::ifstream &nginxConfFile) {
+	if (!nginxConfFile.is_open() || nginxConfFile.peek() == std::ifstream::traits_type::eof())
 		return false;
 	return true;
 }
 
-void	Config::parseConfFile(const std::string& file) {
-    std::ifstream nginxConfFile(file);
+void	Config::parseConfFile(char *file) {
+	std::ifstream nginxConfFile(file);
 	if (!_fileOpen(nginxConfFile))
 		throw FileNotOpen();
-    std::string currentBlock;
-    std::string line;
+	std::string currentBlock;
+	std::string line;
 	for (int i = 0; (line.find("server") != std::string::npos && _checkEmptyAndComments(line)) || std::getline(nginxConfFile, line);) {
 		if (!_checkEmptyAndComments(line))
 			continue ;
 		else if (line.find("server") != std::string::npos)
 			_serverBlock(nginxConfFile, line, i++);
-		else if (line.find('{') == std::string::npos)
+		else if (line.find("{") == std::string::npos)
 			_globalBlock(nginxConfFile, line);
 		else
 			throw BlocknameNotExisting();

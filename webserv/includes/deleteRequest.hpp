@@ -31,10 +31,11 @@
 
 class deleteRequest : public request{
 private:
+	serverConf &_serverConfig;
+	int serverIndex;
 
 public:
-	explicit deleteRequest(std::vector<uint8_t> &deleteRequest);
-	deleteRequest();
+	explicit deleteRequest(std::vector<uint8_t> &requestContainer, serverConf &serverConfig, int serverIndex);
 	~deleteRequest();
 
 	class deleteRequestInvalidFileException : public std::exception

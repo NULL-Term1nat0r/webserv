@@ -1,88 +1,141 @@
 #include "../includes/server.hpp"
 
-server::client::client(int clientSocket) :  clientSocket(clientSocket), lastActivity(time(0)), clientRequest(NULL), clientResponse(NULL)  {
+server::client::client(int clientSocket, serverConf &serverConfig, int serverIndex) : serverConfig(serverConfig), serverIndex(serverIndex), clientSocket(clientSocket) {
+	this->lastActivity = time(0);
+	this->clientGetRequest = NULL;
+	this->clientPostRequest = NULL;
+	this->clientDeleteRequest = NULL;
+	this->clientCgiRequest = NULL;
+	this->clientResponse = NULL;
+
 }
 
 server::client::~client() {
 }
 
-void server::client::executeClientRequest(int buffSize, std::vector<struct pollfd> pollEvents, std::vector<client> &clients){
-	std::vector<uint8_t> _request(buffSize);
-	recv(this->clientSocket, &_request[0], buffSize, 0);
+void server::client::executeClientRequest(){
+	std::vector<uint8_t> _request(serverConfig._buffSize);
+	recv(this->clientSocket, &_request[0], serverConfig._buffSize, 0);
 
-	if (this->clientRequest == NULL) {
-		request newRequest = request(_request);
-		std::cout << " bew client request url: " << newRequest.getStringURL() << std::endl;
-		std::cout << parsing::vectorToString(_request) << std::endl;
-		std::cout << "get cgi method: " << newRequest.getCgi() << std::endl;
-		if (newRequest.getGetMethod() && newRequest.getCgi()) {
-			std::cout << "create new CgiRequest\n";
-			cgiRequest *newCgiRequest = new cgiRequest(_request);
-			this->clientRequest = newCgiRequest;
-		}
-		else if (newRequest.getPostMethod()){
-			std::cout << "create new PostRequest\n";
-			postRequest *newPostRequest = new postRequest(_request);
-			this->clientRequest = newPostRequest;
-		}
-		else if (newRequest.getGetMethod()){
-			std::cout << "create new GetRequest\n";
-			getRequest *newGetRequest = new getRequest(_request);
-			this->clientRequest = newGetRequest;
-		}
-		else if (newRequest.getDeleteMethod()){
-			deleteRequest *newDeleteRequest = new deleteRequest(_request);
-			this->clientRequest = newDeleteRequest;
-		}
+	createNewRequest(_request);
+	try {
+		if (checkGetRequest(_request))
+			return;
+		else if (checkPostRequest(_request))
+			return;
+		else if (checkDeleteRequest(_request))
+			return;
+		else if (checkCgiRequest(_request))
+			return;
+		else
+			return;
 	}
-	if  (dynamic_cast<postRequest*>(static_cast<request*>(this->clientRequest))) {
+	catch (std::exception &e) {
+		std::cout << "caught exception of clientRequest" << std::endl;
+	}
+}
+
+bool server::client::checkPostRequest(std::vector<uint8_t> _request) {
+	if  (this->clientPostRequest != NULL) {
 		std::cout << "post request gets handled\n";
-		postRequest *postR = static_cast<postRequest *>(this->clientRequest);
-		postR->printPostRequest();
-		if (!postR->getAllChunksSent()) {
+		clientPostRequest->printPostRequest();
+		if (!clientPostRequest->getAllChunksSent()) {
 			try {
-				postR->writeBinaryToFile(_request);
+				clientPostRequest->writeBinaryToFile(_request);
 			}
 			catch (std::exception &e) {
 				std::cout << "caught exception of post Request" << std::endl;
 			}
-			if (postR->getAllChunksSent()) {
-				response *newResponse = new response("./html_files/uploadSuccessful.html");
+			if (clientPostRequest->getAllChunksSent()) {
+				response *newResponse = new response("./html_files/uploadSuccessful.html", 201);
 				clientResponse = newResponse;
-				delete this->clientRequest;
-				this->clientRequest = NULL;
+				delete this->clientPostRequest;
+				this->clientPostRequest = NULL;
 			}
 		}
+		return true;
 	}
-	else if (dynamic_cast<getRequest*>(static_cast<request*>(this->clientRequest))){
-		getRequest *get = static_cast<getRequest *>(this->clientRequest);
-		response *newResponse = new response(get->getFilePath());
-		clientResponse = newResponse;
-		delete clientRequest;
-		clientRequest = NULL;
-	}
-	else if (dynamic_cast<deleteRequest*>(static_cast<request*>(this->clientRequest))){
-		std::cout << "delete request incoming\n";
-		deleteRequest *_delete = static_cast<deleteRequest *>(this->clientRequest);
-		response *newResponse = new response("./html_files/deleteSuccessful.html");
-		clientResponse = newResponse;
-		delete clientRequest;
-		clientRequest = NULL;
-	}
-	else if (dynamic_cast<cgiRequest*>(static_cast<request*>(this->clientRequest))){
-		std::cout << "cgi request incoming\n";
-		cgiRequest *cgiR = static_cast<cgiRequest *>(this->clientRequest);
-		cgiR->executeCgi();
+	return false;
+}
 
-		response *newResponse = new response(cgiR->getFilePath());
+bool server::client::checkGetRequest(std::vector<uint8_t> _request) {
+	if (this->clientGetRequest != NULL) {
+		std::cout << "address of redirection boolean: " << &clientGetRequest->redirection << std::endl;
+
+		if (clientGetRequest->getRedirection()) {
+			std::cout << "redirection request incoming\n";
+			response *newResponse = new response(clientGetRequest->getFilePath(), 301);
+			clientResponse = newResponse;
+			delete clientGetRequest;
+			clientGetRequest = NULL;
+			return true;
+		}
+		response *newResponse = new response(clientGetRequest->getFilePath(), 200);
+		clientResponse = newResponse;
+		delete clientGetRequest;
+		clientGetRequest = NULL;
+		return true;
+	}
+	return false;
+}
+
+bool server::client::checkDeleteRequest(std::vector<uint8_t> _request) {
+	if (this->clientDeleteRequest != NULL) {
+		std::cout << "delete request incoming\n";
+		response *newResponse = new response("./html_files/deleteSuccessful.html", 200);
+		clientResponse = newResponse;
+		delete clientDeleteRequest;
+		clientDeleteRequest = NULL;
+		return true;
+	}
+	return false;
+}
+
+bool server::client::checkCgiRequest(std::vector<uint8_t> _request) {
+	if (this->clientCgiRequest != NULL) {
+		std::cout << "cgi request incoming\n";
+		clientCgiRequest->executeCgi();
+
+		response *newResponse = new response(clientCgiRequest->getFilePath(), 200);
 		std::cout << "cgi response file path: " << newResponse->filePath << std::endl;
 		clientResponse = newResponse;
-		delete clientRequest;
-		clientRequest = NULL;
+		delete clientCgiRequest;
+		clientCgiRequest = NULL;
+		return true;
+	}
+	return false;
+}
+
+void server::client::createNewRequest(std::vector<uint8_t> _request){
+
+	if (this->clientGetRequest == NULL && this->clientPostRequest == NULL && this->clientDeleteRequest == NULL && this->clientCgiRequest == NULL) {
+		request newRequest = request(_request, serverConfig, serverIndex);
+		std::cout << " new client request url: " << newRequest.getStringURL() << std::endl;
+		std::cout << parsing::vectorToString(_request) << std::endl;
+		std::cout << "get cgi method: " << newRequest.getCgi() << std::endl;
+		if (newRequest.getGetMethod() && newRequest.getCgi()) {
+			std::cout << "create new CgiRequest\n";
+			cgiRequest *newCgiRequest = new cgiRequest(_request, serverConfig, serverIndex);
+			this->clientCgiRequest = newCgiRequest;
+		}
+		else if (newRequest.getPostMethod()){
+			std::cout << "create new PostRequest\n";
+			postRequest *newPostRequest = new postRequest(_request, serverConfig, serverIndex);
+			this->clientPostRequest= newPostRequest;
+		}
+		else if (newRequest.getGetMethod()){
+			std::cout << "create new GetRequest\n";
+			getRequest *newGetRequest = new getRequest(_request, serverConfig, serverIndex);
+			this->clientGetRequest = newGetRequest;
+		}
+		else if (newRequest.getDeleteMethod()){
+			deleteRequest *newDeleteRequest = new deleteRequest(_request, serverConfig, serverIndex);
+			this->clientDeleteRequest = newDeleteRequest;
+		}
 	}
 }
 
-void server::client::executeClientResponse(int buffSize, std::vector<struct pollfd> pollEvents, std::vector<client> &clients){
+void server::client::executeClientResponse(){
 	std::cout << "execute client response called\n";
 	std::cout << "filepath Response: " << this->clientResponse->filePath << std::endl;
 	if (this->clientResponse != NULL){
@@ -98,7 +151,7 @@ void server::client::executeClientResponse(int buffSize, std::vector<struct poll
 			this->clientResponse = NULL;
 		}
 		else {
-			std::string chunk = this->clientResponse->getChunk(buffSize);
+			std::string chunk = this->clientResponse->getChunk(serverConfig._buffSize);
 			send(this->clientSocket, &chunk[0], chunk.length(), 0);
 		}
 	}

@@ -7,12 +7,12 @@
 
 class server;
 
-class response : public request
+class response
 {
 private:
 
 public:
-	response(std::string filePath);
+	response(std::string filePath, int statusCode);
 	~response();
 	response &operator=(const response &other);
 
@@ -23,6 +23,8 @@ public:
 
 	std::string url;
 	std::string filePath;
+
+	int statusCode;
 
 	long _dataSend;
 	long startPosition;

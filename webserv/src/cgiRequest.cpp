@@ -15,7 +15,7 @@
 bool cgiRequest::_errorSignal = false;
 
 
-cgiRequest::cgiRequest(std::vector<uint8_t> &requestContainer) : request(requestContainer) {
+cgiRequest::cgiRequest(std::vector<uint8_t> &requestContainer, serverConf &serverConfig, int serverIndex) : request(requestContainer, serverConfig, serverIndex), _serverConfig(serverConfig), serverIndex(serverIndex) {
 	_cgiPath = "";
 	_query = "";
 	_errorCode = 200;		// set to 200 for no error. or 201
@@ -27,8 +27,6 @@ cgiRequest::cgiRequest(std::vector<uint8_t> &requestContainer) : request(request
 	_execPath = "";
 	_execExtension = "";
 }
-
-cgiRequest::cgiRequest() {}
 
 cgiRequest::~cgiRequest() {}
 

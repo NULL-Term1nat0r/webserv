@@ -1,13 +1,10 @@
 #include "../includes/request.hpp"
 
-request::request(std::vector<uint8_t> &clientRequest)
-{
+request::request(std::vector<uint8_t> &clientRequest, serverConf &serverConfig, int serverIndex) : _serverConfig(serverConfig), _serverIndex(serverIndex){
+
 	this->_request = parsing::vectorToString(clientRequest);
 	setDefaultValues();
 	parseRequest();
-}
-
-request::request(){
 }
 
 request::~request(){
@@ -22,7 +19,10 @@ void request::setDefaultValues() {
 	this->_get = false;
 	this->_post = false;
 	this->_delete = false;
+	this->_invalidPageMethod = false;
 }
+
+
 void request::parseRequest() {
 	if (this->_request.find("GET") != std::string::npos)
 		this->_get = true;
@@ -42,6 +42,9 @@ void request::parseRequest() {
 		this->_aliveConnection = true;
 	else if (parsing::returnValue("Connection: ", this->_request, "\r") == "close")
 		this->_closeConnection = true;
+	this->_invalidPageMethod = checkPageMethod(this->_stringURL);
+	std::cout << "invalidPageMethod: " << _invalidPageMethod << std::endl;
+
 }
 
 bool request::checkCgi(std::string url) {
@@ -77,6 +80,26 @@ void request::printRequest(){
 	std::cout << "close connection : " << getCloseConnection() << std::endl;
 	std::cout << "URL : " << getURL() << std::endl;
 	std::cout << "valid request : " << getValidRequest() << std::endl;
+}
+
+bool request::checkPageMethod(std::string method){
+	size_t pos = _stringURL.find("/");
+	for (size_t pos2 = pos; pos2 != std::string::npos; pos = pos2){
+		pos2 = _stringURL.find("/", pos + 1);
+		if (_serverConfig._server[_serverIndex].locations.find(_stringURL.substr(pos, pos2)) != _serverConfig._server[_serverIndex].locations.end()) {
+			std::cout << "substr for methods" << _stringURL.substr(pos, pos2) << std::endl;
+			if (method == "GET" && _serverConfig._server[_serverIndex].locations[_stringURL.substr(pos, pos2)].allowGet)
+				return false;
+			else if (method == "POST" &&
+					 _serverConfig._server[_serverIndex].locations[_stringURL.substr(pos, pos2)].allowPost)
+				return false;
+			else if (method == "DELETE" &&
+					 _serverConfig._server[_serverIndex].locations[_stringURL.substr(pos, pos2)].allowDelete)
+				return false;
+			return true;
+		}
+	}
+	return true;
 }
 
 bool request::getValidRequest(){

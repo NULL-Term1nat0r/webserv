@@ -31,6 +31,10 @@
 
 class postRequest : public request{
 private:
+
+	serverConf &_serverConfig;
+	int serverIndex;
+
 	std::string				_boundary;
 	int 					_contentLength;
 	long					_dataRecieved;
@@ -50,8 +54,7 @@ private:
 	bool					_firstChunkSent;
 
 public:
-	explicit postRequest(std::vector<uint8_t> &postRequest);
-	postRequest();
+	explicit postRequest(std::vector<uint8_t> &postRequest, serverConf &serverConfig, int serverIndex);
 	~postRequest();
 
 	void parseBoundary(std::string &data);

@@ -1,61 +1,39 @@
-//#include <unistd.h>
-//#include "../includes/Header.h"
-//
-//int main() {
-//	// Path to the PHP interpreter
-//	const char* phpInterpreter = "/usr/bin/php";
-//
-//	// Path to the PHP script you want to execute
-//	const char* phpScript = "../html_files/upload/getImages.php";
-//
-//	// Arguments for execve
-//	const char* argv[] = {phpInterpreter, phpScript, NULL};
-//
-//	// Environment variables (can be nullptr for default environment)
-//	const char* envp[] = {NULL};
-//
-//	// Execute the PHP script using execve
-//	if (execve(phpInterpreter, const_cast<char* const*>(argv), const_cast<char* const*>(envp)) == -1) {
-//		// Handle error if execve fails
-//		perror("execve");
-//		return 1;
-//	}
-//
-//	return 0;
-//}
-
-
-#include <unistd.h>
 #include "../includes/Header.h"
 
-int main() {
-	// Path to the PHP interpreter
-	const char* phpInterpreter = "/usr/bin/php";
 
-	// Path to the PHP script you want to execute
-	const char* phpScript = "getImages.php";
+void split(const std::string &s, char delim, std::vector<std::string> &result) {
+	std::istringstream iss(s);
+	std::string token;
+	std::getline(iss, token, delim);
+	result.push_back("/");
+	while (std::getline(iss, token, delim)) {
+		result.push_back(token);
+	}
+}
 
-	// Working directory
-	const char* workingDir = "../html_files/upload"; // Change this to the directory path you want to set
+std::string getPage(std::vector<std::string> &result) {
+	if (result[result.size() - 1].find(".") == std::string::npos)
+		return (result[result.size() - 1]);
+	else
+		return (result[result.size() - 2]);
+}
 
-	// Set the working directory
-	if (chdir(workingDir) != 0) {
-		perror("chdir");
-		return 1;
+int main()
+{
+
+	//neue Logik: check ob file oder directory
+	// wenn file dann vorletztes wort
+	//bei ordner dann letztes wort
+	std::vector<std::string> result;
+	std::string s1 = "/upload/haha/picture.jpeg";
+	std::string s2 = "/upload/haha";
+	std::string s3 = "/upload";
+
+	split(s1, '/', result);
+	for (std::vector<std::string>::iterator it = result.begin(); it != result.end(); ++it) {
+		std::cout << *it << std::endl;
 	}
 
-	// Arguments for execve
-	const char* argv[] = {phpInterpreter, phpScript, NULL};
-
-	// Environment variables (can be nullptr for default environment)
-	const char* envp[] = {NULL};
-
-	// Execute the PHP script using execve
-	if (execve(phpInterpreter, const_cast<char* const*>(argv), const_cast<char* const*>(envp)) == -1) {
-		// Handle error if execve fails
-		perror("execve");
-		return 1;
-	}
 
 	return 0;
 }

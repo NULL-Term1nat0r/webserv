@@ -18,6 +18,9 @@
 
 class cgiRequest : public request {
 private:
+
+	serverConf &_serverConfig;
+	int serverIndex;
 	std::string _cgiPath;
 	std::string _skriptName;
 	std::string _tempFile;
@@ -33,8 +36,7 @@ private:
 	bool _alarmSignal;	// boolean to check if alarm was activated.
 
 public:
-	explicit cgiRequest(std::vector<uint8_t> &requestContainer);
-	cgiRequest();
+	explicit cgiRequest(std::vector<uint8_t> &requestContainer, serverConf &serverConfig, int serverIndex);
 	~cgiRequest();
 	static bool _errorSignal;
 	bool cgiCheckLanguage() const;
