@@ -10,18 +10,15 @@ serverSettings::serverSettings() : locations(), errorPages(), port(0), serverNam
 
 serverSettings::~serverSettings() {}
 
-// void	serverConf::_setCgi(std::map<std::string, std::vector<std::string> > location, std::string locationName, serverSettings &conf) {
-// 	if (location.find("cgi") != location.end() && location["cgi"][0] != "") {
-// 		for (size_t i = 0; i < location["cgi"].size(); i++) {
-// 			if (location["cgi"][i] != ".py" && location["cgi"][i] != ".php" && location["cgi"][i] != ".js") //modify later
-// 			{
-// 				std::cout << "extension: " << location["cgi"][i] << std::endl;
-// 				throw WrongCgiExtension();
-// 			}
-// 		}
-// 		conf.locations[locationName].cgi = location["cgi"];
-// 	}
-// }
+void	serverConf::_setCgi(std::map<std::string, std::vector<std::string> > location, std::string locationName,serverSettings &conf) {
+	if (location.find("cgi") != location.end() && location["cgi"][0] != "") {
+		for (size_t i = 0; i < location["cgi"].size(); i++) {
+			if (location["cgi"][i] != ".py" && location["cgi"][i] != ".php") 
+				throw WrongCgiExtension();
+		}
+		conf.locations[locationName].cgi = location["cgi"];
+	}
+}
 
 void	serverConf::_setRewrite(std::map<std::string, std::vector<std::string> > location, std::string locationName, serverSettings &conf) {
 	if (location.find("rewrite") != location.end() && location["rewrite"][0] != "")

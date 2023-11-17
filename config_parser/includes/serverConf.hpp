@@ -28,7 +28,6 @@ typedef struct serverSettings
 	serverSettings();
 	~serverSettings();
 	std::map<std::string, LocationStruc>	locations;
-
 	short unsigned							port;
 	std::string								serverName;
 	int										bodySize;
@@ -92,15 +91,12 @@ class serverConf
 		//*** server2.cpp ***//
 		//*******************//
 		void						_setErrorPage400(std::map<std::string, std::vector<std::string> > location, serverSettings &conf);
-		void						_setErrorPage403(std::map<std::string, std::vector<std::string> > location, serverSettings &conf);
 		void						_setErrorPage404(std::map<std::string, std::vector<std::string> > location, serverSettings &conf);
 		void						_setErrorPage405(std::map<std::string, std::vector<std::string> > location, serverSettings &conf);
 		void						_setErrorPage408(std::map<std::string, std::vector<std::string> > location, serverSettings &conf);
 		void						_setErrorPage413(std::map<std::string, std::vector<std::string> > location, serverSettings &conf);
-		void						_setErrorPage414(std::map<std::string, std::vector<std::string> > location, serverSettings &conf);
 		void						_setErrorPage415(std::map<std::string, std::vector<std::string> > location, serverSettings &conf);
 		void						_setErrorPage500(std::map<std::string, std::vector<std::string> > location, serverSettings &conf);
-		void						_setErrorPage501(std::map<std::string, std::vector<std::string> > location, serverSettings &conf);
 		void						_setErrorPage504(std::map<std::string, std::vector<std::string> > location, serverSettings &conf);
 		void						_setErrorPage505(std::map<std::string, std::vector<std::string> > location, serverSettings &conf);
 

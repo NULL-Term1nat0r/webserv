@@ -88,8 +88,8 @@ void	Config::_putContext(std::ifstream &nginxConfFile, std::string &line, int i,
 			throw ContextExistsMoreThanOnce();
 		_confFile[i][prevLine.substr(0, prevLine.find_first_of("{"))][tmp[0]] = tmp2;
 	}
-	if (!line.find('}'))
-			throw BracketsNotClosed();
+	if ((line.find('}') == std::string::npos && line.find("location") == std::string::npos) || !_checkEmptyAndComments(line))
+		throw BracketsNotClosed();
 }
 
 bool	Config::_locationExists(std::string line, int i) {
@@ -129,7 +129,7 @@ void	Config::_serverBlock(std::ifstream &nginxConfFile, std::string &line, int i
 	_locations.push_back(std::vector<std::string>());
 	_confFile.push_back(std::map<std::string, std::map<std::string, std::vector<std::string> > >());
 	while ((line.find('{') != std::string::npos && _checkEmptyAndComments(line))
-		|| (std::getline(nginxConfFile, line) && line.find('}') == std::string::npos) || !_checkEmptyAndComments(line)) {
+		|| (std::getline(nginxConfFile, line) && line.find('}') == std::string::npos)) {
 		if (!_checkEmptyAndComments(line))
 			continue ;
 		if (line.find("location") == std::string::npos && line.find("server") == std::string::npos && line.find('{') != std::string::npos)
@@ -140,7 +140,7 @@ void	Config::_serverBlock(std::ifstream &nginxConfFile, std::string &line, int i
 			_handleNoLocation(nginxConfFile, line, i);
 	}
 	if (line.find('}') == std::string::npos || !_checkEmptyAndComments(line))
-			throw BracketsNotClosed();
+		throw BracketsNotClosed();
 }
 
 void	Config::_globalBlock(std::ifstream &nginxConfFile, std::string &line) {

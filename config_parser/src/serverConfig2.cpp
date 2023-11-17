@@ -37,7 +37,7 @@ void	serverConf::_setBackLog(std::map<std::string, std::vector<std::string> > gl
 void	serverConf::_setClientTimeout(std::map<std::string, std::vector<std::string> > globalContext) {
 	if (globalContext.find("client_timeout") != globalContext.end() && globalContext["client_timeout"][0] != "")
 		_clientTimeout = atoi(globalContext["client_timeout"][0].c_str());
-	if (_clientTimeout < 0 || _clientTimeout > 1000)
+	if (_clientTimeout < 0 || _clientTimeout > 10)
 		throw WrongAmount();
 }
 
@@ -62,7 +62,6 @@ void	serverConf::_setWorkerProcesses(std::map<std::string, std::vector<std::stri
 		throw WrongAmount();
 }
 
-//valid extensions for file upload in main context
 void	serverConf::_globalValues(Config conf) {
 	std::map<std::string, std::vector<std::string> > globalContext = conf.getGlobalContext();
 	void (serverConf::*globalFunc[]) (std::map<std::string, std::vector<std::string> >)
@@ -70,7 +69,6 @@ void	serverConf::_globalValues(Config conf) {
 	for (size_t i = 0; i < 5; i++)
 		(this->*globalFunc[i])(globalContext);
 }
-
 
 void	serverConf::_setPort(std::map<std::string, std::vector<std::string> > location, serverSettings &conf) {
 	if (location.find("listen") != location.end() && location["listen"][0] != "")
@@ -87,14 +85,6 @@ void	serverConf::_setGlobalServerValues(std::map<std::string, std::vector<std::s
 		(this->*serverFunc[i])(location, conf);
 }
 
-
-
-
-		//***********//
-			//*new stuff*//
-			//***********//
-
-//limit buffer size
 void	serverConf::_setBuffSize(std::map<std::string, std::vector<std::string> > globalContext) {
 	if (globalContext.find("buff_size") != globalContext.end() && globalContext["buff_size"][0] != "")
 		_buffSize = atoi(globalContext["buff_size"][0].c_str());
@@ -102,7 +92,6 @@ void	serverConf::_setBuffSize(std::map<std::string, std::vector<std::string> > g
 		throw WrongAmount();
 }
 
-//max size of the body
 void	serverConf::_setBodySize(std::map<std::string, std::vector<std::string> > location, serverSettings &conf) {
 	if (location.find("body_size") != location.end() && location["body_size"][0] != "")
 		conf.bodySize = atoi(location["body_size"][0].c_str());
@@ -110,18 +99,9 @@ void	serverConf::_setBodySize(std::map<std::string, std::vector<std::string> > l
 		throw WrongAmount();
 }
 
-
-
-
-// && location["error_page400"][0] != "" !!!!!!!!! //&& location.size() > 0
 void	serverConf::_setErrorPage400(std::map<std::string, std::vector<std::string> > location, serverSettings &conf) {
 	if (location.find("error_page400") != location.end() && location["error_page404"][0] != "")
 		conf.errorPages[400] = location["error_page400"][0];
-}
-
-void	serverConf::_setErrorPage403(std::map<std::string, std::vector<std::string> > location, serverSettings &conf) {
-	if (location.find("error_page403") != location.end())
-		conf.errorPages[403] = location["error_page403"][0];
 }
 
 void	serverConf::_setErrorPage404(std::map<std::string, std::vector<std::string> > location, serverSettings &conf) {
@@ -144,11 +124,6 @@ void	serverConf::_setErrorPage413(std::map<std::string, std::vector<std::string>
 		conf.errorPages[413] = location["error_page413"][0];
 }
 
-void	serverConf::_setErrorPage414(std::map<std::string, std::vector<std::string> > location, serverSettings &conf) {
-	if (location.find("error_page414") != location.end() && location["error_page414"][0] != "")
-		conf.errorPages[414] = location["error_page414"][0];
-}
-
 void	serverConf::_setErrorPage415(std::map<std::string, std::vector<std::string> > location, serverSettings &conf) {
 	if (location.find("error_page415") != location.end() && location["error_page415"][0] != "")
 		conf.errorPages[415] = location["error_page415"][0];
@@ -157,11 +132,6 @@ void	serverConf::_setErrorPage415(std::map<std::string, std::vector<std::string>
 void	serverConf::_setErrorPage500(std::map<std::string, std::vector<std::string> > location, serverSettings &conf) {
 	if (location.find("error_page500") != location.end() && location["error_page500"][0] != "")
 		conf.errorPages[500] = location["error_page500"][0];
-}
-
-void	serverConf::_setErrorPage501(std::map<std::string, std::vector<std::string> > location, serverSettings &conf) {
-	if (location.find("error_page501") != location.end() && location["error_page501"][0] != "")
-		conf.errorPages[501] = location["error_page501"][0];
 }
 
 void	serverConf::_setErrorPage504(std::map<std::string, std::vector<std::string> > location, serverSettings &conf) {
@@ -175,9 +145,9 @@ void	serverConf::_setErrorPage505(std::map<std::string, std::vector<std::string>
 }
 
 void	serverConf::_setErrorPages(std::map<std::string, std::vector<std::string> > location, serverSettings &conf) {
-	void (serverConf::*errorPageFunc[]) (std::map<std::string, std::vector<std::string> > location, serverSettings &conf) = {&serverConf::_setErrorPage400, &serverConf::_setErrorPage403, &serverConf::_setErrorPage404, &serverConf::_setErrorPage405,
-	&serverConf::_setErrorPage408, &serverConf::_setErrorPage413, &serverConf::_setErrorPage414, &serverConf::_setErrorPage415, &serverConf::_setErrorPage500, &serverConf::_setErrorPage501, &serverConf::_setErrorPage504, &serverConf::_setErrorPage505};
-	for (size_t i = 0; i < 12; i++)
+	void (serverConf::*errorPageFunc[]) (std::map<std::string, std::vector<std::string> > location, serverSettings &conf) = {&serverConf::_setErrorPage400, &serverConf::_setErrorPage404, &serverConf::_setErrorPage405,
+		&serverConf::_setErrorPage408, &serverConf::_setErrorPage413, &serverConf::_setErrorPage415, &serverConf::_setErrorPage500, &serverConf::_setErrorPage504, &serverConf::_setErrorPage505};
+	for (size_t i = 0; i < 9; i++)
 		(this->*errorPageFunc[i])(location, conf);
 }
 
@@ -185,27 +155,3 @@ void	serverConf::_setServerName(std::map<std::string, std::vector<std::string> >
 	if (location.find("server_name") != location.end() && location["server_name"][0] != "")
 		conf.serverName = location["server_name"][0];
 }
-
-
-void	serverConf::_setValidExtensions(std::map<std::string, std::vector<std::string> > globalContext) {
-	if (globalContext.find("valid_extensions") != globalContext.end() && globalContext["valid_extensions"][0] != "") {
-		_validExtensions = globalContext["valid_extensions"];
-	}
-	//create map with all valid extensions
-	//check if server can support those extensions
-}
-
-
-
-void	serverConf::_setCgi(std::map<std::string, std::vector<std::string> > location, std::string locationName,serverSettings &conf) {
-	if (location.find("cgi") != location.end() && location["cgi"][0] != "") {
-		for (size_t i = 0; i < location["cgi"].size(); i++) {
-			if (location["cgi"][i] != ".py" && location["cgi"][i] != ".php") 
-				throw WrongCgiExtension();
-		}
-		conf.locations[locationName].cgi = location["cgi"];
-	}
-}
-
-
-//valid extensions for file upload in main context
