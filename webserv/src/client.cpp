@@ -73,7 +73,9 @@ void server::client::executeClientRequest(int buffSize, std::vector<struct pollf
 		std::cout << "cgi request incoming\n";
 		cgiRequest *cgiR = static_cast<cgiRequest *>(this->clientRequest);
 		cgiR->executeCgi();
+
 		response *newResponse = new response(cgiR->getFilePath());
+		std::cout << "cgi response file path: " << newResponse->filePath << std::endl;
 		clientResponse = newResponse;
 		delete clientRequest;
 		clientRequest = NULL;
@@ -84,13 +86,13 @@ void server::client::executeClientResponse(int buffSize, std::vector<struct poll
 	std::cout << "execute client response called\n";
 	std::cout << "filepath Response: " << this->clientResponse->filePath << std::endl;
 	if (this->clientResponse != NULL){
-		if (this->clientResponse->_allChunkSent && this->clientResponse->filePath.find("src/tmp_cgi") != std::string::npos) {
+		if (this->clientResponse->_allChunkSent && this->clientResponse->filePath.find("html_files/tmzgugp_cgi") != std::string::npos) {
 			if (this->clientResponse->removeFile(this->clientResponse->filePath.c_str()))
 				std::cout << "file removed\n";
 			else
 				std::cout << "file not removed\n";
 		}
-		else if (this->clientResponse->_allChunkSent && this->clientResponse->filePath.find("src/tmp_cgi.html") == std::string::npos) {
+		else if (this->clientResponse->_allChunkSent) {
 			std::cout << "all chunks are sent return 0 now\n";
 			delete this->clientResponse;
 			this->clientResponse = NULL;
